@@ -1,0 +1,199 @@
+/* =========================
+   App.css — Updated (icons visible in collapsed, no lag)
+   ========================= */
+
+/* Base */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  color:#0f172a; background:#f8fafc;
+}
+
+/* ===== Variables ===== */
+:root{
+  --sb-open: 260px;         /* full sidebar width */
+  --sb-collapsed: 72px;     /* icon-only width */
+  --topbar-h: 56px;
+  --footer-h: 48px;
+
+  --brand: #1f44d5;
+  --muted: #64748b;
+  --surface: #ffffff;
+}
+
+/* App shell state toggler */
+.app-shell { position: relative; }
+
+/* ===== Sidebar (fixed) — GPU transform instead of width anim ===== */
+.sidebar{
+  position: fixed; inset: 0 auto 0 0;
+  width: var(--sb-open);
+  background: #0b1d55; color:#e2e8f0;
+  display:flex; flex-direction:column;
+  border-right: 1px solid rgba(255,255,255,.08);
+  /* smooth GPU path */
+  transform: translate3d(0,0,0);
+  transition: transform .18s ease;      /* only transform animates */
+  will-change: transform;
+  contain: paint;                        /* isolate paints */
+  backface-visibility: hidden;           /* prevent paint glitches */
+  z-index: 40;
+}
+.app-shell.is-collapsed .sidebar{
+  /* move left by the difference so only collapsed slice remains visible */
+  transform: translate3d(calc(var(--sb-collapsed) - var(--sb-open)), 0, 0);
+}
+
+.sidebar .logo{
+  height: var(--topbar-h); display:flex; align-items:center; gap:10px;
+  padding:0 14px; font-weight:700; letter-spacing:.2px;
+  background: linear-gradient(180deg,#153395,#0b1d55);
+}
+.sidebar .badge{
+  padding:3px 8px; border-radius:999px; background:#0ea5e9; color:#00112a; font-size:12px; font-weight:700;
+}
+
+.sidebar .nav{ flex:1 1 auto; padding:8px; overflow:hidden; }
+
+.sidebar .nav a{
+  height:40px; display:flex; align-items:center; gap:12px;
+  color:#e2e8f0; text-decoration:none;
+  padding:0 10px; border-radius:10px; margin:2px 6px; white-space:nowrap;
+}
+.sidebar .nav a:hover{ background: rgba(255,255,255,.07); }
+.sidebar .nav a.active{ background:#0f2a7e; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+
+.sidebar .icon{
+  width:22px; display:inline-grid; place-items:center; opacity:.95;
+}
+
+.sidebar .tool{ padding:10px; }
+.sidebar .tool button{
+  width:100%; height:36px; border:1px solid rgba(255,255,255,.18); background:transparent;
+  color:#e2e8f0; border-radius:10px; cursor:pointer;
+}
+
+.sidebar .profile{
+  border-top:1px solid rgba(255,255,255,.08); padding:10px; display:flex; align-items:center; gap:10px;
+  height: calc(var(--footer-h) + 8px);
+}
+.sidebar .avatar{
+  width:34px; height:34px; border-radius:50%; background:#e2e8f0; color:#0b1d55;
+  display:grid; place-items:center; font-weight:800;
+}
+.sidebar .who{ display:flex; flex-direction:column; line-height:1.1; }
+.sidebar .who small{ color:#a6b3c9; }
+
+/* ===== Collapsed behaviour (icons only, centered, no flicker) ===== */
+.app-shell.is-collapsed .sidebar .label,
+.app-shell.is-collapsed .sidebar .who{
+  opacity:0; transform: translateX(-6px);
+  pointer-events:none; width:0;
+}
+/* keep layout tight when labels are hidden */
+.app-shell.is-collapsed .sidebar .logo{
+  justify-content: flex-end;  /* was center */
+  gap: 0;
+  padding-right: 8px;
+}
+.app-shell.is-collapsed .sidebar .profile{ justify-content:center; }
+
+/* Center logo star, hide badge in collapsed slice */
+.app-shell.is-collapsed .sidebar .logo{ justify-content:center; gap:0; }
+.app-shell.is-collapsed .sidebar .badge{ display:none; }
+
+/* Nav compacting so icon stays inside the 72px slice */
+.app-shell.is-collapsed .sidebar .nav{
+  padding: 8px 0;
+}
+
+.app-shell.is-collapsed .sidebar .nav a{
+  padding: 0;
+  gap: 0;
+  justify-content: flex-end;   /* was center — this fixes visibility */
+  margin: 4px 0;
+}
+
+/* Icon takes full collapsed width and centers perfectly */
+.app-shell.is-collapsed .sidebar .icon{
+  width: var(--sb-collapsed);
+  min-width: var(--sb-collapsed);
+  display: grid;
+  place-items: center;
+  opacity: 1;
+}
+
+/* Optional: subtle active indicator even when collapsed */
+.app-shell.is-collapsed .sidebar .nav a.active{
+  box-shadow: inset -3px 0 0 #0ea5e9; /* -3px => right edge */
+}
+
+.app-shell.is-collapsed .sidebar .profile{
+  justify-content: flex-end;   /* was center */
+  padding-right: 8px;
+}
+
+/* ===== Topbar/Footer/Main — instant left change (no transition) ===== */
+.topbar{
+  position: fixed; top:0; right:0; left: var(--sb-open);
+  height: var(--topbar-h); background: var(--surface);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 12px; gap:12px; border-bottom:1px solid #e2e8f0;
+  z-index: 30;
+}
+.app-shell.is-collapsed .topbar{ left: var(--sb-collapsed); } /* instant switch */
+
+.app-footer{
+  position: fixed; bottom:0; right:0; left: var(--sb-open);
+  height: var(--footer-h); background: var(--surface);
+  border-top:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; padding:0 12px; color: var(--muted);
+  z-index: 20;
+}
+.app-shell.is-collapsed .app-footer{ left: var(--sb-collapsed); }
+
+.main{
+  position: fixed;
+  top: var(--topbar-h); bottom: var(--footer-h); right:0; left: var(--sb-open);
+  overflow:auto; padding:16px;
+  /* no transition here; instant reflow is cheaper than animating large areas */
+  z-index:10;
+}
+.app-shell.is-collapsed .main{ left: var(--sb-collapsed); }
+
+/* Toolbar bits */
+.topbar .left{ display:flex; align-items:center; gap:8px; }
+.topbar .title{ font-weight:700; letter-spacing:.2px; }
+.topbar .crumb{ color:#64748b; font-weight:500; }
+.topbar .chev{
+  border:0; background:transparent; font-size:18px; width:36px; height:36px; border-radius:10px; cursor:pointer;
+}
+.topbar .chev:hover{ background:#eef2ff; }
+.toolbar{ display:flex; align-items:center; gap:8px; }
+.toolbar .search{ position:relative; }
+.toolbar input{
+  height:36px; min-width:360px; padding:0 12px 0 32px; border-radius:10px; border:1px solid #e2e8f0; outline:none; background:#fff;
+}
+.toolbar input:focus{ box-shadow: 0 0 0 4px rgba(31,68,213,.14); }
+.toolbar .search svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:.7; }
+.toolbar .btn{ height:36px; padding:0 12px; border-radius:10px; border:1px solid #e2e8f0; background:#fff; cursor:pointer; }
+.toolbar .btn.primary{ background: var(--brand); color:#fff; border-color: var(--brand); }
+.toolbar .btn.danger{ border-color:#fecaca; color:#991b1b; background:#fff1f2; }
+
+/* Cards/grid */
+.card{ background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+.grid{ display:grid; gap:16px; grid-template-columns: repeat(12, minmax(0,1fr)); }
+.col-12{ grid-column: span 12 / span 12; }
+.col-8{ grid-column: span 8 / span 8; }
+.col-4{ grid-column: span 4 / span 4; }
+.col-3{ grid-column: span 3 / span 3; }
+
+/* Small screens */
+@media (max-width: 900px){
+  .toolbar input{ min-width:220px; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .sidebar{ transition: none; }
+}
