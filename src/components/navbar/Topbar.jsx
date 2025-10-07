@@ -1,39 +1,26 @@
+// src/components/navbar/Topbar.jsx
+import { Link, useNavigate } from "react-router-dom";
 import { useUI } from "../../store/ui";
 import { useToolbarStore } from "../../store/toolbar";
+import { FiFilter } from "react-icons/fi";
+import { MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight } from "react-icons/md";
 
-function SearchIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M20 20L17 17"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+function SearchIcon() { /* ...same as yours... */ }
 
 export default function Topbar() {
   const { collapsed, toggleSidebar } = useUI();
   const { cfg } = useToolbarStore();
+  const navigate = useNavigate();
 
   return (
     <header className="topbar">
       <div className="left">
-        <button
-          className="chev"
-          aria-label="Toggle sidebar"
-          onClick={toggleSidebar}
-        >
-          {collapsed ? "»" : "«"}
+        <button className="chev" aria-label="Toggle sidebar" onClick={toggleSidebar} type="button">
+          {collapsed ? (
+            <MdKeyboardDoubleArrowRight size={20} />
+          ) : (
+            <MdKeyboardDoubleArrowLeft size={20} />
+          )}
         </button>
         <div>
           <div className="title">{cfg?.title || "Dashboard"}</div>
@@ -52,15 +39,36 @@ export default function Topbar() {
           </div>
         )}
 
-        {(cfg?.actions || []).map((a, i) => (
-          <button
-            key={i}
-            className={`btn ${a.variant || ""}`}
-            onClick={a.onClick}
-          >
-            {a.label}
-          </button>
-        ))}
+        {(cfg?.actions || []).map((a, i) => {
+          const classes = `btn ${a.variant || ""} ${
+            a.label === "Filter" ? "flex items-center justify-between" : ""
+          }`;
+
+          // 1) If "to" prop is present → Link
+          if (a.to) {
+            return (
+              <Link key={i} to={a.to} className={classes}>
+                {a.label === "Filter" && <FiFilter className="me-2" />} {a.label}
+              </Link>
+            );
+          }
+
+          // 2) Else normal button onClick (with type="button")
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`${classes} flex items-center`}
+              onClick={(e) => {
+                if (a.onClick) a.onClick(e);
+                // optional: if some actions pass navigate string dynamically
+                if (typeof a.href === "string") navigate(a.href);
+              }}
+            >
+              {a.label === "Filter" && <FiFilter className="me-2" />} {a.label}
+            </button>
+          );
+        })}
       </div>
     </header>
   );

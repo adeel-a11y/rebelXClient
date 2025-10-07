@@ -1,18 +1,58 @@
 // src/api/clients.js
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:3000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_BASE;
 
+/**
+ * GET /clients/lists with search + pagination + filters
+ * filters = { statuses: string[], states: string[] }
+ */
+export async function getClientsLists({ page = 1, q = "", limit = 100, filters = {} }) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (q) params.set("q", q);
 
-export async function getClientsLists({ page = 1 } = {}) {
-  try {
-    const res = await axios.get(`${BASE_URL}/clients/lists`, {
-      params: { page }, // ?page=1
-    });
-    return res.data; // { success, page, perPage, total, totalPages, data: [...] }
-  } catch (err) {
-    // react-query ko error propagate karein
-    const msg = err?.response?.data?.error || err.message || "Request failed";
-    throw new Error(msg);
+  // send filters as CSV to keep things simple
+  const statuses = Array.isArray(filters.statuses) ? filters.statuses.filter(Boolean) : [];
+  const states   = Array.isArray(filters.states)   ? filters.states.filter(Boolean)   : [];
+
+  if (statuses.length) params.set("statuses", statuses.join(","));
+  if (states.length)   params.set("states", states.join(","));
+
+  const url = `${BASE_URL}/clients/lists?${params.toString()}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`GET /clients/lists failed (${res.status}): ${text}`);
   }
+  return res.json(); // backend returns { success, page, perPage, total, totalPages, data: [...] }
+}
+
+export async function getClientsSummary() {
+  const res = await axios.get(`${BASE_URL}/clients/lists/summary`);
+  return res.data; // { success, total, byStatus, generatedAt }
+}
+
+/** NEW: single, create, update, delete **/
+export async function getClientById(id) {
+  const { data } = await axios.get(`${BASE_URL}/clients/lists/${id}`);
+  return data;
+}
+
+export async function createClient(payload) {
+  const { data } = await axios.post(`${BASE_URL}/clients`, payload);
+  return data; // created client doc
+}
+
+export async function updateClient(id, payload) {
+  const { data } = await axios.put(`${BASE_URL}/clients/${id}`, payload);
+  return data; // updated client doc
+}
+
+export async function deleteClient(id) {
+  const { data } = await axios.delete(`${BASE_URL}/clients/${id}`);
+  return data;
 }

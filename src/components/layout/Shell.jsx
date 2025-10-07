@@ -3,9 +3,12 @@ import Topbar from "../navbar/Topbar";
 import AppFooter from "../footer/AppFooter";
 import { useUI } from "../../store/ui";
 import { Outlet } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function Shell() {
   const { collapsed } = useUI();
+  const location = useLocation();
+
   return (
     <div className={`app-shell ${collapsed ? "is-collapsed" : ""}`}>
       <Sidebar />
@@ -13,7 +16,7 @@ export default function Shell() {
       <main className="main">
         <Outlet />
       </main>
-      <AppFooter />
+      {location.pathname.includes("/user-details") ? <></> : <AppFooter />}
     </div>
   );
 }
