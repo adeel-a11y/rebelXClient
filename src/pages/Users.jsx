@@ -345,6 +345,7 @@ function PgBtn({ active, disabled, children, onClick }) {
     </button>
   );
 }
+
 function makePageList(current, total) {
   if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
   if (current <= 3) return [1, 2, 3, 4, 5];
@@ -352,6 +353,7 @@ function makePageList(current, total) {
     return [total - 4, total - 3, total - 2, total - 1, total];
   return [current - 2, current - 1, current + 1, current + 2];
 }
+
 function PaginationBar({
   total = 0,
   pageSize = 20,
@@ -362,50 +364,75 @@ function PaginationBar({
   const pages = makePageList(currentPage, totalPages);
   const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, total);
+
   return (
-    <div className="flex items-center justify-between mt-3">
-      <div className="text-sm text-slate-600">
-        <span className="font-semibold">{start}</span>–
-        <span className="font-semibold">{end}</span>
-        <span className="mx-1">of</span>
-        <span className="font-semibold">{total}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <PgBtn
-          disabled={currentPage <= 1}
-          onClick={() => onChangePage(currentPage - 1)}
-        >
-          <FaArrowLeft />
-        </PgBtn>
-        {pages[0] > 1 && (
-          <>
-            <PgBtn onClick={() => onChangePage(1)}>1</PgBtn>
-            {pages[0] > 2 && <span className="px-1 text-slate-400">…</span>}
-          </>
-        )}
-        {pages.map((p) => (
+    <div
+      className="
+        sticky bottom-0 left-0 right-0 z-10
+        w-[70vh] mx-auto
+        bg-white/95 backdrop-blur-[1px]
+        border-t border-slate-200
+        rounded-[20px]
+        shadow-[0_-4px_12px_rgba(2,6,23,0.04)]
+      "
+    >
+      <div className="h-12 grid grid-cols-3 items-center gap-2 px-3">
+        {/* LEFT: range */}
+        <div className="text-sm text-slate-600">
+          <span className="font-semibold">{start}</span>–<span className="font-semibold">{end}</span>
+          <span className="mx-1">of</span>
+          <span className="font-semibold">{total}</span>
+        </div>
+
+        {/* CENTER: buttons */}
+        <div className="flex items-center justify-center gap-2">
           <PgBtn
-            key={p}
-            active={p === currentPage}
-            onClick={() => onChangePage(p)}
+            disabled={currentPage <= 1}
+            onClick={() => onChangePage(currentPage - 1)}
           >
-            {p}
+            <FaArrowLeft />
           </PgBtn>
-        ))}
-        {pages[pages.length - 1] < totalPages && (
-          <>
-            {pages[pages.length - 1] < totalPages - 1 && (
-              <span className="px-1 text-slate-400">…</span>
-            )}
-            <PgBtn onClick={() => onChangePage(totalPages)}>{totalPages}</PgBtn>
-          </>
-        )}
-        <PgBtn
-          disabled={currentPage >= totalPages}
-          onClick={() => onChangePage(currentPage + 1)}
-        >
-          <FaArrowRight />
-        </PgBtn>
+
+          {pages[0] > 1 && (
+            <>
+              <PgBtn onClick={() => onChangePage(1)}>1</PgBtn>
+              {pages[0] > 2 && <span className="px-1 text-slate-400">…</span>}
+            </>
+          )}
+
+          {pages.map((p) => (
+            <PgBtn
+              key={p}
+              active={p === currentPage}
+              onClick={() => onChangePage(p)}
+            >
+              {p}
+            </PgBtn>
+          ))}
+
+          {pages[pages.length - 1] < totalPages && (
+            <>
+              {pages[pages.length - 1] < totalPages - 1 && (
+                <span className="px-1 text-slate-400">…</span>
+              )}
+              <PgBtn onClick={() => onChangePage(totalPages)}>
+                {totalPages}
+              </PgBtn>
+            </>
+          )}
+
+          <PgBtn
+            disabled={currentPage >= totalPages}
+            onClick={() => onChangePage(currentPage + 1)}
+          >
+            <FaArrowRight />
+          </PgBtn>
+        </div>
+
+        {/* RIGHT: current page */}
+        <div className="text-right text-sm text-slate-700">
+          Page: <span className="font-semibold">{currentPage}</span>
+        </div>
       </div>
     </div>
   );

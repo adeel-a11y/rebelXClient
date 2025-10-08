@@ -48,11 +48,16 @@ export async function createClient(payload) {
 }
 
 export async function updateClient(id, payload) {
-  const { data } = await axios.put(`${BASE_URL}/clients/${id}`, payload);
+  const { data } = await axios.put(`${BASE_URL}/clients/update/${id}`, payload);
+  return data; // updated client doc
+}
+
+export async function updateClientStatus(id, payload) {
+  const { data } = await axios.put(`${BASE_URL}/clients/update-status/${id}`, payload);
   return data; // updated client doc
 }
 
 export async function deleteClient(id) {
-  const { data } = await axios.delete(`${BASE_URL}/clients/${id}`);
+  const { data } = await axios.delete(`${BASE_URL}/clients/delete/${id}`);
   return data;
 }

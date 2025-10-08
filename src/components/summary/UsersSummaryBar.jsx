@@ -5,13 +5,33 @@ import { useUsersSummary } from "../../hooks/useUsers";
 
 function Chip({ children, tone = "slate", subtle = false }) {
   const tones = {
-    emerald: { bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
-    rose:    { bg: "bg-rose-50",    text: "text-rose-700",    ring: "ring-rose-200" },
-    indigo:  { bg: "bg-indigo-50",  text: "text-indigo-700",  ring: "ring-indigo-200" },
-    sky:     { bg: "bg-sky-50",     text: "text-sky-700",     ring: "ring-sky-200" },
-    amber:   { bg: "bg-amber-50",   text: "text-amber-800",   ring: "ring-amber-200" },
-    violet:  { bg: "bg-violet-50",  text: "text-violet-700",  ring: "ring-violet-200" },
-    slate:   { bg: "bg-slate-50",   text: "text-slate-700",   ring: "ring-slate-200" },
+    emerald: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      ring: "ring-emerald-200",
+    },
+    rose: { bg: "bg-rose-50", text: "text-rose-700", ring: "ring-rose-200" },
+    indigo: {
+      bg: "bg-indigo-50",
+      text: "text-indigo-700",
+      ring: "ring-indigo-200",
+    },
+    sky: { bg: "bg-sky-50", text: "text-sky-700", ring: "ring-sky-200" },
+    amber: {
+      bg: "bg-amber-50",
+      text: "text-amber-800",
+      ring: "ring-amber-200",
+    },
+    violet: {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      ring: "ring-violet-200",
+    },
+    slate: {
+      bg: "bg-slate-50",
+      text: "text-slate-700",
+      ring: "ring-slate-200",
+    },
   };
   const c = tones[tone] ?? tones.slate;
   return (
@@ -20,7 +40,9 @@ function Chip({ children, tone = "slate", subtle = false }) {
         "flex items-center gap-2 rounded-full ring-1 px-3 py-1",
         "text-xs md:text-[13px] font-medium",
         subtle ? "opacity-95" : "",
-        c.bg, c.text, c.ring,
+        c.bg,
+        c.text,
+        c.ring,
       ].join(" ")}
     >
       {children}
@@ -79,20 +101,18 @@ export default function UsersSummaryBar({ className = "" }) {
 
   return (
     <div className={["w-full", className].join(" ")}>
-      <div className="flex flex-col 2xl:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-row items-center justify-between gap-3">
         {/* LEFT: total */}
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center">
+
+        {/* <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center">
             <FiUsers className="text-slate-600" />
-          </div>
-          <div className="text-slate-700">
-            <div className="text-sm">Total Users</div>
-            <div className="text-xl font-semibold">{total}</div>
-          </div>
+          </div> */}
+        <div className="text-sm text-slate-600">
+          <span className="font-semibold">Total Users:</span> {total}
         </div>
 
         {/* RIGHT: status chips + role chips */}
-        <div className="grid gap-2 w-full md:w-auto md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        <div className="flex gap-2 w-full md:w-auto">
           {/* status */}
           <Chip tone="emerald">
             <span className="inline-flex items-center gap-1">

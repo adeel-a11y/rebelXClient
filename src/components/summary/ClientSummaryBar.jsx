@@ -36,14 +36,14 @@ export default function ClientSummaryBar({ data, loading }) {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col 2xl:flex-row md:items-center md:justify-between gap-3 px-3 py-2">
+      <div className="flex flex-row items-center justify-between gap-3 px-3 py-2">
         {/* LEFT: total + timestamp */}
         <div className="text-sm text-slate-600">
           <span className="font-semibold">Total Clients:</span> {total}
         </div>
 
         {/* RIGHT: chips (wrap) */}
-        <div className="grid lg:grid-cols-4 2xl:grid-cols-8 gap-2">
+        <div className="flex gap-2 w-full">
           {items.map((x) => (
             <button
               key={x.status}

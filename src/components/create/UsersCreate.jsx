@@ -30,7 +30,7 @@ const initial = {
 
 export default function UserCreate() {
   const navigate = useNavigate();
-  const { mutateAsync, isLoading } = useCreateUser();
+  const { mutateAsync, isPending } = useCreateUser();
 
   useToolbar({
     title: "Add User",
@@ -87,7 +87,7 @@ export default function UserCreate() {
           </div>
         )}
 
-        {isLoading && <ClipLoader />}
+        {/* {isPending && <ClipLoader />} */}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name */}
@@ -239,14 +239,14 @@ export default function UserCreate() {
             </button>
             <button
               type="submit"
-              disabled={!canSubmit || isLoading}
+              disabled={!canSubmit || isPending}
               className={`px-4 py-2 rounded-lg text-white ${
-                !canSubmit || isLoading
+                !canSubmit || isPending
                   ? "bg-indigo-300 cursor-not-allowed"
                   : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
-              {isLoading ? "Saving..." : "Save User"}
+              {isPending ? <ClipLoader size={18} color="#fff" /> : "Save User"}
             </button>
           </div>
         </form>

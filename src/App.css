@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Audiowide&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
 /* =========================
-   App.css — Updated (icons visible in collapsed, no lag)
+   App.css — FULL (trackit-style sidebar + existing shell)
    ========================= */
 
-/* Base */
+/* -------- Base -------- */
 * {
   box-sizing: border-box;
 }
@@ -13,203 +15,364 @@ body,
   margin: 0;
 }
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    "Helvetica Neue", Arial;
   color: #0f172a;
   background: #f8fafc;
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
 }
 
-/* ===== Variables ===== */
+/* -------- Variables -------- */
 :root {
-  --sb-open: 260px; /* full sidebar width */
-  --sb-collapsed: 72px; /* icon-only width */
+  --sb-open: 280px; /* expanded sidebar width */
+  --sb-collapsed: 72px; /* icons-only width */
   --topbar-h: 56px;
   --footer-h: 48px;
 
   --brand: #1f44d5;
   --muted: #64748b;
   --surface: #ffffff;
+
+  /* sidebar palette */
+  --sb-bg: #0b1d55;
+  --sb-text: #222;
+  --sb-muted: #a6b3c9;
+  --sb-active: #0f2a7e;
+  --sb-hover: rgba(255, 255, 255, 0.07);
 }
 
-/* App shell state toggler */
+/* -------- App shell container (optional) -------- */
 .app-shell {
   position: relative;
 }
 
-/* ===== Sidebar (fixed) — GPU transform instead of width anim ===== */
+/* =========================================================
+   TRACKIT-STYLE SIDEBAR
+   ========================================================= */
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   width: var(--sb-open);
-  background: #0b1d55;
-  color: #e2e8f0;
   display: flex;
   flex-direction: column;
+  background: #fff;
+  color: var(--sb-text);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  /* smooth GPU path */
   transform: translate3d(0, 0, 0);
-  transition: transform 0.18s ease; /* only transform animates */
+  transition: all 0.8s ease;
   will-change: transform;
-  contain: paint; /* isolate paints */
-  backface-visibility: hidden; /* prevent paint glitches */
+  backface-visibility: hidden;
   z-index: 40;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
-.app-shell.is-collapsed .sidebar {
-  /* move left by the difference so only collapsed slice remains visible */
+/* icons-only mode using data attribute */
+.sidebar[data-collapsed="true"] {
   transform: translate3d(calc(var(--sb-collapsed) - var(--sb-open)), 0, 0);
+  transition: all 0.8s ease;
 }
 
-.sidebar .logo {
-  height: var(--topbar-h);
+/* floating edge toggle */
+.collapse-btn {
+  position: absolute;
+  top: 3%;
+  right: -10px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #1f44d5;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.15);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* soft light-blue header — TRACKIT style */
+.sky {
+  position: relative;
+  padding: 14px 24px 10px;
+  height: 80px;
+  background: linear-gradient(180deg, #eaf2ff 0%, #dbeafe 45%, #eef4ff 100%);
+  /* remove hard divider */
+  border-bottom: 0;
+  overflow: hidden;
+
+  /* bottom fade to transparent so sidebar's white shows through */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* optional: a tiny soft highlight line at the very top (can remove) */
+.sky::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+/* brand row inside header */
+.sky .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  background: linear-gradient(180deg, #153395, #0b1d55);
+  height: 40px;
 }
-.sidebar .badge {
-  padding: 3px 8px;
+.sky .brand .dot {
+  margin-top: 2px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  background: #0ea5e9;
-  color: #00112a;
-  font-size: 12px;
-  font-weight: 700;
+  background: #4f46e5;
+  box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.15);
+}
+.sky .brand .brand-text {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  font-size: 1.2rem;
+  color: #0b1d55;
+  border-radius: 8px;
+  padding: 6px 4px;
 }
 
-.sidebar .nav {
+/* search bar */
+.sky .search {
+  position: relative;
+  margin-top: 10px;
+}
+.sky .search input {
+  width: 100%;
+  height: 36px;
+  border-radius: 12px;
+  outline: none;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0 36px 0 34px;
+  color: #0f172a;
+  background: #fff;
+}
+.sky .search svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.65;
+}
+.sky .search .filter {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+}
+
+/* nav list */
+.nav {
   flex: 1 1 auto;
-  padding: 8px;
-  overflow: hidden;
+  padding: 10px 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.section-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--sb-muted);
+  margin: 8px 10px 6px;
+}
+.section-title.mt {
+  margin-top: 14px;
 }
 
-.sidebar .nav a {
+.navlink {
   height: 40px;
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #e2e8f0;
-  text-decoration: none;
   padding: 0 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   margin: 2px 6px;
+  color: #7a7e8e;
+  text-decoration: none;
   white-space: nowrap;
+  transition: all 0.3s ease-in-out;
 }
-.sidebar .nav a:hover {
-  background: rgba(255, 255, 255, 0.07);
+.navlink:hover {
+  background: var(--sb-hover);
 }
-.sidebar .nav a.active {
-  background: #0f2a7e;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+.navlink:hover {
+  background: #eee;
+  color: #222;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-
-.sidebar .icon {
+.navlink.active {
+  background: #eee;
+  color: #222;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.icon {
   width: 22px;
-  display: inline-grid;
+  display: grid;
   place-items: center;
   opacity: 0.95;
 }
-
-.sidebar .tool {
-  padding: 10px;
-}
-.sidebar .tool button {
-  width: 100%;
-  height: 36px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: transparent;
-  color: #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
+.label {
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.sidebar .profile {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 10px;
+/* disabled look */
+.nav .navlink.disabled {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: calc(var(--footer-h) + 8px);
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.75rem;
+  color: #94a3b8;
+  cursor: default;
+  user-select: none;
 }
-.sidebar .avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #e2e8f0;
-  color: #0b1d55;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
+.nav .navlink.disabled .icon {
+  opacity: 0.7;
 }
-.sidebar .who {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-.sidebar .who small {
-  color: #a6b3c9;
+.nav .navlink.disabled:hover {
+  background: transparent;
 }
 
-/* ===== Collapsed behaviour (icons only, centered, no flicker) ===== */
-.app-shell.is-collapsed .sidebar .label,
-.app-shell.is-collapsed .sidebar .who {
+/* dropdown */
+.nav-group .nav-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: #7a7e8e;
+  border-radius: 12px;
+  padding: 0 10px;
+  margin: 6px;
+  cursor: pointer;
+}
+.nav-group .nav-toggle.active {
+  background: var(--sb-active);
+}
+.nav-group .chev {
+  margin-left: auto;
+  opacity: 0.85;
+}
+.submenu {
+  padding-left: 34px;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+.submenu-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.35rem 0;
+  color: #7a7e8e;
+  opacity: 0.9;
+  text-decoration: none;
+}
+.submenu-link .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+/* “New” pill */
+.navline {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pill {
+  margin-left: auto;
+  margin-right: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #38bdf8;
+  color: #0b1d55;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.upgrade{
+  padding: 16px 20px;
+  background: linear-gradient(360deg, #eaf2ff 0%, #dbeafe 45%, #eef4ff 100%);
+
+  /* mask: black = visible, transparent = hidden */
+  -webkit-mask-image: linear-gradient(
+    to top,                  /* bottom -> top */
+    #000 0%,                 /* bottom fully visible */
+    #000 60%,                /* keep solid until ~60% height */
+    rgba(0,0,0,0) 100%       /* fade out towards top */
+  );
+          mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 60%,
+    rgba(0,0,0,0) 100%
+  );
+  -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
+/* collapsed: hide text & search; keep icons aligned */
+.sidebar[data-collapsed="true"] .label,
+.sidebar[data-collapsed="true"] .section-title,
+.sidebar[data-collapsed="true"] .sky .search {
   opacity: 0;
   transform: translateX(-6px);
   pointer-events: none;
+  height: 0;
   width: 0;
 }
-/* keep layout tight when labels are hidden */
-.app-shell.is-collapsed .sidebar .logo {
-  justify-content: flex-end; /* was center */
-  gap: 0;
-  padding-right: 8px;
+.sidebar[data-collapsed="true"] .nav {
+  padding: 14px 0;
 }
-.app-shell.is-collapsed .sidebar .profile {
-  justify-content: center;
-}
-
-/* Center logo star, hide badge in collapsed slice */
-.app-shell.is-collapsed .sidebar .logo {
-  justify-content: center;
-  gap: 0;
-}
-.app-shell.is-collapsed .sidebar .badge {
-  display: none;
-}
-
-/* Nav compacting so icon stays inside the 72px slice */
-.app-shell.is-collapsed .sidebar .nav {
-  padding: 8px 0;
-}
-
-.app-shell.is-collapsed .sidebar .nav a {
+.sidebar[data-collapsed="true"] .navlink {
+  margin: 6px 0;
   padding: 0;
-  gap: 0;
-  justify-content: flex-end; /* was center — this fixes visibility */
-  margin: 4px 0;
+  justify-content: flex-end;
 }
-
-/* Icon takes full collapsed width and centers perfectly */
-.app-shell.is-collapsed .sidebar .icon {
+.sidebar[data-collapsed="true"] .icon {
   width: var(--sb-collapsed);
   min-width: var(--sb-collapsed);
-  display: grid;
-  place-items: center;
   opacity: 1;
 }
+/* .sidebar[data-collapsed="true"] .navlink.active {
+  box-shadow: inset -3px 0 0 #333;
+} */
 
-/* Optional: subtle active indicator even when collapsed */
-.app-shell.is-collapsed .sidebar .nav a.active {
-  box-shadow: inset -3px 0 0 #0ea5e9; /* -3px => right edge */
-}
-
-.app-shell.is-collapsed .sidebar .profile {
-  justify-content: flex-end; /* was center */
-  padding-right: 8px;
-}
-
-/* ===== Topbar/Footer/Main — instant left change (no transition) ===== */
+/* =========================================================
+   TOPBAR / MAIN / FOOTER (unchanged layout, instant left jump)
+   ========================================================= */
 .topbar {
   position: fixed;
   top: 0;
@@ -225,35 +388,46 @@ body {
   border-bottom: 1px solid #e2e8f0;
   z-index: 30;
 }
+/* if you also toggle .app-shell.is-collapsed on root container, this applies */
 .app-shell.is-collapsed .topbar {
   left: var(--sb-collapsed);
-} /* instant switch */
+}
 
-.app-footer {
-  border-top: 1px solid #bfc4ca;
+/* Footer: constant height + internal scroller */
+.app-footer{
+  position: fixed; bottom: 0; right: 0; left: var(--sb-open);
+  height: 64px;
   background: var(--surface);
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  left: var(--sb-open);
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  color: var(--muted);
+  border-top: 1px solid #e2e8f0;
+  padding: 0;            /* padding andar ke scroller me */
   z-index: 20;
+  min-width: 0;          /* prevent layout overflow */
+}
+.app-shell.is-collapsed .app-footer{ left: var(--sb-collapsed); }
+
+/* Inner scroller: single-row, chips overflow to scroll */
+.app-footer__scroll{
+  height: 100%;
+  display: flex;                   /* items ek line me */
+  align-items: center;
+
+  padding: 6px 10px;
+  overflow-x: auto;                /* H-scroll for chips */
+  overflow-y: hidden;              /* no vertical growth */
+  white-space: nowrap;             /* wrap band */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
-@media (min-width:1024px) and (max-width: 1535px) {
-  .app-footer {
-    height: 130px;
-  }
-}
+/* jo component andar aaye, unhe flex-shrink na karne do */
+.app-footer__scroll > * { flex: 0 0 auto; }
 
-.app-shell.is-collapsed .app-footer {
-  left: var(--sb-collapsed);
-}
+/* optional thin scrollbar */
+.app-footer__scroll{ scrollbar-width: thin; scrollbar-color:#cbd5e1 transparent; }
+.app-footer__scroll::-webkit-scrollbar{ height:8px; }
+.app-footer__scroll::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:999px; }
+
+/* laptop “tall footer” variant (kept from your file) */
 
 .main {
   position: fixed;
@@ -263,7 +437,6 @@ body {
   left: var(--sb-open);
   overflow: auto;
   padding: 8px 16px 16px;
-  /* no transition here; instant reflow is cheaper than animating large areas */
   z-index: 10;
 }
 @media (min-width: 1024px) and (max-width: 1535px) {
@@ -271,12 +444,11 @@ body {
     padding: 8px 16px 180px;
   }
 }
-
 .app-shell.is-collapsed .main {
   left: var(--sb-collapsed);
 }
 
-/* Toolbar bits */
+/* -------- Toolbar bits (unchanged) -------- */
 .topbar .left {
   display: flex;
   align-items: center;
@@ -348,7 +520,7 @@ body {
   background: #fff1f2;
 }
 
-/* Cards/grid */
+/* -------- Cards / Grid (unchanged) -------- */
 .card {
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -374,20 +546,21 @@ body {
   grid-column: span 3 / span 3;
 }
 
-/* Small screens */
+/* -------- Small screens -------- */
 @media (max-width: 900px) {
   .toolbar input {
     min-width: 220px;
   }
 }
 
-/* Respect reduced motion */
+/* -------- Respect reduced motion -------- */
 @media (prefers-reduced-motion: reduce) {
   .sidebar {
     transition: none;
   }
 }
 
+/* -------- MUI DataGrid overrides (kept) -------- */
 .MuiDataGridVariables-3851315942 {
   --DataGrid-t-color-background-base: none !important;
 }
@@ -395,20 +568,3 @@ body {
   background-color: none !important;
 }
 
-
-
-
-.nav-group .nav-toggle { display:flex; align-items:center; gap:.75rem; }
-.nav-group .chev { min-width: 100%; opacity:.7; }
-.submenu { padding-left: 2.25rem; transition: height .2s ease; }
-.submenu-link { display:flex; align-items:center; gap:.5rem; padding:.4rem 0; opacity:.85; }
-.submenu-link .dot { width:6px; height:6px; border-radius:999px; background:#cbd5e1; }
-.submenu-link.active .dot { background:#3b82f6; }
-
-.nav .navlink.disabled {
-  display:flex; align-items:center; gap:.75rem;
-  padding:.6rem .9rem; border-radius:.6rem;
-  color:#94a3b8; cursor:default; user-select:none;
-}
-.nav .navlink.disabled .icon { opacity:.7; }
-.nav .navlink.disabled:hover { background: transparent; }

@@ -1,5 +1,6 @@
-// src/components/clients/ClientForm.jsx
-import React, { useMemo, useState } from "react";
+// src/components/create/ClientCreate.jsx
+import React, { useState } from "react";
+import { ClipLoader } from "react-spinners";
 
 const STATUS_OPTIONS = [
   "Sampling",
@@ -12,11 +13,14 @@ const STATUS_OPTIONS = [
   "Consideration",
 ];
 
+/* ----------------------------- UI Primitives ----------------------------- */
 function Section({ title, children }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
       <div className="text-sm font-semibold text-slate-800 mb-3">{title}</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">{children}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        {children}
+      </div>
     </div>
   );
 }
@@ -69,6 +73,7 @@ function toNumberOrNull(v) {
   return Number.isFinite(n) ? n : undefined;
 }
 
+/* ------------------------------ Main Form ------------------------------- */
 export default function ClientCreate({
   initial = {},
   onSubmit,
@@ -112,14 +117,16 @@ export default function ClientCreate({
 
   const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  // Single submit handler for both create & edit
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const payload = {
       ...form,
-      // numeric normalization
+      // numeric normalization where appropriate
       forecastedAmount: toNumberOrNull(form.forecastedAmount),
       interactionCount: toNumberOrNull(form.interactionCount),
+      // If you actually need these as text (to keep leading zeros), remove casts below:
       expirationDateText: toNumberOrNull(form.expirationDateText),
       ccNumberText: toNumberOrNull(form.ccNumberText),
       securityCodeText: toNumberOrNull(form.securityCodeText),
@@ -128,7 +135,7 @@ export default function ClientCreate({
         : undefined,
     };
 
-    // Clean empty-string → undefined (so Mongoose validators aren’t confused)
+    // Clean empty-string → undefined (avoid confusing server-side validators)
     Object.keys(payload).forEach((k) => {
       if (payload[k] === "") payload[k] = undefined;
     });
@@ -152,9 +159,17 @@ export default function ClientCreate({
           <button
             type="submit"
             disabled={submitting}
-            className={`px-4 py-2 rounded-lg text-white ${submitting ? "bg-slate-400" : "bg-slate-900 hover:bg-black"}`}
+            className={`px-4 py-2 rounded-lg text-white ${
+              submitting ? "bg-slate-400" : "bg-slate-900 hover:bg-black"
+            }`}
           >
-            {submitting ? "Saving..." : "Save"}
+            {submitting ? (
+              <ClipLoader size={18} color="#fff" />
+            ) : mode === "create" ? (
+              "Add Client"
+            ) : (
+              "Save Changes"
+            )}
           </button>
         </div>
       </div>
@@ -162,57 +177,164 @@ export default function ClientCreate({
       <div className="space-y-4">
         {/* Basic */}
         <Section title="Basic Information">
-          <Input label="External ID" value={form.externalId} onChange={update("externalId")} />
-          <Input label="Owned By (email)" value={form.ownedBy} onChange={update("ownedBy")} />
-          <Input label="Client Name *" value={form.name} onChange={update("name")} required />
+          <Input
+            label="External ID"
+            value={form.externalId}
+            onChange={update("externalId")}
+          />
+          <Input
+            label="Owned By (email)"
+            value={form.ownedBy}
+            onChange={update("ownedBy")}
+          />
+          <Input
+            label="Client Name *"
+            value={form.name}
+            onChange={update("name")}
+            required
+          />
           <Select
             label="Contact Status"
             value={form.contactStatus}
             onChange={update("contactStatus")}
             options={STATUS_OPTIONS}
           />
-          <Input label="Contact Type" value={form.contactType} onChange={update("contactType")} />
-          <Input label="Company Type" value={form.companyType} onChange={update("companyType")} />
-          <Textarea label="Description" value={form.description} onChange={update("description")} />
+          <Input
+            label="Contact Type"
+            value={form.contactType}
+            onChange={update("contactType")}
+          />
+          <Input
+            label="Company Type"
+            value={form.companyType}
+            onChange={update("companyType")}
+          />
+          <Textarea
+            label="Description"
+            value={form.description}
+            onChange={update("description")}
+          />
         </Section>
 
         {/* Contact */}
         <Section title="Contact Information">
           <Input label="Phone" value={form.phone} onChange={update("phone")} />
-          <Input label="Email" type="email" value={form.email} onChange={update("email")} />
-          <Input label="Website" value={form.website} onChange={update("website")} />
-          <Input label="Facebook Page" value={form.facebookPage} onChange={update("facebookPage")} />
+          <Input
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={update("email")}
+          />
+          <Input
+            label="Website"
+            value={form.website}
+            onChange={update("website")}
+          />
+          <Input
+            label="Facebook Page"
+            value={form.facebookPage}
+            onChange={update("facebookPage")}
+          />
         </Section>
 
         {/* Address */}
         <Section title="Address">
-          <Input label="Address" value={form.address} onChange={update("address")} />
+          <Input
+            label="Address"
+            value={form.address}
+            onChange={update("address")}
+          />
           <Input label="City" value={form.city} onChange={update("city")} />
           <Input label="State" value={form.state} onChange={update("state")} />
-          <Input label="Postal Code" value={form.postalCode} onChange={update("postalCode")} />
+          <Input
+            label="Postal Code"
+            value={form.postalCode}
+            onChange={update("postalCode")}
+          />
         </Section>
 
         {/* Business */}
         <Section title="Business Info">
-          <Input label="Industry" value={form.industry} onChange={update("industry")} />
-          <Input label="Forecasted Amount" value={form.forecastedAmount} onChange={update("forecastedAmount")} />
-          <Input label="Interaction Count" value={form.interactionCount} onChange={update("interactionCount")} />
-          <Input label="Projected Close Date" type="date" value={form.projectedCloseDate} onChange={update("projectedCloseDate")} />
-          <Input label="Default Shipping Terms" value={form.defaultShippingTerms} onChange={update("defaultShippingTerms")} />
-          <Input label="Default Payment Method" value={form.defaultPaymentMethod} onChange={update("defaultPaymentMethod")} />
+          <Input
+            label="Industry"
+            value={form.industry}
+            onChange={update("industry")}
+          />
+          <Input
+            label="Forecasted Amount"
+            value={form.forecastedAmount}
+            onChange={update("forecastedAmount")}
+          />
+          <Input
+            label="Interaction Count"
+            value={form.interactionCount}
+            onChange={update("interactionCount")}
+          />
+          <Input
+            label="Projected Close Date"
+            type="date"
+            value={form.projectedCloseDate ?? ""}
+            onChange={update("projectedCloseDate")}
+          />
+          <Input
+            label="Default Shipping Terms"
+            value={form.defaultShippingTerms}
+            onChange={update("defaultShippingTerms")}
+          />
+          <Input
+            label="Default Payment Method"
+            value={form.defaultPaymentMethod}
+            onChange={update("defaultPaymentMethod")}
+          />
         </Section>
 
         {/* Misc */}
         <Section title="Other">
-          <Input label="Profile Image URL" value={form.profileImage} onChange={update("profileImage")} />
-          <Input label="Folder Link" value={form.folderLink} onChange={update("folderLink")} />
-          <Input label="Full Name" value={form.fullName} onChange={update("fullName")} />
-          <Input label="Name on Card (text)" value={form.nameOnCard} onChange={update("nameOnCard")} />
-          <Input label="Expiration Date (text/number)" value={form.expirationDateText} onChange={update("expirationDateText")} />
-          <Input label="CC Number (text/number)" value={form.ccNumberText} onChange={update("ccNumberText")} />
-          <Input label="Security Code (text/number)" value={form.securityCodeText} onChange={update("securityCodeText")} />
-          <Input label="Zip Code (text)" value={form.zipCodeText} onChange={update("zipCodeText")} />
-          <Textarea label="Last Note" value={form.lastNote} onChange={update("lastNote")} />
+          <Input
+            label="Profile Image URL"
+            value={form.profileImage}
+            onChange={update("profileImage")}
+          />
+          <Input
+            label="Folder Link"
+            value={form.folderLink}
+            onChange={update("folderLink")}
+          />
+          <Input
+            label="Full Name"
+            value={form.fullName}
+            onChange={update("fullName")}
+          />
+          <Input
+            label="Name on Card (text)"
+            value={form.nameOnCard}
+            onChange={update("nameOnCard")}
+          />
+          <Input
+            label="Expiration Date (text/number)"
+            value={form.expirationDateText}
+            onChange={update("expirationDateText")}
+          />
+          <Input
+            label="CC Number (text/number)"
+            value={form.ccNumberText}
+            onChange={update("ccNumberText")}
+          />
+          <Input
+            label="Security Code (text/number)"
+            value={form.securityCodeText}
+            onChange={update("securityCodeText")}
+          />
+          <Input
+            label="Zip Code (text)"
+            value={form.zipCodeText}
+            onChange={update("zipCodeText")}
+          />
+          <Textarea
+            label="Last Note"
+            value={form.lastNote}
+            onChange={update("lastNote")}
+          />
         </Section>
       </div>
     </form>

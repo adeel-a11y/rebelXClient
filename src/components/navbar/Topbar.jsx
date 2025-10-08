@@ -15,14 +15,14 @@ export default function Topbar() {
   return (
     <header className="topbar">
       <div className="left">
-        <button className="chev" aria-label="Toggle sidebar" onClick={toggleSidebar} type="button">
+        {/* <button className="chev" aria-label="Toggle sidebar" onClick={toggleSidebar} type="button">
           {collapsed ? (
             <MdKeyboardDoubleArrowRight size={20} />
           ) : (
             <MdKeyboardDoubleArrowLeft size={20} />
           )}
-        </button>
-        <div>
+        </button> */}
+        <div className="px-3">
           <div className="title">{cfg?.title || "Dashboard"}</div>
           {cfg?.subtitle && <div className="crumb">{cfg.subtitle}</div>}
         </div>

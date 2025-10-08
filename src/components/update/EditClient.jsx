@@ -11,7 +11,7 @@ export default function ClientEdit() {
   const navigate = useNavigate();
 
   const { data, isLoading: loading } = useClient(id);
-  const { mutateAsync, isLoading: saving } = useUpdateClient(id);
+  const { mutateAsync, isPending } = useUpdateClient(id);
 
   useToolbar({
     title: "Edit Client",
@@ -52,7 +52,7 @@ export default function ClientEdit() {
     <ClientCreate
       mode="edit"
       initial={data}
-      submitting={saving}
+      submitting={isPending}
       onSubmit={handleSubmit}
     />
   );

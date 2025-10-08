@@ -4,15 +4,24 @@ import { useLocation } from "react-router-dom";
 import UsersSummaryBar from "../summary/UsersSummaryBar";
 
 export default function AppFooter() {
-
   const location = useLocation();
-
   const { data: sum, isLoading: sumLoading } = useClientsSummary();
 
+  const hideOnDetails =
+    location.pathname.includes("/user-details") ||
+    location.pathname.includes("/client-details") ||
+    location.pathname.includes("/clients/new") ;
+
   return (
-    <footer className={`app-footer ${location.pathname === "/users" ? "lg:h-[160px] xl:h-[140px] 2xl:h-[96px]" : location.pathname.includes("/user-details") || location.pathname.includes("/client-details") ? "hidden" : ""}`}>
-      {location.pathname === "/users" && <UsersSummaryBar />}
-      {location.pathname === "/clients" && <ClientSummaryBar data={sum} loading={sumLoading} />}
+    <footer className={`app-footer ${hideOnDetails ? "hidden" : ""}`}>
+      <div className="app-footer__scroll">
+        {location.pathname === "/users" && (
+          <UsersSummaryBar className="footer-row" />
+        )}
+        {location.pathname === "/clients" && (
+          <ClientSummaryBar className="footer-row" data={sum} loading={sumLoading} />
+        )}
+      </div>
     </footer>
   );
 }

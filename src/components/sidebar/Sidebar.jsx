@@ -7,7 +7,6 @@ import { IoHome } from "react-icons/io5";
 import {
   FaUserTie,
   FaUsers,
-  FaStar,
   FaWarehouse,
   FaShoppingCart,
   FaClock,
@@ -15,18 +14,21 @@ import {
   FaChartBar,
   FaChevronDown,
   FaChevronRight,
+  FaChevronLeft,
 } from "react-icons/fa";
 import { GiFactory } from "react-icons/gi";
 import { FiActivity } from "react-icons/fi";
+import { HiMagnifyingGlass } from "react-icons/hi2";
+import { TbSettings } from "react-icons/tb";
+import { IoMdArrowDropleft } from "react-icons/io";
+import { IoMdArrowDropright } from "react-icons/io";
 
-/* --- items: mark unfinished ones as disabled: true --- */
-const baseItems = [
+/* --- items --- */
+const dashboardItems = [
   { to: "/", label: "Dashboard", icon: <IoHome /> },
   { to: "/clients", label: "Clients", icon: <FaUserTie /> },
   { to: "/users", label: "Users", icon: <FaUsers /> },
   { to: "/activities", label: "Activities", icon: <FiActivity /> },
-
-  // disabled for now (no click, no active)
   {
     to: "/inventory",
     label: "Inventory",
@@ -55,39 +57,43 @@ const reportsItem = {
   ],
 };
 
-/* ---------- helper: one item that can be disabled ---------- */
-function NavItem({ to, icon, label, disabled, collapsed }) {
+/* ------------- small helpers ------------- */
+function Item({ to, icon, label, disabled, collapsed }) {
+  const inner = (
+    <>
+      <span className="icon" aria-hidden>
+        {icon}
+      </span>
+      <span className="label text-sm font-medium">
+        {collapsed ? "" : label}
+      </span>
+    </>
+  );
   if (disabled) {
     return (
       <div
-        className="navlink disabled"
+        className="navlink text-sm font-medium"
         role="button"
         aria-disabled="true"
-        onClick={(e) => e.preventDefault()} // no action
+        onClick={(e) => e.preventDefault()}
       >
-        <span className="icon" aria-hidden>
-          {icon}
-        </span>
-        <span className="label">{collapsed ? "" : label}</span>
+        {inner}
       </div>
     );
   }
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => (isActive ? "active" : undefined)}
       end
+      className={({ isActive }) => "navlink" + (isActive ? " active" : "")}
     >
-      <span className="icon" aria-hidden>
-        {icon}
-      </span>
-      <span className="label">{collapsed ? "" : label}</span>
+      {inner}
     </NavLink>
   );
 }
 
 export default function Sidebar() {
-  const { collapsed } = useUI();
+  const { collapsed, toggleSidebar } = useUI(); // ensure your store exposes toggleSidebar()
   const location = useLocation();
   const [reportsOpen, setReportsOpen] = useState(false);
 
@@ -96,61 +102,77 @@ export default function Sidebar() {
   }, [location.pathname]);
 
   return (
-    <aside className="sidebar">
-      {/* Brand */}
-      <div className="logo text-xl">
-        <span>
-          <FaStar color="#ffd800" />
-        </span>
-        <span className="label">RebelX</span>
+    <aside className="sidebar" data-collapsed={collapsed ? "true" : "false"}>
+      {/* floating collapse button on edge */}
+      <button
+        type="button"
+        className="collapse-btn focus:outline-none"
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        onClick={toggleSidebar}
+      >
+        {collapsed ? (
+          <IoMdArrowDropright size={20} />
+        ) : (
+          <IoMdArrowDropleft size={20} />
+        )}
+      </button>
+
+      {/* sky header */}
+      <div className="sky">
+        <div className="brand flex items-center">
+          <span className="dot" />
+          <span className="brand-text">RebleX V3.</span>
+        </div>
       </div>
 
-      {/* Nav */}
+      {/* sections */}
       <nav className="nav">
-        {baseItems.map((x) => (
-          <NavItem
-            key={x.label}
-            to={x.to}
-            icon={x.icon}
-            label={x.label}
-            disabled={x.disabled}
-            collapsed={collapsed}
-          />
+        {!collapsed && <div className="section-title">DASHBOARD</div>}
+        {dashboardItems.slice(0, 4).map((x) => (
+          <Item key={x.label} {...x} collapsed={collapsed} />
         ))}
 
-        {/* Reports dropdown: parent never navigates (button), no active class */}
+        {/* AI Automation with “New” pill (visual only) */}
+        {/* <div className="navline">
+          <Item to="/ai-automation" label="AI Automation" icon={<TbSettings />} collapsed={collapsed} disabled />
+          {!collapsed && <span className="pill">New</span>}
+        </div> */}
+
+        {dashboardItems.slice(4).map((x) => (
+          <Item key={x.label} {...x} collapsed={collapsed} />
+        ))}
+
+        {/* Reports dropdown */}
         <div className={`nav-group ${reportsOpen ? "open" : ""}`}>
           <button
             type="button"
-            className={`flex items-center justify-between nav-toggle ms-4 mt-2 ${
-              location.pathname.startsWith("/reports") ? "active" : ""
-            }`}
+            className={
+              "nav-toggle" +
+              (location.pathname.startsWith("/reports") ? " active" : "")
+            }
             onClick={() => setReportsOpen((v) => !v)}
             aria-expanded={reportsOpen}
             aria-controls="reports-submenu"
           >
-            <div className="flex items-center">
-              <span className="icon" aria-hidden>
-                {reportsItem.icon}
-              </span>
-              <span className="label ms-2">
-                {collapsed ? "" : reportsItem.label}
-              </span>
-            </div>
+            <span className="icon">{reportsItem.icon}</span>
+            <span className="label text-sm font-medium">
+              {collapsed ? "" : reportsItem.label}
+            </span>
             {!collapsed && (
-              <div className="chev ms-auto flex justify-end" aria-hidden>
-                {reportsOpen ? <FaChevronDown /> : <FaChevronRight />}
-              </div>
+              <span className="chev">
+                {reportsOpen ? (
+                  <FaChevronDown size={12} />
+                ) : (
+                  <FaChevronRight size={12} />
+                )}
+              </span>
             )}
           </button>
 
           <div
             id="reports-submenu"
             className="submenu"
-            style={{
-              height: reportsOpen && !collapsed ? "auto" : 0,
-              overflow: "hidden",
-            }}
+            style={{ height: reportsOpen && !collapsed ? "auto" : 0 }}
           >
             {reportsItem.children.map((c) => (
               <NavLink
@@ -160,21 +182,41 @@ export default function Sidebar() {
                   "submenu-link" + (isActive ? " active" : "")
                 }
               >
-                <span className="dot" aria-hidden />
-                <span className="label">{c.label}</span>
+                <span className="dot" />
+                <span className="label text-sm font-medium">{c.label}</span>
               </NavLink>
             ))}
           </div>
         </div>
+
+        {/* {!collapsed && <div className="section-title mt">SETTINGS</div>} */}
+        {/* sample settings (disabled visual like the screenshot) */}
+        {/* <Item to="/settings/campaign" label="Campaign Settings" icon={<TbSettings />} disabled collapsed={collapsed} />
+        <Item to="/settings/integrations" label="Integrations" icon={<TbSettings />} disabled collapsed={collapsed} />
+        <Item to="/settings/domains" label="Domains" icon={<TbSettings />} disabled collapsed={collapsed} />
+        <Item to="/settings/subscription" label="Subscription" icon={<TbSettings />} disabled collapsed={collapsed} />
+        <Item to="/settings/api-keys" label="API Keys" icon={<TbSettings />} disabled collapsed={collapsed} /> */}
       </nav>
 
-      {/* Profile */}
-      <div className="profile">
-        <div className="avatar">AU</div>
-        <div className="who">
-          <strong>Admin User</strong>
-          <small>Administrator</small>
-        </div>
+      {/* upgrade card */}
+      <div className="upgrade">
+        {!collapsed ? (
+          <>
+            <div className="flex items-center">
+              <img
+                src="https://media.istockphoto.com/id/1500308602/photo/happy-black-man-mature-or-portrait-in-finance-office-about-us-company-profile-picture-or-ceo.jpg?s=612x612&w=0&k=20&c=3BWt_eT7QaaiGx4zI_K63pnntIp5Cv1qW8Pw-_bSlm8="
+                alt=""
+                className="w-12 h-12 object-cover object-center rounded-full"
+              />
+              <div className="ms-2">
+                <h1 className="text-sm text-[#222] font-medium">Leo Ray</h1>
+                <h5 className="text-xs">Administrator</h5>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="tiny-pro">PRO</div>
+        )}
       </div>
     </aside>
   );

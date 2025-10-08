@@ -1,6 +1,6 @@
 // ---- src/hooks/useClients.js ----
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { getClientsLists, getClientsSummary, getClientById, createClient, updateClient } from "../api/clients";
+import { getClientsLists, getClientsSummary, getClientById, createClient, updateClient, updateClientStatus, deleteClient } from "../api/clients";
 
 export function useClients(page = 1, q = "", pageSize = 100, filters = { statuses: [], states: [] }) {
   return useQuery({
@@ -69,6 +69,28 @@ export function useUpdateClient(id) {
       qc.invalidateQueries({ queryKey: ["clients.lists"] });
       qc.invalidateQueries({ queryKey: ["clients.summary"] });
       qc.invalidateQueries({ queryKey: ["client", id] });
+    },
+  });
+}
+export function useUpdateStatusClient(id) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => updateClientStatus(id, payload),
+    onSuccess: (updated) => {
+      qc.invalidateQueries({ queryKey: ["clients.lists"] });
+      qc.invalidateQueries({ queryKey: ["clients.summary"] });
+      qc.invalidateQueries({ queryKey: ["client", id] });
+    },
+  });
+}
+
+export function useDeleteClient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteClient(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["clients.lists"] });
+      qc.invalidateQueries({ queryKey: ["clients.summary"] });
     },
   });
 }

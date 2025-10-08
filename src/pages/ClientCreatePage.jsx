@@ -7,7 +7,7 @@ import { useToolbar } from "../store/toolbar";
 
 export default function ClientCreatePage() {
   const navigate = useNavigate();
-  const { mutateAsync, isLoading } = useCreateClient();
+  const { mutateAsync, isPending } = useCreateClient();
 
   useToolbar({
     title: "New Client",
@@ -27,5 +27,5 @@ export default function ClientCreatePage() {
     }
   };
 
-  return <ClientCreate mode="create" submitting={isLoading} onSubmit={handleSubmit} />;
+  return <ClientCreate mode="create" submitting={isPending} onSubmit={handleSubmit} />;
 }
