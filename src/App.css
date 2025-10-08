@@ -568,3 +568,13 @@ body {
   background-color: none !important;
 }
 
+.toolbar .btn.primary {
+  display: flex;
+  align-items: center;
+}
+.toolbar input {
+  padding: 6px 12px;
+}
+.toolbar input:focus {
+  box-shadow: none !important;
+}

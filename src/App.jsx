@@ -15,6 +15,7 @@ import ClientCreatePage from "./pages/ClientCreatePage";
 import UserDetails from "./components/details/UserDetails";
 import "./App.css";
 import ClientDetailsPage from "./pages/ClientDetailsPage";
+import ActivityUpsert from "./components/create/ActivityUpsert";
 
 export default function App() {
   return (
@@ -35,7 +36,12 @@ export default function App() {
               <Route path="/users/new" element={<UserCreatePage />} />
               <Route path="/users/:id" element={<EditUserPage />} />
               <Route path="/user-details/:id" element={<UserDetails />} />
-              <Route path="/client-details/:id" element={<ClientDetailsPage />} />
+              <Route
+                path="/client-details/:id"
+                element={<ClientDetailsPage />}
+              />
+              <Route path="/activities/new" element={<ActivityUpsert />} />
+              <Route path="/activities/:id" element={<ActivityUpsert />} />
             </Route>
           </Routes>
         </ToolbarProvider>
