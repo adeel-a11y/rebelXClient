@@ -125,7 +125,7 @@ export async function createActivity(payload) {
 
 export async function updateActivity(id, payload) {
   try {
-    const res = await axios.patch(`${BASE_URL}/activities/update/${id}`, payload);
+    const res = await axios.put(`${BASE_URL}/activities/update/${id}`, payload);
     return res?.data?.data ?? res.data;
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
