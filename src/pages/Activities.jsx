@@ -430,7 +430,7 @@ export default function Activities() {
             filterMode="server"
             hideFooterPagination
             hideFooterSelectedRowCount
-            onRowClick={(params) => navigate(`/activity-details/${params.id}`)}
+            // onRowClick={(params) => navigate(`/activity-details/${params.id}`)}
             sx={{
               border: "none",
               "& .MuiDataGrid-row": { cursor: "pointer" },

@@ -1,6 +1,6 @@
 // ---- src/hooks/useClients.js ----
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { getClientsLists, getClientsSummary, getClientById, createClient, updateClient, updateClientStatus, deleteClient } from "../api/clients";
+import { getClientsLists, getClientsSummary, getClientById, getActivitiesByClient, createClient, updateClient, updateClientStatus, deleteClient } from "../api/clients";
 
 export function useClients(page = 1, q = "", pageSize = 100, filters = { statuses: [], states: [] }) {
   return useQuery({
@@ -34,6 +34,16 @@ export function useClientsSummary() {
     queryFn: getClientsSummary,
     staleTime: 10 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
+  });
+}
+
+export function useActivitiesByClient(id, page = 1, perPage = 50, q = "") {
+  return useQuery({
+    queryKey: ["client-activities", id, page, perPage, q],
+    queryFn: () => getActivitiesByClient(id, { page, perPage, q }),
+    enabled: !!id,
+    keepPreviousData: true,
+    staleTime: 30_000,
   });
 }
 

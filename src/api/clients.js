@@ -42,6 +42,14 @@ export async function getClientById(id) {
   return data;
 }
 
+// api/clients.js
+export async function getActivitiesByClient(id, { page = 1, perPage = 50, q = "" } = {}) {
+  const { data } = await axios.get(`${BASE_URL}/clients/lists/activities/${id}`, {
+    params: { page, limit: perPage, q },
+  });
+  return data;
+}
+
 export async function createClient(payload) {
   const { data } = await axios.post(`${BASE_URL}/clients`, payload);
   return data; // created client doc

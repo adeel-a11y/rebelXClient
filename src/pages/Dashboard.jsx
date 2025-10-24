@@ -69,7 +69,7 @@ function KPI({ title, value, sub, accent = "#1f44d5" }) {
           </div>
 
           <div className="flex items-end justify-between gap-3">
-            <div className="text-[28px] leading-none font-black tracking-tight text-slate-900 dark:text-slate-100">
+            <div className="text-[28px] leading-none font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               {value}
             </div>
             <div
