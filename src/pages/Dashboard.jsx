@@ -1,5 +1,5 @@
 // src/pages/Dashboard.jsx (Updated Luxe Version)
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import {
   ResponsiveContainer,
@@ -17,6 +17,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { overviewAnalytics } from "../api/analytics";
 
 /* ---------- Theme & helpers ---------- */
 const COLORS = [
@@ -70,7 +71,7 @@ function KPI({ title, value, sub, accent = "#1f44d5" }) {
 
           <div className="flex items-end justify-between gap-3">
             <div className="text-[28px] leading-none font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-              {value}
+              {value || 0}
             </div>
             <div
               className="shrink-0 rounded-xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider border"
@@ -90,7 +91,7 @@ function KPI({ title, value, sub, accent = "#1f44d5" }) {
               className="pt-1 text-[12px] font-semibold"
               style={{ color: accent }}
             >
-              {sub}
+              {sub || 0}
             </div>
           )}
 
@@ -417,6 +418,16 @@ const DATA = {
 /* ---------- Page ---------- */
 export default function Dashboard() {
   const k = DATA.kpis;
+
+  const [overview, setOverview] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const response = await overviewAnalytics();
+      setOverview(response?.data);
+    })();
+  }, []);
+
   return (
     <>
       <div className="w-full bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 md:py-2">
@@ -427,28 +438,28 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
           <KPI
             title="Total Clients"
-            value={number(k.totalClients)}
-            sub={`${number(k.new30)} new in 30d`}
+            value={number(overview?.totals?.totalClients)}
+            sub={`${number(overview?.thisMonth?.monthlyClients)} new in 30d`}
             accent="#1f44d5"
           />
           <KPI
-            title="With Card on File"
-            value={number(k.withCard)}
+            title="Total Users"
+            value={number(overview?.totals?.totalUsers)}
             sub={`${Math.round(
-              (k.withCard / k.totalClients) * 100
-            )}% of clients`}
+              overview?.thisMonth?.monthlyUsers
+            )} new in 30d`}
             accent="#10b981"
           />
           <KPI
-            title="Forecasted Pipeline"
-            value={`$${number(Math.round(k.totalForecasted))}`}
-            sub={`90d adds: ${number(k.new90)}`}
+            title="Total Activities"
+            value={number(overview?.totals?.totalActivities)}
+            sub={`${number(overview?.thisMonth?.monthlyActivities)} new in 30d`}
             accent="#f59e0b"
           />
           <KPI
-            title="Activities"
-            value={number(k.activitiesTotal)}
-            sub={`30d: ${number(k.activities30)}`}
+            title="Active Users"
+            value={number(overview?.totals?.activeUsers)}
+            sub={`${number(overview?.thisMonth?.monthlyActiveUsers)} new in 30 days`}
             accent="#8b5cf6"
           />
         </div>

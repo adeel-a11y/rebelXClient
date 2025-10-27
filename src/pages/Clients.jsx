@@ -450,7 +450,7 @@ export default function Clients() {
 
   const columns = useMemo(
     () => [
-      { field: "name", headerName: "Name", flex: 1, minWidth: 180 },
+      { field: "name", headerName: "Name", flex: 1, minWidth: 180, enderCell: (p) => <div>{p.value || "—"}</div> },
       {
         field: "contactStatus",
         headerName: "Status",
