@@ -306,6 +306,7 @@ export default function Activities() {
       { label: "Filter", variant: "ghost", onClick: () => setFilterOpen((o) => !o) },
       { label: "+ Add", variant: "primary", to: "/activities/new" },
     ],
+    backButton: true,  
   });
 
   const { data, isLoading, isFetching } = useActivities(pageForServer, query, paginationModel.pageSize, filters);

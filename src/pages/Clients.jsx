@@ -418,6 +418,7 @@ export default function Clients() {
       { label: "Filter", variant: "ghost", onClick: () => setFilterOpen((o) => !o) },
       { label: "+ Add", variant: "primary", to: "/clients/new" },
     ],
+    backButton: true,  
   });
 
   const pageForServer = paginationModel.page + 1;

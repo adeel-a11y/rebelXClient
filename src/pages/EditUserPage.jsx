@@ -15,6 +15,7 @@ export default function UserEditPage() {
     title: "Edit User",
     searchPlaceholder: "",
     actions: [{ label: "Back", variant: "ghost", onClick: () => navigate("/users") }],
+    backButton: true,  
   });
 
   async function handleSubmit(payload) {

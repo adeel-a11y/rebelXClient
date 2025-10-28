@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import { monthlyNewClients, overviewAnalytics } from "../api/analytics";
 import { useLocation } from "react-router-dom";
+import { useToolbar } from "../store/toolbar";
 
 /* ---------- Theme & helpers ---------- */
 const COLORS = [
@@ -187,20 +188,19 @@ function LegendPills({ items }) {
 
 /* Specific chart components */
 function TrendArea() {
-
   const [newClients, setNewClients] = useState([]);
 
   // location
   const location = useLocation();
 
   const newClientsByMonth = async () => {
-     try {
+    try {
       const response = await monthlyNewClients();
       setNewClients(response.data);
-     } catch (error) {
+    } catch (error) {
       return error;
-     }
-  }
+    }
+  };
 
   useEffect(() => {
     newClientsByMonth();
@@ -240,7 +240,12 @@ function TrendArea() {
                 />
               }
             />
-            <Area type="monotone" dataKey="newClients" stroke="#8884d8" fill="#8884d8" />
+            <Area
+              type="monotone"
+              dataKey="newClients"
+              stroke="#8884d8"
+              fill="#8884d8"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -439,6 +444,13 @@ const DATA = {
 export default function Dashboard() {
   const k = DATA.kpis;
 
+  useToolbar({
+    title: "Dashboard",
+    search: null,
+    actions: [],
+    backButton: true,  
+  });
+
   const [overview, setOverview] = useState(null);
 
   useEffect(() => {
@@ -465,9 +477,7 @@ export default function Dashboard() {
           <KPI
             title="Total Users"
             value={number(overview?.totals?.totalUsers)}
-            sub={`${Math.round(
-              overview?.thisMonth?.monthlyUsers
-            )} new in 30d`}
+            sub={`${Math.round(overview?.thisMonth?.monthlyUsers)} new in 30d`}
             accent="#10b981"
           />
           <KPI
@@ -479,7 +489,9 @@ export default function Dashboard() {
           <KPI
             title="Active Users"
             value={number(overview?.totals?.activeUsers)}
-            sub={`${number(overview?.thisMonth?.monthlyActiveUsers)} new in 30 days`}
+            sub={`${number(
+              overview?.thisMonth?.monthlyActiveUsers
+            )} new in 30 days`}
             accent="#8b5cf6"
           />
         </div>

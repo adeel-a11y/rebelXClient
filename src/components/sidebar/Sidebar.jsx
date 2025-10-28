@@ -22,6 +22,7 @@ import { HiMagnifyingGlass } from "react-icons/hi2";
 import { TbSettings } from "react-icons/tb";
 import { IoMdArrowDropleft } from "react-icons/io";
 import { IoMdArrowDropright } from "react-icons/io";
+import { MdMenuOpen } from "react-icons/md";
 
 /* --- items --- */
 const dashboardItems = [
@@ -111,9 +112,9 @@ export default function Sidebar() {
         onClick={toggleSidebar}
       >
         {collapsed ? (
-          <IoMdArrowDropright size={20} />
+          <MdMenuOpen size={20} />
         ) : (
-          <IoMdArrowDropleft size={20} />
+          <MdMenuOpen size={20} />
         )}
       </button>
 

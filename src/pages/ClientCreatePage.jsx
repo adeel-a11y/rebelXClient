@@ -14,6 +14,7 @@ export default function ClientCreatePage() {
     searchPlaceholder: "",
     onSearch: () => {},
     actions: [],
+    backButton: true,  
   });
 
   const handleSubmit = async (payload) => {

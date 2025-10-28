@@ -468,6 +468,7 @@ export default function Users() {
       },
       { label: "+ Add", variant: "primary", to: "/users/new" },
     ],
+    backButton: true,  
   });
 
   const pageForServer = paginationModel.page + 1;

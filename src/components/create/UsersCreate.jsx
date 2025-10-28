@@ -36,6 +36,7 @@ export default function UserCreate() {
     title: "Add User",
     searchPlaceholder: "",
     actions: [{ label: "Cancel", variant: "ghost", onClick: () => navigate("/users") }],
+    backButton: true,  
   });
 
   const [form, setForm] = useState(initial);

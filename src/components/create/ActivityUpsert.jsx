@@ -57,6 +57,7 @@ export default function ActivityUpsert() {
     title: isEdit ? "Edit Activity" : "Add Activity",
     searchPlaceholder: "",
     actions: [{ label: "Cancel", variant: "ghost", onClick: () => navigate("/activities") }],
+    backButton: true,
   });
 
   // Lookups (simple “load-all” mode; if list is huge, wire q to an input)

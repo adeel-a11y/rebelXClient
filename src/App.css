@@ -320,27 +320,23 @@ body {
   font-weight: 700;
 }
 
-.upgrade{
+.upgrade {
   padding: 16px 20px;
   background: linear-gradient(360deg, #eaf2ff 0%, #dbeafe 45%, #eef4ff 100%);
 
   /* mask: black = visible, transparent = hidden */
   -webkit-mask-image: linear-gradient(
-    to top,                  /* bottom -> top */
-    #000 0%,                 /* bottom fully visible */
-    #000 60%,                /* keep solid until ~60% height */
-    rgba(0,0,0,0) 100%       /* fade out towards top */
-  );
-          mask-image: linear-gradient(
     to top,
-    #000 0%,
-    #000 60%,
-    rgba(0,0,0,0) 100%
+    /* bottom -> top */ #000 0%,
+    /* bottom fully visible */ #000 60%,
+    /* keep solid until ~60% height */ rgba(0, 0, 0, 0) 100%
+      /* fade out towards top */
   );
+  mask-image: linear-gradient(to top, #000 0%, #000 60%, rgba(0, 0, 0, 0) 100%);
   -webkit-mask-size: 100% 100%;
-          mask-size: 100% 100%;
+  mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* collapsed: hide text & search; keep icons aligned */
@@ -394,38 +390,53 @@ body {
 }
 
 /* Footer: constant height + internal scroller */
-.app-footer{
-  position: fixed; bottom: 0; right: 0; left: var(--sb-open);
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: var(--sb-open);
   height: 64px;
   background: var(--surface);
   border-top: 1px solid #e2e8f0;
-  padding: 0;            /* padding andar ke scroller me */
+  padding: 0; /* padding andar ke scroller me */
   z-index: 20;
-  min-width: 0;          /* prevent layout overflow */
+  min-width: 0; /* prevent layout overflow */
 }
-.app-shell.is-collapsed .app-footer{ left: var(--sb-collapsed); }
+.app-shell.is-collapsed .app-footer {
+  left: var(--sb-collapsed);
+}
 
 /* Inner scroller: single-row, chips overflow to scroll */
-.app-footer__scroll{
+.app-footer__scroll {
   height: 100%;
-  display: flex;                   /* items ek line me */
+  display: flex; /* items ek line me */
   align-items: center;
 
   padding: 6px 10px;
-  overflow-x: auto;                /* H-scroll for chips */
-  overflow-y: hidden;              /* no vertical growth */
-  white-space: nowrap;             /* wrap band */
+  overflow-x: auto; /* H-scroll for chips */
+  overflow-y: hidden; /* no vertical growth */
+  white-space: nowrap; /* wrap band */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
 /* jo component andar aaye, unhe flex-shrink na karne do */
-.app-footer__scroll > * { flex: 0 0 auto; }
+.app-footer__scroll > * {
+  flex: 0 0 auto;
+}
 
 /* optional thin scrollbar */
-.app-footer__scroll{ scrollbar-width: thin; scrollbar-color:#cbd5e1 transparent; }
-.app-footer__scroll::-webkit-scrollbar{ height:8px; }
-.app-footer__scroll::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:999px; }
+.app-footer__scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.app-footer__scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.app-footer__scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
 
 /* laptop “tall footer” variant (kept from your file) */
 
@@ -577,4 +588,16 @@ body {
 }
 .toolbar input:focus {
   box-shadow: none !important;
+}
+
+/* Tabs */
+.MuiTab-root {
+  padding: 6px 12px !important;
+  border-radius: 25px !important;
+}
+.MuiTab-root[aria-selected="true"] {
+  background-color: #f2f2fe;
+}
+.MuiTab-root:hover {
+  background-color: #f2f2fe !important;
 }

@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUI } from "../../store/ui";
 import { useToolbarStore } from "../../store/toolbar";
 import { FiFilter } from "react-icons/fi";
-import { MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight } from "react-icons/md";
+import { FaArrowLeftLong } from "react-icons/fa6";
+import { IconButton } from "@mui/material";
 
 function SearchIcon() { /* ...same as yours... */ }
 
@@ -22,7 +23,23 @@ export default function Topbar() {
             <MdKeyboardDoubleArrowLeft size={20} />
           )}
         </button> */}
-        <div className="px-3">
+        {cfg.backButton && (
+          <IconButton
+            size="small"
+            onClick={() => navigate(-1)}
+            sx={{
+              // backgroundColor: "#f3f4f6",
+              // border: "1px solid #e5e7eb",
+              // "&:hover": { backgroundColor: "#e5e7eb" },
+              marginLeft: 1,
+              marginBottom: .3
+            }}
+          >
+            <FaArrowLeftLong style={{ fontSize: 16 }} />
+          </IconButton>
+        )}
+        
+        <div className="pe-3">
           <div className="title">{cfg?.title || "Dashboard"}</div>
           {cfg?.subtitle && <div className="crumb">{cfg.subtitle}</div>}
         </div>
