@@ -17,7 +17,8 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { overviewAnalytics } from "../api/analytics";
+import { monthlyNewClients, overviewAnalytics } from "../api/analytics";
+import { useLocation } from "react-router-dom";
 
 /* ---------- Theme & helpers ---------- */
 const COLORS = [
@@ -185,13 +186,32 @@ function LegendPills({ items }) {
 }
 
 /* Specific chart components */
-function TrendArea({ data }) {
+function TrendArea() {
+
+  const [newClients, setNewClients] = useState([]);
+
+  // location
+  const location = useLocation();
+
+  const newClientsByMonth = async () => {
+     try {
+      const response = await monthlyNewClients();
+      setNewClients(response.data);
+     } catch (error) {
+      return error;
+     }
+  }
+
+  useEffect(() => {
+    newClientsByMonth();
+  }, [location.pathname]);
+
   return (
     <ChartCard title="New Clients by Month">
       <div className="h-[240px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
+            data={newClients}
             margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           >
             <defs>

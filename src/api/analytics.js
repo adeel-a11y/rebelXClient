@@ -10,3 +10,13 @@ export const overviewAnalytics = async () => {
         return error;
     }
 };
+
+export const monthlyNewClients = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/clients`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
+

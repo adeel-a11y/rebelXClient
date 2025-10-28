@@ -19,16 +19,41 @@ import {
   ThemeProvider,
   Grid,
 } from "@mui/material";
+
 import {
   RiDeleteBinLine,
   RiFileList2Line,
   RiSearchLine,
   RiEdit2Line,
 } from "react-icons/ri";
+
+import {
+  FiPhone,
+  FiMail,
+  FiMapPin,
+  FiGlobe,
+  FiFacebook,
+  FiUser,
+  FiHash,
+  FiCalendar,
+  FiBriefcase,
+  FiDollarSign,
+  FiTrendingUp,
+  FiFolder,
+  FiCreditCard,
+  FiTruck,
+  FiLock,
+} from "react-icons/fi";
+
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useClient, useActivitiesByClient } from "../../hooks/useClients";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useDebouncedValue } from "../../utils/useDebounceValue";
+
+/* NEW: credit card preview */
+import Cards from "react-credit-cards-2";
+import "react-credit-cards-2/dist/es/styles-compiled.css";
 
 /* ---------------- theme ---------------- */
 const theme = createTheme({
@@ -140,25 +165,8 @@ const dash = (v) =>
   v === null || v === undefined || v === "" ? "—" : String(v);
 const fmtDate = (v) => (v ? new Date(v).toLocaleString() : "—");
 
-function Badge({ value, map }) {
-  if (!value) return null;
-  const c = map[value] || { bg: "#eef2f7", fg: "#475569" };
-  return (
-    <Chip
-      label={value}
-      sx={{
-        height: 26,
-        borderRadius: 999,
-        bgcolor: c.bg,
-        color: c.fg,
-        fontWeight: 700,
-        border: "1px solid rgba(0,0,0,0.04)",
-      }}
-    />
-  );
-}
-
-function KV({ label, value, link }) {
+/* UPDATED: KV now supports an icon */
+function KV({ icon, iconColor = "#6b7280", label, value, link }) {
   const body = link ? (
     <Link href={link} target="_blank" rel="noreferrer" underline="hover">
       {dash(value)}
@@ -166,48 +174,289 @@ function KV({ label, value, link }) {
   ) : (
     dash(value)
   );
+
   return (
-    <Stack spacing={0.25}>
-      <Typography
-        variant="subtitle2"
-        sx={{ color: "text.secondary", fontSize: ".8rem" }}
-      >
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
-        {body}
-      </Typography>
+    <Stack
+      direction="row"
+      spacing={1}
+      alignItems="flex-start"
+      sx={{ mb: 1.25, lineHeight: 1.2 }}
+    >
+      {icon ? (
+        <Box
+          sx={{
+            mt: "2px",
+            color: iconColor,
+            fontSize: 16,
+            flexShrink: 0,
+          }}
+        >
+          {icon}
+        </Box>
+      ) : null}
+
+      <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ color: "text.secondary", fontSize: ".75rem" }}
+        >
+          {label}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ wordBreak: "break-word", fontWeight: 500 }}
+        >
+          {body}
+        </Typography>
+      </Stack>
     </Stack>
   );
 }
 
-function Section({ title, children, mt = 2 }) {
+/* Section block w/ headline like in screenshot 2 */
+function GroupSection({ title, children, icon, iconBg }) {
   return (
-    <Box sx={{ mt }}>
-      <Typography
-        variant="subtitle2"
-        sx={{ mb: 0.75, color: "text.secondary" }}
+    <Box
+      sx={{
+        border: "1px solid #e5e7eb",
+        borderRadius: 2,
+        p: 2,
+        mb: 2,
+        backgroundColor: "#fff",
+      }}
+    >
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        sx={{ mb: 1.5, flexWrap: "wrap" }}
       >
-        {title}
-      </Typography>
+        {icon ? (
+          <Box
+            sx={{
+              width: 28,
+              height: 28,
+              borderRadius: 2,
+              fontSize: 16,
+              display: "grid",
+              placeItems: "center",
+              fontWeight: 600,
+              color: "#fff",
+              background: iconBg || "linear-gradient(135deg,#5b7fff,#9349ff)",
+            }}
+          >
+            {icon}
+          </Box>
+        ) : null}
+        <Typography
+          sx={{
+            fontWeight: 600,
+            fontSize: ".9rem",
+            color: "#111827",
+          }}
+        >
+          {title}
+        </Typography>
+      </Stack>
+
       {children}
     </Box>
   );
 }
 
-function fmtAddress(c) {
-  const parts = [c?.address, c?.city, c?.state, c?.postalCode].filter(Boolean);
-  return parts.join(", ");
+/* tiny helper to render colorful Badge chips for enums */
+function EnumRow({ label, value, map, icon, iconColor }) {
+  if (!value)
+    return (
+      <KV
+        label={label}
+        value="—"
+        icon={icon}
+        iconColor={iconColor || "#6b7280"}
+      />
+    );
+
+  const c = map[value] || { bg: "#eef2f7", fg: "#475569" };
+  return (
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{ mb: 1.25 }}
+      alignItems="flex-start"
+    >
+      <Stack spacing={0.25} sx={{ flex: 1 }}>
+        <div className="flex space-x-2 pb-2">
+          {icon ? (
+            <Box
+              sx={{
+                mt: "2px",
+                color: iconColor || c.fg,
+                fontSize: 16,
+                // flexShrink: 0,
+              }}
+            >
+              {icon}
+            </Box>
+          ) : null}
+
+          <Typography
+            variant="subtitle2"
+            sx={{ color: "text.secondary", fontSize: ".75rem" }}
+          >
+            {label}
+          </Typography>
+        </div>
+        <div className="w-full flex px-1">
+          <Chip
+            size="small"
+            label={value}
+            sx={{
+              fontWeight: 600,
+              borderRadius: 999,
+              bgcolor: c.bg,
+              color: c.fg,
+              border: "1px solid rgba(0,0,0,0.04)",
+              width: "100%",
+            }}
+          />
+        </div>
+      </Stack>
+    </Stack>
+  );
 }
-function gmapsLink(addr) {
-  return addr
+
+/* helper to generate Google Maps link */
+function gmapsLink(fullAddr) {
+  return fullAddr
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        addr
+        fullAddr
       )}`
     : null;
 }
 
-/* ---------------- dynamic LEFT sidebar ---------------- */
+/* format full address string */
+function fullAddressFromClient(c) {
+  // address, city, state, postalCode
+  const parts = [c?.address, c?.city, c?.state, c?.postalCode].filter(Boolean);
+  return parts.join(", ");
+}
+
+// turn "729" -> "07/29", "1225" -> "12/25"
+function formatExpiry(raw) {
+  if (!raw) return "";
+
+  const digits = String(raw).replace(/\D/g, ""); // keep only numbers
+
+  if (digits.length === 3) {
+    // e.g. "729" => "7" + "29"
+    const mm = digits[0]; // "7"
+    const yy = digits.slice(1); // "29"
+    // pad month to 2 digits -> "07"
+    return `${mm.padStart(2, "0")}/${yy}`;
+  }
+
+  if (digits.length === 4) {
+    // e.g. "1225" => "12" + "25"
+    const mm = digits.slice(0, 2); // "12"
+    const yy = digits.slice(2); // "25"
+    return `${mm}/${yy}`;
+  }
+
+  // fallback: maybe it's already "07/29" or something weird
+  return raw;
+}
+
+/* CREDIT CARD PREVIEW BLOCK
+   shows 2 cards side-by-side:
+   - left card (front, focus number)
+   - right card (back, focus cvc)
+*/
+function CreditCardPreview({ number, name, expiry, cvc }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "flex-start",
+        my: 3,
+      }}
+    >
+      {/* FLIP CONTAINER */}
+      <Box
+        sx={{
+          perspective: "1000px",
+          width: 280,
+          height: 170,
+          cursor: "pointer",
+
+          // when hovered, rotate the inner wrapper
+          "&:hover .flipInner": {
+            transform: "rotateY(180deg)",
+          },
+        }}
+      >
+        {/* INNER WRAPPER THAT ROTATES */}
+        <Box
+          className="flipInner"
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            transition: "transform 0.6s",
+            transformStyle: "preserve-3d",
+          }}
+        >
+          {/* FRONT SIDE */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backfaceVisibility: "hidden", // hide when rotated
+              WebkitBackfaceVisibility: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: "rotateY(0deg)",
+            }}
+          >
+            <Cards
+              number={dash(number)}
+              name={dash(name)}
+              expiry={dash(expiry)}
+              cvc={dash(cvc)}
+              focused={"number"} // shows front layout
+            />
+          </Box>
+
+          {/* BACK SIDE */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              // rotate this side so it's visible after flip
+              transform: "rotateY(180deg)",
+            }}
+          >
+            <Cards
+              number={dash(number)}
+              name={dash(name)}
+              expiry={dash(expiry)}
+              cvc={dash(cvc)}
+              focused={"cvc"} // this makes react-credit-cards-2 render the back with the CVC
+            />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+/* ---------------- LEFT SIDEBAR (UPDATED LAYOUT) ---------------- */
 function ProfileSidebar() {
   const { id } = useParams();
   const { data: client, isLoading, isError, error } = useClient(id);
@@ -249,192 +498,312 @@ function ProfileSidebar() {
     );
   }
 
-  const fullName = client?.fullName || client?.name || "—";
-  const addr = fmtAddress(client);
-  const avatarSrc =
-    client?.profileImage ||
-    `https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png`;
+  // pull fields from API response (your JSON screenshot)
+  const shopName = client?.name || "—"; // Good Mood Smoke Shop
+  const contactName = client?.fullName || "—"; // Sam Bukhari
+  const createdAt = fmtDate(client?.createdAt);
+
+  const fullAddr = fullAddressFromClient(client);
+
+  // credit card values (non-PCI text)
+  const ccName = client?.nameOnCard;
+  const ccNumberText = client?.ccNumberText;
+  const ccExpiryRaw = client?.expirationDateText;
+  const ccExpiry = formatExpiry(ccExpiryRaw); // <-- formatted "MM/YY"
+  const ccCvc = client?.securityCodeText;
+  const ccZip = client?.zipCodeText;
 
   return (
-    <Card sx={{ p: 2 }}>
-      {/* banner + avatar */}
+    <Card sx={{ p: 0, overflow: "hidden" }}>
+      {/* Top banner with avatar */}
       <Box
         sx={{
-          height: 120,
-          borderRadius: 2,
-          background: "linear-gradient(135deg,#ff6060 0%,#6c7bff 100%)",
           position: "relative",
-          mb: 2,
+          height: 120,
+          background:
+            "linear-gradient(135deg,#ff6060 0%,#6c7bff 50%,#5b7fff 100%)",
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
         }}
       >
         <Avatar
-          src={avatarSrc}
+          src={
+            client?.profileImage ||
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+          }
           sx={{
-            width: 60,
-            height: 60,
+            width: 64,
+            height: 64,
             border: "3px solid #fff",
             position: "absolute",
-            left: 14,
+            left: 16,
             bottom: -24,
+            boxShadow: "0 4px 10px rgba(0,0,0,.15)",
+            backgroundColor: "#fff",
           }}
         />
       </Box>
 
-      {/* name + quick actions */}
-      <Box sx={{ mt: 4 }}>
-        <Typography fontWeight={700}>{fullName}</Typography>
-
-        {/* ===== Identity / External ===== */}
-        <Section title="Identity">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV label="External ID" value={client?.externalId} />
-            </Grid>
-            <Grid item xs={12}>
-              <KV label="Owned By (email)" value={client?.ownedBy} />
-            </Grid>
-          </Grid>
-        </Section>
-
-        <Section title="Creation Date">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV label="Created At" value={fmtDate(client?.createdAt)} />
-            </Grid>
-            <Grid item xs={12}>
-              <KV
-                label="Projected Close Date"
-                value={fmtDate(client?.projectedCloseDate)}
-              />
-            </Grid>
-          </Grid>
-        </Section>
-
-        {/* ===== Enums as colorful badges ===== */}
-        <Section title="Status & Types">
-          <Stack direction="row" flexWrap="wrap" gap={0.75}>
-            <Badge value={client?.contactStatus} map={STATUS_COLORS} />
-            <Badge value={client?.contactType} map={CONTACT_TYPE_COLORS} />
-            <Badge value={client?.companyType} map={COMPANY_TYPE_COLORS} />
-          </Stack>
-        </Section>
-
-        <Section title="Defaults">
-          <Stack direction="row" flexWrap="wrap" gap={0.75}>
-            <Badge value={client?.defaultShippingTerms} map={SHIPPING_COLORS} />
-            <Badge value={client?.defaultPaymentMethod} map={PAYMENT_COLORS} />
-          </Stack>
-        </Section>
-
-        {/* ===== Contact ===== */}
-        <Section title="Contact">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV
-                label="Email"
-                value={client?.email}
-                link={client?.email ? `mailto:${client.email}` : undefined}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <KV
-                label="Phone"
-                value={client?.phone}
-                link={client?.phone ? `tel:${client.phone}` : undefined}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <KV label="Full Name" value={client?.fullName} />
-            </Grid>
-          </Grid>
-        </Section>
-
-        {/* ===== Address ===== */}
-        <Section title="Address">
-          <Typography variant="body2" color="text.secondary">
-            {addr || "—"}
+      <CardContent sx={{ pt: 4 }}>
+        {/* Header: Client name, contact name, created at */}
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            sx={{ fontWeight: 700, color: "#111827", fontSize: "1rem" }}
+          >
+            {shopName}
           </Typography>
-        </Section>
-
-        {/* ===== Online presence ===== */}
-        <Section title="Online">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV
-                label="Website"
-                value={client?.website}
-                link={client?.website || undefined}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <KV
-                label="Facebook"
-                value={client?.facebookPage}
-                link={client?.facebookPage || undefined}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <KV
-                label="Folder Link"
-                value={client?.folderLink}
-                link={client?.folderLink || undefined}
-              />
-            </Grid>
-          </Grid>
-        </Section>
-
-        {/* ===== Business ===== */}
-        <Section title="Business">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV label="Industry" value={client?.industry} />
-            </Grid>
-            <Grid item xs={6}>
-              <KV label="Forecasted Amount" value={client?.forecastedAmount} />
-            </Grid>
-            <Grid item xs={6}>
-              <KV label="Interaction Count" value={client?.interactionCount} />
-            </Grid>
-          </Grid>
-        </Section>
-
-        {/* ===== Notes / Description ===== */}
-        <Section title="Description">
-          <Typography variant="body2" color="text.secondary">
-            {dash(client?.description)}
+          <Typography
+            sx={{
+              fontSize: ".85rem",
+              color: "#4b5563",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "4px",
+              mt: 0.5,
+            }}
+          >
+            <FiUser style={{ color: "#6366f1" }} />
+            {contactName}
           </Typography>
-        </Section>
 
-        <Section title="Last Note">
-          <Typography variant="body2" color="text.secondary">
-            {dash(client?.lastNote)}
+          <Typography
+            sx={{
+              mt: 0.5,
+              fontSize: ".75rem",
+              color: "#6b7280",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              flexWrap: "wrap",
+            }}
+          >
+            <FiCalendar style={{ color: "#3b82f6" }} />
+            Created At {createdAt}
           </Typography>
-        </Section>
+        </Box>
 
-        {/* ===== Legacy Payment Text (non-PCI) ===== */}
-        <Section title="Legacy Payment (non-PCI text)">
-          <Grid container spacing={1.25}>
-            <Grid item xs={12}>
-              <KV label="Name on Card" value={client?.nameOnCard} />
-            </Grid>
-            <Grid item xs={6}>
-              <KV
-                label="Expiration Date Text"
-                value={client?.expirationDateText}
+        {/* ---------------- CONTACT INFORMATION ---------------- */}
+        <GroupSection
+          title="Contact Information"
+          icon={<FiPhone />}
+          iconBg="linear-gradient(135deg,#3b82f6,#6366f1)"
+        >
+          <KV
+            icon={<FiPhone />}
+            iconColor="#10b981"
+            label="Phone"
+            value={client?.phone}
+            link={client?.phone ? `tel:${client.phone}` : undefined}
+          />
+          <KV
+            icon={<FiMail />}
+            iconColor="#6366f1"
+            label="Email"
+            value={client?.email}
+            link={client?.email ? `mailto:${client.email}` : undefined}
+          />
+          <KV
+            icon={<FiMapPin />}
+            iconColor="#ef4444"
+            label="Address"
+            value={fullAddr}
+            link={gmapsLink(fullAddr) || undefined}
+          />
+          <KV
+            icon={<FiGlobe />}
+            iconColor="#0ea5e9"
+            label="Website"
+            value={client?.website}
+            link={client?.website || undefined}
+          />
+          <KV
+            icon={<FiFacebook />}
+            iconColor="#3b5998"
+            label="Facebook Page"
+            value={client?.facebookPage}
+            link={client?.facebookPage || undefined}
+          />
+          <KV
+            icon={<FiBriefcase />}
+            iconColor="#14b8a6"
+            label="Industry"
+            value={client?.industry}
+          />
+        </GroupSection>
+
+        {/* ---------------- CLIENT STATUS ---------------- */}
+        <GroupSection
+          title="Client Status"
+          icon={<FiTrendingUp />}
+          iconBg="linear-gradient(135deg,#14b8a6,#10b981)"
+        >
+          <KV
+            icon={<FiHash />}
+            iconColor="#6366f1"
+            label="Description"
+            value={client?.description}
+          />
+
+          <div className="flex">
+            <div className="w-full">
+              <EnumRow
+                label="Contact Status"
+                value={client?.contactStatus}
+                map={STATUS_COLORS}
+                icon={<FiTrendingUp />}
+                iconColor="#10b981"
               />
-            </Grid>
-            <Grid item xs={6}>
-              <KV label="CC Number Text" value={client?.ccNumberText} />
-            </Grid>
-            <Grid item xs={6}>
-              <KV label="Security Code Text" value={client?.securityCodeText} />
-            </Grid>
-            <Grid item xs={6}>
-              <KV label="Zip Code Text" value={client?.zipCodeText} />
-            </Grid>
-          </Grid>
-        </Section>
-      </Box>
+            </div>
+
+            <div className="w-full">
+              <EnumRow
+                label="Contact Type"
+                value={client?.contactType}
+                map={CONTACT_TYPE_COLORS}
+                icon={<FiUser />}
+                iconColor="#6366f1"
+              />
+            </div>
+
+            <div className="w-full">
+              <EnumRow
+                label="Company Type"
+                value={client?.companyType}
+                map={COMPANY_TYPE_COLORS}
+                icon={<FiBriefcase />}
+                iconColor="#f59e0b"
+              />
+            </div>
+          </div>
+        </GroupSection>
+
+        {/* ---------------- PROJECTION STATUS ---------------- */}
+        <GroupSection
+          title="Projection Status"
+          icon={<FiDollarSign />}
+          iconBg="linear-gradient(135deg,#facc15,#f97316)"
+        >
+          <KV
+            icon={<FiDollarSign />}
+            iconColor="#10b981"
+            label="Forecasted Amount"
+            value={client?.forecastedAmount}
+          />
+          <KV
+            icon={<FiTrendingUp />}
+            iconColor="#0ea5e9"
+            label="Interaction Count"
+            value={client?.interactionCount}
+          />
+          <KV
+            icon={<FiCalendar />}
+            iconColor="#6366f1"
+            label="Projected Close Date"
+            value={fmtDate(client?.projectedCloseDate)}
+          />
+          <KV
+            icon={<FiFolder />}
+            iconColor="#f97316"
+            label="Folder Link"
+            value={client?.folderLink}
+            link={client?.folderLink || undefined}
+          />
+        </GroupSection>
+
+        {/* ---------------- CREDIT CARD INFORMATION ---------------- */}
+        <GroupSection
+          title="Credit Card Information"
+          icon={<FiCreditCard />}
+          iconBg="linear-gradient(135deg,#5b7fff,#9349ff)"
+        >
+          {/* The pretty card previews */}
+          <Box sx={{ mb: 2 }}>
+            <CreditCardPreview
+              number={ccNumberText}
+              name={ccName}
+              expiry={ccExpiry}
+              cvc={ccCvc}
+            />
+          </Box>
+
+          {/* Raw fields below cards */}
+          <KV
+            icon={<FiUser />}
+            iconColor="#6366f1"
+            label="Name on Card"
+            value={ccName}
+          />
+          <KV
+            icon={<FiCreditCard />}
+            iconColor="#0ea5e9"
+            label="CC Number Text"
+            value={ccNumberText}
+          />
+          <KV
+            icon={<FiCalendar />}
+            iconColor="#10b981"
+            label="Exp Date Text"
+            value={ccExpiry}
+          />
+          <KV
+            icon={<FiLock />}
+            iconColor="#ef4444"
+            label="Security Code Text"
+            value={ccCvc}
+          />
+          <KV
+            icon={<FiMapPin />}
+            iconColor="#facc15"
+            label="Zip Code Text"
+            value={ccZip}
+          />
+        </GroupSection>
+
+        {/* ---------------- SHIPPING INFORMATION ---------------- */}
+        <GroupSection
+          title="Shipping Information"
+          icon={<FiTruck />}
+          iconBg="linear-gradient(135deg,#3b82f6,#14b8a6)"
+        >
+          <div className="flex">
+            <div className="w-full">
+              <EnumRow
+                label="Default Shipping Term"
+                value={client?.defaultShippingTerms}
+                map={SHIPPING_COLORS}
+                icon={<FiTruck />}
+                iconColor="#3b82f6"
+              />
+            </div>
+
+            <div className="w-full">
+              <EnumRow
+                label="Default Payment Method"
+                value={client?.defaultPaymentMethod}
+                map={PAYMENT_COLORS}
+                icon={<FiCreditCard />}
+                iconColor="#6366f1"
+              />
+            </div>
+          </div>
+        </GroupSection>
+
+        {/* ---------------- NOTES ---------------- */}
+        <GroupSection
+          title="Notes"
+          icon={<FiHash />}
+          iconBg="linear-gradient(135deg,#6b7280,#111827)"
+        >
+          <KV
+            icon={<FiHash />}
+            iconColor="#6b7280"
+            label="Last Note"
+            value={client?.lastNote}
+          />
+        </GroupSection>
+      </CardContent>
     </Card>
   );
 }
@@ -509,7 +878,7 @@ function HeaderBar({ counts, q, onChange }) {
   );
 }
 
-/* ---------------- right pane activity list ---------------- */
+/* ---------------- right pane activity row/list/pagination ---------------- */
 function ActivityRow({ row }) {
   const dt = new Date(row.createdAt);
   const when = isNaN(dt.getTime())
@@ -560,9 +929,6 @@ function ActivityRow({ row }) {
         <Typography variant="body2" noWrap title={row.description}>
           {row.description || "—"}
         </Typography>
-        {/* <Typography variant="caption" color="text.secondary">
-          #{row.trackingId}
-        </Typography> */}
       </Box>
 
       <Box sx={{ width: 180 }}>
@@ -596,23 +962,19 @@ function ActivityRow({ row }) {
   );
 }
 
-/* ---------------- sticky, Gmail-style paginator ---------------- */
 function PaginationBar({ page, perPage, total, totalPages, onChange }) {
   const start = total ? (page - 1) * perPage + 1 : 0;
   const end = Math.min(page * perPage, total);
 
-  // build compact page buttons (windowed with ellipses)
   const pages = [];
-  const window = 1; // neighbors on each side
+  const window = 1;
   const push = (p) => pages.push(p);
 
   if (totalPages <= 7) {
     for (let p = 1; p <= totalPages; p++) push(p);
   } else {
-    // first block
     push(1);
     if (page > 3) pages.push("…");
-    // middle window
     for (
       let p = Math.max(2, page - window);
       p <= Math.min(totalPages - 1, page + window);
@@ -621,7 +983,6 @@ function PaginationBar({ page, perPage, total, totalPages, onChange }) {
       push(p);
     }
     if (page < totalPages - 2) pages.push("…");
-    // last
     push(totalPages);
   }
 
@@ -726,7 +1087,6 @@ function ActivityList({ page, setPage, q }) {
       <CardContent
         sx={{ p: 0, display: "flex", flexDirection: "column", flex: 1 }}
       >
-        {/* Header */}
         <Box sx={{ px: 2.25, py: 1.75, borderBottom: "1px solid #eef1f4" }}>
           <Stack direction="row" alignItems="center" spacing={1.25}>
             <Typography fontWeight={700}>Activities</Typography>
@@ -738,7 +1098,6 @@ function ActivityList({ page, setPage, q }) {
           </Stack>
         </Box>
 
-        {/* Column labels */}
         <Stack
           direction="row"
           sx={{
@@ -758,7 +1117,6 @@ function ActivityList({ page, setPage, q }) {
           <Box sx={{ width: 80, textAlign: "center" }}>Manage</Box>
         </Stack>
 
-        {/* Rows */}
         <Box sx={{ px: 2.25, overflowY: "auto", flex: 1 }}>
           {isLoading ? (
             <Box sx={{ p: 2, color: "text.secondary" }}>
@@ -780,7 +1138,6 @@ function ActivityList({ page, setPage, q }) {
           )}
         </Box>
 
-        {/* Sticky paginator (bottom of card) */}
         <PaginationBar
           page={data?.page || page}
           perPage={data?.perPage || perPage}
@@ -793,34 +1150,46 @@ function ActivityList({ page, setPage, q }) {
   );
 }
 
-/* ---------------- page ---------------- */
+/* ---------------- full page ---------------- */
 export default function ClientDetails() {
   const { id } = useParams();
 
   // Local search & pagination state (shared by header + list)
   const [q, setQ] = React.useState("");
-  const debouncedQ = useDebouncedValue(q, 400); // debounce to avoid spamming API
+  const debouncedQ = useDebouncedValue(q, 400);
   const [page, setPage] = React.useState(1);
 
-  // Reset to page 1 whenever the search changes
   React.useEffect(() => {
     setPage(1);
   }, [debouncedQ]);
 
-  // Fetch counts & top summary using the debounced search, so cards reflect filtered set too
   const { data, isFetching } = useActivitiesByClient(id, page, 50, debouncedQ);
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ background: theme.palette.background.default, minHeight: "100vh" }}>
-        <Container maxWidth={false} disableGutters sx={{ px: 2, py: 3, width: "100%" }}>
+      <Box
+        sx={{
+          background: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
+        <Container
+          maxWidth={false}
+          disableGutters
+          sx={{ px: 2, py: 3, width: "100%" }}
+        >
           <div className="flex xl:flex-row flex-col w-full gap-4">
-            <div className="xl:w-[40%]">
+            <div className="xl:w-[45%]">
               <ProfileSidebar />
             </div>
 
-            <div className="xl:w-[60%] w-full">
-              <HeaderBar counts={data?.counts} q={q} onChange={setQ} />
+            <div className="xl:w-[55%] w-full">
+              <HeaderBar
+                counts={data?.counts}
+                q={q}
+                onChange={setQ}
+                isFetching={isFetching}
+              />
               <ActivityList page={page} setPage={setPage} q={debouncedQ} />
             </div>
           </div>
