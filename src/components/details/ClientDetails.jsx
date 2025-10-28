@@ -590,47 +590,49 @@ function ProfileSidebar() {
           icon={<FiPhone />}
           iconBg="linear-gradient(135deg,#3b82f6,#6366f1)"
         >
-          <KV
-            icon={<FiPhone />}
-            iconColor="#10b981"
-            label="Phone"
-            value={client?.phone}
-            link={client?.phone ? `tel:${client.phone}` : undefined}
-          />
-          <KV
-            icon={<FiMail />}
-            iconColor="#6366f1"
-            label="Email"
-            value={client?.email}
-            link={client?.email ? `mailto:${client.email}` : undefined}
-          />
-          <KV
-            icon={<FiMapPin />}
-            iconColor="#ef4444"
-            label="Address"
-            value={fullAddr}
-            link={gmapsLink(fullAddr) || undefined}
-          />
-          <KV
-            icon={<FiGlobe />}
-            iconColor="#0ea5e9"
-            label="Website"
-            value={client?.website}
-            link={client?.website || undefined}
-          />
-          <KV
-            icon={<FiFacebook />}
-            iconColor="#3b5998"
-            label="Facebook Page"
-            value={client?.facebookPage}
-            link={client?.facebookPage || undefined}
-          />
-          <KV
-            icon={<FiBriefcase />}
-            iconColor="#14b8a6"
-            label="Industry"
-            value={client?.industry}
-          />
+          <div className="grid grid-cols-1 2xl:grid-cols-2">
+            <KV
+              icon={<FiPhone />}
+              iconColor="#10b981"
+              label="Phone"
+              value={client?.phone}
+              link={client?.phone ? `tel:${client.phone}` : undefined}
+            />
+            <KV
+              icon={<FiMail />}
+              iconColor="#6366f1"
+              label="Email"
+              value={client?.email}
+              link={client?.email ? `mailto:${client.email}` : undefined}
+            />
+            <KV
+              icon={<FiMapPin />}
+              iconColor="#ef4444"
+              label="Address"
+              value={fullAddr}
+              link={gmapsLink(fullAddr) || undefined}
+            />
+            <KV
+              icon={<FiGlobe />}
+              iconColor="#0ea5e9"
+              label="Website"
+              value={client?.website}
+              link={client?.website || undefined}
+            />
+            <KV
+              icon={<FiFacebook />}
+              iconColor="#3b5998"
+              label="Facebook Page"
+              value={client?.facebookPage}
+              link={client?.facebookPage || undefined}
+            />
+            <KV
+              icon={<FiBriefcase />}
+              iconColor="#14b8a6"
+              label="Industry"
+              value={client?.industry}
+            />
+          </div>
         </GroupSection>
 
         {/* ---------------- CLIENT STATUS ---------------- */}
@@ -685,31 +687,33 @@ function ProfileSidebar() {
           icon={<FiDollarSign />}
           iconBg="linear-gradient(135deg,#facc15,#f97316)"
         >
-          <KV
-            icon={<FiDollarSign />}
-            iconColor="#10b981"
-            label="Forecasted Amount"
-            value={client?.forecastedAmount}
-          />
-          <KV
-            icon={<FiTrendingUp />}
-            iconColor="#0ea5e9"
-            label="Interaction Count"
-            value={client?.interactionCount}
-          />
-          <KV
-            icon={<FiCalendar />}
-            iconColor="#6366f1"
-            label="Projected Close Date"
-            value={fmtDate(client?.projectedCloseDate)}
-          />
-          <KV
-            icon={<FiFolder />}
-            iconColor="#f97316"
-            label="Folder Link"
-            value={client?.folderLink}
-            link={client?.folderLink || undefined}
-          />
+          <div className="grid lg:grid-cols-2 2xl:grid-cols-3">
+            <KV
+              icon={<FiDollarSign />}
+              iconColor="#10b981"
+              label="Forecasted Amount"
+              value={client?.forecastedAmount}
+            />
+            <KV
+              icon={<FiTrendingUp />}
+              iconColor="#0ea5e9"
+              label="Interaction Count"
+              value={client?.interactionCount}
+            />
+            <KV
+              icon={<FiCalendar />}
+              iconColor="#6366f1"
+              label="Projected Close Date"
+              value={fmtDate(client?.projectedCloseDate)}
+            />
+            <KV
+              icon={<FiFolder />}
+              iconColor="#f97316"
+              label="Folder Link"
+              value={client?.folderLink}
+              link={client?.folderLink || undefined}
+            />
+          </div>
         </GroupSection>
 
         {/* ---------------- CREDIT CARD INFORMATION ---------------- */}
@@ -729,36 +733,38 @@ function ProfileSidebar() {
           </Box>
 
           {/* Raw fields below cards */}
-          <KV
-            icon={<FiUser />}
-            iconColor="#6366f1"
-            label="Name on Card"
-            value={ccName}
-          />
-          <KV
-            icon={<FiCreditCard />}
-            iconColor="#0ea5e9"
-            label="CC Number Text"
-            value={ccNumberText}
-          />
-          <KV
-            icon={<FiCalendar />}
-            iconColor="#10b981"
-            label="Exp Date Text"
-            value={ccExpiry}
-          />
-          <KV
-            icon={<FiLock />}
-            iconColor="#ef4444"
-            label="Security Code Text"
-            value={ccCvc}
-          />
-          <KV
-            icon={<FiMapPin />}
-            iconColor="#facc15"
-            label="Zip Code Text"
-            value={ccZip}
-          />
+          <div className="grid lg:grid-cols-2 2xl:grid-cols-3">
+            <KV
+              icon={<FiUser />}
+              iconColor="#6366f1"
+              label="Name on Card"
+              value={ccName}
+            />
+            <KV
+              icon={<FiCreditCard />}
+              iconColor="#0ea5e9"
+              label="CC Number Text"
+              value={ccNumberText}
+            />
+            <KV
+              icon={<FiCalendar />}
+              iconColor="#10b981"
+              label="Exp Date Text"
+              value={ccExpiry}
+            />
+            <KV
+              icon={<FiLock />}
+              iconColor="#ef4444"
+              label="Security Code Text"
+              value={ccCvc}
+            />
+            <KV
+              icon={<FiMapPin />}
+              iconColor="#facc15"
+              label="Zip Code Text"
+              value={ccZip}
+            />
+          </div>
         </GroupSection>
 
         {/* ---------------- SHIPPING INFORMATION ---------------- */}
