@@ -17,7 +17,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { monthlyNewClients, overviewAnalytics } from "../api/analytics";
+import { getCompanyTypeBreakdown, getContactStatusBreakdown, getContactTypeBreakdown, getTopUsersByActivity, monthlyNewClients, overviewAnalytics } from "../api/analytics";
 import { useLocation } from "react-router-dom";
 import { useToolbar } from "../store/toolbar";
 
@@ -119,7 +119,7 @@ function ChartCard({ title, subtitle, right, children, className = "" }) {
       />
       <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-sky-500/50 via-fuchsia-500/50 to-amber-400/50 shadow-[0_10px_30px_-10px_rgba(0,0,0,.20)]">
         <div className="rounded-2xl bg-white/90 dark:bg-slate-950/70 backdrop-blur-xl p-4 md:p-5">
-          <div className="flex items-start justify-between mb-3">
+          <div className="flex flex-col gap-3 items-start justify-between">
             <div>
               {title && (
                 <div className="text-sm md:text-base font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
@@ -253,12 +253,29 @@ function TrendArea() {
   );
 }
 
-function TopUsersBar({ data }) {
+function TopUsersBar() {
+
+  const [activityUsers, setActivityUsers] = useState([]);
+
+  const topUsers = async () => {
+    try {
+      const response = await getTopUsersByActivity();
+      console.log("activity Users", response.data);
+      setActivityUsers(response.data);
+    } catch (error) {
+      return error;
+    }
+  };
+
+  useEffect(() => {
+    topUsers();
+  }, []);
+
   return (
     <ChartCard title="Top Activity Users">
       <div className="h-[240px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <BarChart data={activityUsers}>
             <XAxis
               dataKey="name"
               tick={{ fontSize: 10, fill: "#64748b" }}
@@ -275,7 +292,7 @@ function TopUsersBar({ data }) {
               tickLine={false}
             />
             <Tooltip content={<NiceTooltip />} />
-            <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#8B5CF6" />
+            <Bar dataKey="activityCount" radius={[8, 8, 0, 0]} fill="#8B5CF6" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -286,6 +303,7 @@ function TopUsersBar({ data }) {
 function Donut({ title, data, colors }) {
   const palette = colors || COLORS;
   const total = data.reduce((a, b) => a + (b.value || 0), 0);
+
   return (
     <ChartCard
       title={title}
@@ -333,116 +351,50 @@ function Donut({ title, data, colors }) {
   );
 }
 
-function ActivityLine({ data, total, m30 }) {
-  const series = data?.length ? data : [{ day: "No recent", count: 0 }];
-  return (
-    <ChartCard
-      title="Activities Timeline"
-      subtitle={`Last 30 entries • Total: ${total} • 30d: ${m30}`}
-    >
-      <div className="h-[220px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={series}>
-            <XAxis
-              dataKey="day"
-              tick={{ fontSize: 12, fill: "#64748b" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fontSize: 12, fill: "#64748b" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip content={<NiceTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="#8b5cf6"
-              strokeWidth={2.4}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </ChartCard>
-  );
-}
-
-/* ---------- Demo DATA (same as your version) ---------- */
-const DATA = {
-  kpis: {
-    totalClients: 1679,
-    withCard: 252,
-    totalForecasted: 521375.23,
-    new30: 36,
-    new90: 116,
-    emailCoverage: 72.13,
-    phoneCoverage: 74.09,
-    activitiesTotal: 17,
-    activities30: 0,
-  },
-  trendMonthlyNew: [
-    { month: "2024-11", newClients: 34 },
-    { month: "2024-12", newClients: 67 },
-    { month: "2025-01", newClients: 29 },
-    { month: "2025-02", newClients: 55 },
-    { month: "2025-03", newClients: 58 },
-    { month: "2025-04", newClients: 96 },
-    { month: "2025-05", newClients: 34 },
-    { month: "2025-06", newClients: 56 },
-    { month: "2025-07", newClients: 23 },
-    { month: "2025-08", newClients: 100 },
-    { month: "2025-09", newClients: 70 },
-    { month: "2025-10", newClients: 36 },
-  ],
-  breakdowns: {
-    "Contact Type": [
-      { name: "Retail", value: 806 },
-      { name: "Distributor", value: 357 },
-      { name: "Individual", value: 217 },
-      { name: "Uncategorized", value: 96 },
-      { name: "Wholesaler", value: 73 },
-      { name: "Online", value: 59 },
-    ],
-    "Company Type": [
-      { name: "Smoke Shop", value: 775 },
-      { name: "Unspecified", value: 684 },
-      { name: "Grocery", value: 43 },
-      { name: "Gas Station", value: 41 },
-      { name: "Vape Shop", value: 24 },
-      { name: "CBD Shop", value: 22 },
-    ],
-    "Contact Status": [
-      { name: "Unspecified", value: 1205 },
-      { name: "New", value: 402 },
-      { name: "Contacted", value: 50 },
-      { name: "Qualified", value: 15 },
-      { name: "Customer", value: 5 },
-      { name: "In Progress", value: 2 },
-    ],
-  },
-  activityDaily: [],
-  activityTypes: [
-    { name: "Call", value: 9 },
-    { name: "Email", value: 5 },
-    { name: "Meeting", value: 3 },
-  ],
-  activityUsers: [
-    { name: "alecia@grassrootsharvest.com", value: 11 },
-    { name: "andy@rebelxbrands.com", value: 5 },
-    { name: "adeel@grassrootsharvest.com", value: 1 },
-    { name: "adeel@grassrootsharvest.com", value: 7 },
-    { name: "adeel@grassrootsharvest.com", value: 3 },
-    { name: "adeel@grassrootsharvest.com", value: 14 },
-  ],
-};
 
 /* ---------- Page ---------- */
 export default function Dashboard() {
-  const k = DATA.kpis;
+
+  const [contactStatusBreakdown, setContactStatusBreakdown] = useState([]);
+  const [companyTypeBreakdown, setCompanyTypeBreakdown] = useState([]);
+  const [contactTypeBreakdown, setContactTypeBreakdown] = useState([]);
+
+  // Contact Status
+  useEffect(() => {
+    (async () => {
+      const response = await getContactStatusBreakdown();
+      console.log("contact Status", response.data);
+      setContactStatusBreakdown(response?.data);
+    })();
+  }, []);
+
+  // Company Type
+  useEffect(() => {
+    (async () => {
+      const response = await getCompanyTypeBreakdown();
+      console.log("company Type", response.data);
+      setCompanyTypeBreakdown(response?.data);
+    })();
+  }, []);
+
+  // Contact Type
+  useEffect(() => {
+    (async () => {
+      const response = await getContactTypeBreakdown();
+      console.log("contact Type", response.data);
+      setContactTypeBreakdown(response?.data);
+    })();
+  }, []);
+
+
+  /* ---------- Demo DATA (same as your version) ---------- */
+  const DATA = {
+    breakdowns: {
+      "Contact Type": contactTypeBreakdown,
+      "Company Type": companyTypeBreakdown?.slice(0, 8),
+      "Contact Status": contactStatusBreakdown,
+    },
+  };
 
   useToolbar({
     title: "Dashboard",
@@ -459,6 +411,7 @@ export default function Dashboard() {
       setOverview(response?.data);
     })();
   }, []);
+
 
   return (
     <>
@@ -499,20 +452,15 @@ export default function Dashboard() {
 
       {/* Trend + Top Users */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 my-4">
-        <TrendArea data={DATA.trendMonthlyNew} />
-        <TopUsersBar data={DATA.activityUsers} />
+        <TrendArea />
+        <TopUsersBar />
       </div>
 
       {/* Donuts */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {Object.entries(DATA.breakdowns).map(([title, arr]) => (
           <Donut key={title} title={title} data={arr} colors={COLORS} />
         ))}
-        <ActivityLine
-          data={DATA.activityDaily}
-          total={k.activitiesTotal}
-          m30={k.activities30}
-        />
       </div>
 
       {/* Activity timeline */}

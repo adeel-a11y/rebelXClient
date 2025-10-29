@@ -20,3 +20,38 @@ export const monthlyNewClients = async () => {
     }
 };
 
+export const getTopUsersByActivity = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/top-users`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
+
+export const getContactStatusBreakdown = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/contact-status-breakdown`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
+
+export const getCompanyTypeBreakdown = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/company-type-breakdown`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
+
+export const getContactTypeBreakdown = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/contact-type-breakdown`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
