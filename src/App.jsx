@@ -16,6 +16,7 @@ import UserDetails from "./components/details/UserDetails";
 import "./App.css";
 import ClientDetailsPage from "./pages/ClientDetailsPage";
 import ActivityUpsert from "./components/create/ActivityUpsert";
+import ClientActivitiesPage from "./pages/ClientActivitiesPage";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="/users" element={<Users />} />
               <Route path="tasks" element={<Tasks />} />
               <Route path="activities" element={<Activities />} />
+              <Route path="client-activities/:id" element={<ClientActivitiesPage />} />
               <Route path="/users/new" element={<UserCreatePage />} />
               <Route path="/users/:id" element={<EditUserPage />} />
               <Route path="/user-details/:id" element={<UserDetails />} />

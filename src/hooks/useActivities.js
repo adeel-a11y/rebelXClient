@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getActivitiesLists,
   getActivitiesSummary,
+  getActivitiesListByClientId,
   getActivityById,
   createActivity,
   updateActivity,
@@ -36,6 +37,44 @@ export function useActivities(
     queryKey: qk.list(params),
     queryFn: () => getActivitiesLists(params),
     keepPreviousData: true,
+  });
+}
+
+export function useActivitiesByClientId(
+  clientId,
+  page = 1,
+  q = "",
+  limit = 100,
+  filters = {},
+  options = {}
+) {
+  const queryOptions = {
+    page,
+    limit,
+    q,
+    filters,
+    ...options, // { from, to, sortBy, sort }
+  };
+
+  console.log("useActivitiesByClientId params", clientId, queryOptions);
+
+  return useQuery({
+    queryKey: [
+      "activitiesByClient",
+      clientId,
+      queryOptions.page,
+      queryOptions.limit,
+      queryOptions.q,
+      queryOptions.filters?.types ?? [],
+      queryOptions.filters?.datePreset ?? null,
+      queryOptions.from ?? null,
+      queryOptions.to ?? null,
+      queryOptions.sortBy ?? "createdAt",
+      queryOptions.sort ?? "desc",
+    ],
+    queryFn: () => getActivitiesListByClientId(clientId, queryOptions),
+    keepPreviousData: true,
+    enabled: Boolean(clientId),
   });
 }
 

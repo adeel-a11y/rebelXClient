@@ -9,11 +9,11 @@ import React, {
 import { DataGrid } from "@mui/x-data-grid";
 import { ClipLoader } from "react-spinners";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useToolbar } from "../store/toolbar";
 import {
-  useActivities, // GET (server-side pagination + filters)
+  useActivitiesByClientId, // GET (server-side pagination + filters)
   useDeleteActivity, // DELETE
 } from "../hooks/useActivities";
 
@@ -24,7 +24,7 @@ import PaginationBar from "../components/activities/PaginationBar";
 import { useDebouncedCallback } from "../components/activities/useDebouncedCallback";
 import { dash, fmtDate } from "../components/activities/utils";
 
-export default function Activities() {
+export default function ClientActivitiesPage() {
   const navigate = useNavigate();
 
   // pagination state
@@ -48,14 +48,12 @@ export default function Activities() {
     setQuery(v);
 
     // reset page to 0 if user is not already on it
-    setPaginationModel((m) =>
-      m.page === 0 ? m : { ...m, page: 0 }
-    );
+    setPaginationModel((m) => (m.page === 0 ? m : { ...m, page: 0 }));
   }, 250);
 
   // toolbar config
   useToolbar({
-    title: "Activities",
+    title: "Client Activities",
     searchPlaceholder: "Search activities…",
     onSearch: debouncedSearch,
     actions: [
@@ -73,8 +71,16 @@ export default function Activities() {
     backButton: true,
   });
 
+  const { id } = useParams();
+
+  console.log("id", id);
+  console.log("query", query);
+  console.log("filters", filters);
+  console.log("paginationModel", paginationModel);
+
   // data fetch
-  const { data, isLoading, isFetching } = useActivities(
+  const { data, isLoading, isFetching } = useActivitiesByClientId(
+    id,
     pageForServer,
     query,
     paginationModel.pageSize,
@@ -115,9 +121,7 @@ export default function Activities() {
     setFilters(next);
 
     // reset to first page whenever filters change
-    setPaginationModel((m) =>
-      m.page === 0 ? m : { ...m, page: 0 }
-    );
+    setPaginationModel((m) => (m.page === 0 ? m : { ...m, page: 0 }));
   }, []);
 
   // table columns
@@ -161,10 +165,10 @@ export default function Activities() {
         headerName: "Actions",
         width: 120,
         sortable: false,
-        filterable: false, 
+        filterable: false,
         disableColumnMenu: true,
         renderCell: (params) => {
-          const row = params.row;
+          const row = params?.row;
           const stop = (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -189,10 +193,7 @@ export default function Activities() {
                   openConfirm(row);
                 }}
               >
-                <FiTrash2
-                  size={16}
-                  className="text-red-600"
-                />
+                <FiTrash2 size={16} className="text-red-600" />
               </button>
             </div>
           );
@@ -230,8 +231,7 @@ export default function Activities() {
             paginationModel={paginationModel}
             onPaginationModelChange={(model) =>
               setPaginationModel((prev) =>
-                prev.page === model.page &&
-                prev.pageSize === model.pageSize
+                prev.page === model.page && prev.pageSize === model.pageSize
                   ? prev
                   : {
                       page: model.page,

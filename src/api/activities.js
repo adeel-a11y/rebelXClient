@@ -73,6 +73,65 @@ export async function getActivitiesLists({
   }
 }
 
+export async function getActivitiesListByClientId(
+  clientId,
+  {
+    page = 1,
+    limit = 100,
+    q = "",
+    filters = {},
+    from,
+    to,
+    sortBy = "createdAt",
+    sort = "desc",
+  } = {}
+) {
+  // 🛡 safety: if no clientId, do not hit server at all
+  if (!clientId) {
+    return {
+      rows: [],
+      meta: {
+        page,
+        perPage: limit,
+        total: 0,
+        totalPages: 1,
+        hasPrev: false,
+        hasNext: false,
+      },
+    };
+  }
+
+  try {
+    const params = {
+      page,
+      limit,
+      sortBy,
+      sort,
+      ...(q ? { q } : {}),
+      ...mapFiltersToParams(filters),
+      ...(from ? { from } : {}),
+      ...(to ? { to } : {}),
+    };
+
+    console.log("getActivitiesListByClientId params", params);
+
+    const res = await axios.get(
+      `${BASE_URL}/activities/lists/client/${clientId}`,
+      { params }
+    );
+
+    // backend returns { rows, meta }
+    return res.data || {};
+  } catch (err) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
+    throw new Error(msg);
+  }
+}
+
 export async function getActivitiesSummary({
   q = "",
   datePreset = null,

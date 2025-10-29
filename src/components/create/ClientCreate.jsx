@@ -13,6 +13,69 @@ const STATUS_OPTIONS = [
   "Consideration",
 ];
 
+const TYPE_OPTIONS = [
+  "Potential Customer",
+  "Current Customer",
+  "Inactive Customer",
+  "Uncategorized",
+  "Other",
+];
+
+const COMPANY_TYPE_OPTIONS = [
+  "Smoke Shop",
+  "Vape Store",
+  "Shop",
+  "Distro",
+  "Master Distro",
+  "Broker/Jobber",
+  "Manufacturer",
+  "Dispensary",
+  "Kratom Dispensary",
+  "Kratom Dispensary/Distributor",
+  "CBD Dispensary",
+  "Kava/Kratom Bar",
+  "Kava Bar",
+  "Health Food Store",
+  "Tobacco Shop",
+  "Liquor store",
+  "Online Retailer",
+  "Franchise",
+  "Spa",
+  "Individual",
+  "Beer and Wine Bar",
+  "Market",
+  "Amherst Client",
+  "Sully's Client",
+  "Whole Saler",
+  "Gas station",
+  "Vape Empire",
+  "Other",
+];
+
+const SHIPPING_OPTIONS = [
+  "UPS Ground",
+  "UPS 2nd Day Air",
+  "UPS 3 Day Select",
+  "UPS Next Day Air Saver",
+  "USPS Ground Advantage",
+  "Will Call",
+  "Local Delivery",
+  "Freight Via SAIA",
+];
+
+const PAYMENT_OPTIONS = [
+  "Credit Card",
+  "CC#",
+  "Auth Payment Link",
+  "Mobile Check Deposit",
+  "ACH",
+  "Cash",
+  "Nothing Due",
+  "Check By Mail",
+  "Net Terms",
+  "Other",
+];
+
 /* ----------------------------- UI Primitives ----------------------------- */
 function Section({ title, children }) {
   return (
@@ -30,6 +93,7 @@ function Input({ label, ...props }) {
     <label className="flex flex-col gap-1">
       <span className="text-xs font-medium text-slate-600">{label}</span>
       <input
+        type={props.type}
         className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
         {...props}
       />
@@ -115,7 +179,10 @@ export default function ClientCreate({
     defaultPaymentMethod: initial.defaultPaymentMethod ?? "",
   }));
 
-  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const update = (k) => (e) => setForm((f) => {
+    console.log(e.target.value);
+    return ({ ...f, [k]: e.target.value, })
+  });
 
   // Single submit handler for both create & edit
   const handleSubmit = (e) => {
@@ -127,7 +194,7 @@ export default function ClientCreate({
       forecastedAmount: toNumberOrNull(form.forecastedAmount),
       interactionCount: toNumberOrNull(form.interactionCount),
       // If you actually need these as text (to keep leading zeros), remove casts below:
-      expirationDateText: toNumberOrNull(form.expirationDateText),
+      expirationDateText: form.expirationDateText,
       ccNumberText: toNumberOrNull(form.ccNumberText),
       securityCodeText: toNumberOrNull(form.securityCodeText),
       projectedCloseDate: form.projectedCloseDate
@@ -154,23 +221,6 @@ export default function ClientCreate({
           <div className="text-sm text-slate-500">
             Fill in the client details and save.
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`px-4 py-2 rounded-lg text-white ${
-              submitting ? "bg-slate-400" : "bg-slate-900 hover:bg-black"
-            }`}
-          >
-            {submitting ? (
-              <ClipLoader size={18} color="#fff" />
-            ) : mode === "create" ? (
-              "Add Client"
-            ) : (
-              "Save Changes"
-            )}
-          </button>
         </div>
       </div>
 
@@ -199,15 +249,17 @@ export default function ClientCreate({
             onChange={update("contactStatus")}
             options={STATUS_OPTIONS}
           />
-          <Input
+          <Select
             label="Contact Type"
             value={form.contactType}
             onChange={update("contactType")}
+            options={TYPE_OPTIONS}
           />
-          <Input
+          <Select
             label="Company Type"
             value={form.companyType}
             onChange={update("companyType")}
+            options={COMPANY_TYPE_OPTIONS}
           />
           <Textarea
             label="Description"
@@ -276,15 +328,17 @@ export default function ClientCreate({
             value={form.projectedCloseDate ?? ""}
             onChange={update("projectedCloseDate")}
           />
-          <Input
+          <Select
             label="Default Shipping Terms"
             value={form.defaultShippingTerms}
             onChange={update("defaultShippingTerms")}
+            options={SHIPPING_OPTIONS}
           />
-          <Input
+          <Select
             label="Default Payment Method"
             value={form.defaultPaymentMethod}
             onChange={update("defaultPaymentMethod")}
+            options={PAYMENT_OPTIONS}
           />
         </Section>
 
@@ -311,6 +365,7 @@ export default function ClientCreate({
             onChange={update("nameOnCard")}
           />
           <Input
+            type="date"
             label="Expiration Date (text/number)"
             value={form.expirationDateText}
             onChange={update("expirationDateText")}
@@ -336,6 +391,24 @@ export default function ClientCreate({
             onChange={update("lastNote")}
           />
         </Section>
+
+        <div className="flex justify-end items-center gap-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className={`px-4 py-2 rounded-lg text-white ${
+              submitting ? "bg-slate-400" : "bg-slate-900 hover:bg-black"
+            }`}
+          >
+            {submitting ? (
+              <ClipLoader size={18} color="#fff" />
+            ) : mode === "create" ? (
+              "Add Client"
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );

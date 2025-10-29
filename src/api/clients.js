@@ -38,8 +38,9 @@ export async function getClientsSummary() {
 
 /** NEW: single, create, update, delete **/
 export async function getClientById(id) {
-  const { data } = await axios.get(`${BASE_URL}/clients/lists/${id}`);
-  return data;
+  const res = await axios.get(`${BASE_URL}/clients/lists/${id}`);
+  console.log(res.data);
+  return res.data?.data;
 }
 
 // api/clients.js

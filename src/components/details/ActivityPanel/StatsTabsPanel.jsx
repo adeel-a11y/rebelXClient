@@ -14,70 +14,6 @@ import ClipLoader from "react-spinners/ClipLoader";
    Fake data for each tab (10 rows each)
 -------------------------------------------------------------------*/
 
-// Activities table data
-const ACTIVITIES_ROWS = [
-  {
-    type: "call",
-    desc: "NPU",
-    date: "9/30/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "note",
-    desc: "Text sent for a restock",
-    date: "9/29/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "NPU",
-    date: "9/29/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "note",
-    desc: "Text sent to get an update on the new KKP samples.",
-    date: "9/19/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "note",
-    desc: "Text sent for a restock.",
-    date: "8/29/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "George will soon place an order.",
-    date: "8/29/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "NPU",
-    date: "8/28/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "NPU",
-    date: "8/28/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "NPU",
-    date: "8/27/2025",
-    user: "Andy Richardson",
-  },
-  {
-    type: "call",
-    desc: "Incoming: George just called in and placed an order. 2 KK G 2 Rush & 5 GÜ...",
-    date: "8/26/2024",
-    user: "Victor Junco",
-  },
-];
-
 // Orders table data
 const ORDERS_ROWS = [
   {
@@ -301,7 +237,7 @@ const SALES_ROWS = [
 ];
 
 /* ------------------------------------------------------------------
-   Small reusable row renderers
+Small reusable row renderers
 -------------------------------------------------------------------*/
 
 // Renders the Activities table (looks like your screenshot)
@@ -663,7 +599,7 @@ export default function StatsTabsPanel() {
 
           <div className="w-full text-end 2xl:pb-0 xl:pb-3 lg:pb-0">
             <Link
-              to="/activities"
+              to={`/client-activities/${activities[0]?.clientId}`}
               className="text-indigo-600 hover:text-indigo-700 text-[13px] mt-2"
             >
               View More

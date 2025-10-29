@@ -95,15 +95,17 @@ export function fullAddressFromClient(c) {
 // "729" -> "07/29", "1225" -> "12/25"
 export function formatExpiry(raw) {
   if (!raw) return "";
-  const digits = String(raw).replace(/\D/g, "");
+  console.log(raw);
+  const digits = String(raw).replace(/\D/g, "")?.slice(0, 8);
+  console.log("digits", digits);
   if (digits.length === 3) {
     const mm = digits[0];
     const yy = digits.slice(1);
     return `${mm.padStart(2, "0")}/${yy}`;
   }
-  if (digits.length === 4) {
-    const mm = digits.slice(0, 2);
-    const yy = digits.slice(2);
+  if (digits.length === 8) {
+    const yy = digits.slice(0, 4);
+    const mm = digits.slice(4, 6);
     return `${mm}/${yy}`;
   }
   return raw;
