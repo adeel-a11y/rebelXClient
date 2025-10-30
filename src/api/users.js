@@ -31,6 +31,11 @@ export async function getUsersSummary() {
   return res.data; // { success, total, byStatus:[{status,count,pct}], generatedAt }
 }
 
+export async function getUserNames() {
+  const res = await axios.get(`${BASE_URL}/users/lists/names`);
+  return res.data; // { success, total, byStatus:[{status,count,pct}], generatedAt }
+}
+
 export async function getUserById(id) {
   const res = await fetch(`${BASE_URL}/users/lists/${id}`);
   if (!res.ok) throw new Error(`GET /api/users/lists/${id} failed`);

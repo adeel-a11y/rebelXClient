@@ -1,6 +1,6 @@
 // src/hooks/useUsers.js
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { getUsersLists, getUsersSummary, createUser, getUserById, updateUser, deleteUser } from "../api/users";
+import { getUsersLists, getUsersSummary, createUser, getUserById, updateUser, deleteUser, getUserNames } from "../api/users";
 
 export function useUsers(page, q = "", pageSize = 20, filters = {}) {
   // Stable key: stringify filters shallowly
@@ -24,6 +24,17 @@ export function useUsers(page, q = "", pageSize = 20, filters = {}) {
         totalPages: payload?.totalPages ?? 1,
       },
     }),
+  });
+}
+
+export function useUserNames() {
+  return useQuery({
+    queryKey: ["user-names"],
+    queryFn: getUserNames,
+    staleTime: 10 * 60 * 1000, // 10 min
+    gcTime: 60 * 60 * 1000,    // 1 hr
+    select: (payload) => payload?.data ?? [],
+    placeholderData: keepPreviousData,
   });
 }
 

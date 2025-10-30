@@ -14,7 +14,7 @@ export default function ClientCreatePage() {
     searchPlaceholder: "",
     onSearch: () => {},
     actions: [],
-    backButton: true,  
+    backButton: true,
   });
 
   const handleSubmit = async (payload) => {
@@ -28,5 +28,11 @@ export default function ClientCreatePage() {
     }
   };
 
-  return <ClientCreate mode="create" submitting={isPending} onSubmit={handleSubmit} />;
+  return (
+    <ClientCreate
+      mode="create"
+      submitting={isPending}
+      onSubmit={handleSubmit}
+    />
+  );
 }

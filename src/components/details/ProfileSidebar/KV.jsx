@@ -2,7 +2,7 @@
 import { Box, Link, Stack, Typography } from "@mui/material";
 import { dash } from "../ClientDetails/helpers";
 
-export default function KV({ icon, iconColor = "#6b7280", label, value, link }) {
+export default function KV({ icon, iconColor = "#6b7280", label, value, link, isContactInfo = false }) {
   const body = link ? (
     <Link href={link} target="_blank" rel="noreferrer" underline="hover">
       {dash(value)}
@@ -38,12 +38,11 @@ export default function KV({ icon, iconColor = "#6b7280", label, value, link }) 
         >
           {label}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{ wordBreak: "break-word", fontWeight: 500 }}
+        <p
+          className={`${isContactInfo ? "2xl:text-base xl:text-[.7rem]" : ""}`}
         >
           {body}
-        </Typography>
+        </p>
       </Stack>
     </Stack>
   );

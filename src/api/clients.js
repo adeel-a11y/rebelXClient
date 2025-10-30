@@ -57,6 +57,7 @@ export async function createClient(payload) {
 }
 
 export async function updateClient(id, payload) {
+  console.log(id, payload);
   const { data } = await axios.put(`${BASE_URL}/clients/update/${id}`, payload);
   return data; // updated client doc
 }

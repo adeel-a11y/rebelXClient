@@ -22,7 +22,7 @@ export default function ActivityPanel() {
   const { data, isFetching } = useActivitiesByClient(id, page, 50, debouncedQ);
 
   return (
-    <Box className="xl:w-[55%]">
+    <>
       <HeaderBar
         counts={data?.counts}
         q={q}
@@ -31,6 +31,6 @@ export default function ActivityPanel() {
       />
       <StatsTabsPanel />
       {/* <ActivityList page={page} setPage={setPage} q={debouncedQ} /> */}
-    </Box>
+    </>
   );
 }

@@ -127,12 +127,12 @@ export default function ClientActivitiesPage() {
   // table columns
   const columns = useMemo(
     () => [
-      {
-        field: "createdAt",
-        headerName: "Date/Time",
-        width: 190,
-        valueFormatter: (v) => fmtDate(v),
-      },
+      // {
+      //   field: "createdAt",
+      //   headerName: "Date/Time",
+      //   width: 190,
+      //   valueFormatter: (v) => fmtDate(v),
+      // },
       {
         field: "type",
         headerName: "Type",

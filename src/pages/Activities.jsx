@@ -123,12 +123,12 @@ export default function Activities() {
   // table columns
   const columns = useMemo(
     () => [
-      {
-        field: "createdAt",
-        headerName: "Date/Time",
-        width: 190,
-        valueFormatter: (v) => fmtDate(v),
-      },
+      // {
+      //   field: "createdAt",
+      //   headerName: "Date/Time",
+      //   width: 190,
+      //   valueFormatter: (v) => fmtDate(v),
+      // },
       {
         field: "type",
         headerName: "Type",
@@ -155,7 +155,7 @@ export default function Activities() {
         minWidth: 260,
         valueFormatter: (v) => dash(v),
       },
-      { field: "createdAt", headerName: "Date", width: 220, valueFormatter: (v) => fmtDate(v) },
+      { field: "createdAt", headerName: "Date", width: 220, renderCell: (p) => p.row.createdAt?.split(" ")[0] || p.row.createdAt?.split("T")[0] },
       {
         field: "actions",
         headerName: "Actions",

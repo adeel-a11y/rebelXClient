@@ -13,19 +13,21 @@ export default function ClientDetailsPage() {
         sx={{
           background: theme.palette.background.default,
           minHeight: "100vh",
+          overflowX: "hidden",
         }}
       >
         <Container
           maxWidth={false}
           disableGutters
-          sx={{ px: 2, py: 3, width: "100%" }}
+          sx={{ px: 0, py: 1, width: "100%" }}
         >
           <div className="flex xl:flex-row flex-col w-full gap-4">
             <div className="xl:w-[45%]">
               <ProfileSidebar />
             </div>
-
-            <ActivityPanel />
+            <div className="xl:w-[55%]">
+              <ActivityPanel />
+            </div>
           </div>
         </Container>
       </Box>

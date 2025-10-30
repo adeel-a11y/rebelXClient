@@ -57,8 +57,7 @@ export default function ProfileSidebar() {
           sx={{
             height: 120,
             borderRadius: 2,
-            background:
-              "linear-gradient(135deg,#ff6060 0%,#6c7bff 100%)",
+            background: "linear-gradient(135deg,#ff6060 0%,#6c7bff 100%)",
             mb: 2,
           }}
         />
@@ -177,8 +176,9 @@ export default function ProfileSidebar() {
           icon={<FiPhone />}
           iconBg="linear-gradient(135deg,#3b82f6,#6366f1)"
         >
-          <div className="grid grid-cols-1 2xl:grid-cols-2">
+          <div className="grid grid-cols-1 xl:grid-cols-2">
             <KV
+              isContactInfo={true}
               icon={<FiPhone />}
               iconColor="#10b981"
               label="Phone"
@@ -186,6 +186,7 @@ export default function ProfileSidebar() {
               link={client?.phone ? `tel:${client.phone}` : undefined}
             />
             <KV
+              isContactInfo={true}
               icon={<FiMail />}
               iconColor="#6366f1"
               label="Email"
@@ -193,6 +194,7 @@ export default function ProfileSidebar() {
               link={client?.email ? `mailto:${client.email}` : undefined}
             />
             <KV
+              isContactInfo={true}
               icon={<FiMapPin />}
               iconColor="#ef4444"
               label="Address"
@@ -200,6 +202,7 @@ export default function ProfileSidebar() {
               link={gmapsLink(fullAddr) || undefined}
             />
             <KV
+              isContactInfo={true}
               icon={<FiGlobe />}
               iconColor="#0ea5e9"
               label="Website"
@@ -207,6 +210,7 @@ export default function ProfileSidebar() {
               link={client?.website || undefined}
             />
             <KV
+              isContactInfo={true}
               icon={<FiFacebook />}
               iconColor="#3b5998"
               label="Facebook Page"
@@ -214,6 +218,7 @@ export default function ProfileSidebar() {
               link={client?.facebookPage || undefined}
             />
             <KV
+              isContactInfo={true}
               icon={<FiBriefcase />}
               iconColor="#14b8a6"
               label="Industry"

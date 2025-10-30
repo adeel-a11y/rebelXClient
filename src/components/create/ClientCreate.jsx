@@ -1,6 +1,7 @@
 // src/components/create/ClientCreate.jsx
 import React, { useState } from "react";
 import { ClipLoader } from "react-spinners";
+import { useUserNames } from "../../hooks/useUsers";
 
 const STATUS_OPTIONS = [
   "Sampling",
@@ -179,10 +180,14 @@ export default function ClientCreate({
     defaultPaymentMethod: initial.defaultPaymentMethod ?? "",
   }));
 
-  const update = (k) => (e) => setForm((f) => {
-    console.log(e.target.value);
-    return ({ ...f, [k]: e.target.value, })
-  });
+  // Get User Names
+  const { data: userNames } = useUserNames();
+
+  const update = (k) => (e) =>
+    setForm((f) => {
+      console.log(e.target.value);
+      return { ...f, [k]: e.target.value };
+    });
 
   // Single submit handler for both create & edit
   const handleSubmit = (e) => {
@@ -232,11 +237,17 @@ export default function ClientCreate({
             value={form.externalId}
             onChange={update("externalId")}
           />
-          <Input
-            label="Owned By (email)"
-            value={form.ownedBy}
-            onChange={update("ownedBy")}
+          <Select
+            label="Owned By"
+            value={form.fullName}
+            onChange={update("fullName")}
+            options={userNames}
           />
+          {/* <Input
+            label="Full Name"
+            value={form.fullName}
+            onChange={update("fullName")}
+          /> */}
           <Input
             label="Client Name *"
             value={form.name}
@@ -354,11 +365,11 @@ export default function ClientCreate({
             value={form.folderLink}
             onChange={update("folderLink")}
           />
-          <Input
-            label="Full Name"
-            value={form.fullName}
-            onChange={update("fullName")}
-          />
+          {/* <Input
+            label="Owned By (email)"
+            value={form.ownedBy}
+            onChange={update("ownedBy")}
+          /> */}
           <Input
             label="Name on Card (text)"
             value={form.nameOnCard}

@@ -243,16 +243,16 @@ Small reusable row renderers
 // Renders the Activities table (looks like your screenshot)
 function ActivitiesTable({ rows, loading }) {
   return (
-    <CardLike title="Recent Activities">
+    <CardLike title="Recent Activities" minWidth="1200px">
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
-        <div className="w-[60px]">Type</div>
-        <div className="lg:w-[400px] xl:w-[300px] 2xl:w-[400px]">
+        <div className="w-[5%]">Type</div>
+        <div className="w-[70%]">
           Description
         </div>
-        <div className="w-[120px]">Date</div>
-        <div className="w-[180px]">User</div>
-        <div className="w-[80px] text-center">Manage</div>
+        <div className="w-[10%]">Date</div>
+        <div className="w-[10%]">User</div>
+        <div className="w-[5%] text-center">Manage</div>
       </div>
 
       {/* loading */}
@@ -274,7 +274,7 @@ function ActivitiesTable({ rows, loading }) {
             className="flex items-start border-b last:border-b-0 border-gray-100 py-3 px-4 text-[13px] text-gray-800"
           >
             {/* type icon */}
-            <div className="w-[60px] flex items-start">
+            <div className="w-[5%] flex items-start">
               {r.type === "Call" ? (
                 <FiPhone className="text-green-600 text-[16px]" />
               ) : r.type === "Email" ? (
@@ -285,22 +285,22 @@ function ActivitiesTable({ rows, loading }) {
             </div>
 
             {/* desc */}
-            <div className="lg:w-[400px] xl:w-[300px] 2xl:w-[400px] pr-4 text-[13px] leading-[1.4] text-gray-800">
+            <div className="w-[70%] pr-4 text-[13px] leading-[1.4] text-gray-800">
               {r?.description}
             </div>
 
             {/* date */}
-            <div className="w-[120px] text-[13px] text-gray-800">
+            <div className="w-[10%] text-[13px] text-gray-800">
               {r?.createdAt?.split(" ")[0]}
             </div>
 
             {/* user */}
-            <div className="w-[180px] text-[13px] text-gray-800 truncate">
+            <div className="w-[10%] text-[13px] text-gray-800 truncate">
               {r?.userId}
             </div>
 
             {/* manage */}
-            <div className="w-[80px] flex items-start justify-center gap-3 text-[15px]">
+            <div className="w-[5%] flex items-start justify-center gap-3 text-[15px]">
               <button className="text-pink-500 hover:text-pink-600">
                 <RiDeleteBinLine />
               </button>
@@ -318,7 +318,7 @@ function ActivitiesTable({ rows, loading }) {
 // Orders table
 function OrdersTable({ rows }) {
   return (
-    <CardLike title="Recent Orders">
+    <CardLike title="Recent Orders" minWidth="800px">
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">Order #</div>
@@ -326,7 +326,7 @@ function OrdersTable({ rows }) {
         <div className="w-[100px]">Total</div>
         <div className="w-[120px]">Date</div>
         <div className="w-[180px]">Rep</div>
-        <div className="w-[220px] text-end">Manage</div>
+        <div className="flex-1 text-end">Manage</div>
       </div>
 
       {/* rows */}
@@ -357,7 +357,7 @@ function OrdersTable({ rows }) {
           <div className="w-[100px]">{r.total}</div>
           <div className="w-[120px]">{r.date}</div>
           <div className="w-[180px] truncate">{r.rep}</div>
-          <div className="w-[220px] flex items-start justify-end gap-3 text-[15px]">
+          <div className="flex-1 flex items-start justify-end gap-3 text-[15px]">
             <button className="text-pink-500 hover:text-pink-600">
               <RiDeleteBinLine />
             </button>
@@ -374,7 +374,7 @@ function OrdersTable({ rows }) {
 // Inventory table
 function InventoryTable({ rows }) {
   return (
-    <CardLike title="Latest Inventory">
+    <CardLike title="Latest Inventory" minWidth="1000px">
       {/* header */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">SKU</div>
@@ -412,7 +412,7 @@ function InventoryTable({ rows }) {
 // Sales table
 function SalesTable({ rows }) {
   return (
-    <CardLike title="Recent Sales">
+    <CardLike title="Recent Sales" minWidth="800px">
       {/* header */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[110px]">Invoice #</div>
@@ -468,16 +468,21 @@ function SalesTable({ rows }) {
    (rounded border, title row, etc.)
 -------------------------------------------------------------------*/
 
-function CardLike({ title, children }) {
+function CardLike({ title, children, minWidth }) {
   return (
-    <div className="bg-white min-w-[860px] rounded-xl border border-gray-200 shadow-[0_8px_24px_rgba(0,0,0,0.03)] overflow-hidden">
-      {/* Header */}
+    <div className="bg-white rounded-xl border border-gray-200 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
+      {/* Title bar (static, no scroll) */}
       <div className="px-4 py-3 border-b border-gray-200 flex items-center text-[14px] font-semibold text-gray-900">
         {title}
       </div>
 
-      {/* Table body */}
-      <div className="w-full">{children}</div>
+      {/* Scroll container: sirf yahan horizontal scroll aayega jab zarurat ho */}
+      <div className="w-full overflow-x-auto">
+        {/* Table content: minimum width 700px */}
+        <div className={`min-w-[${minWidth}]`}>
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
