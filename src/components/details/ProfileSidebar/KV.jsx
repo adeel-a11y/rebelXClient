@@ -39,7 +39,7 @@ export default function KV({ icon, iconColor = "#6b7280", label, value, link, is
           {label}
         </Typography>
         <p
-          className={`${isContactInfo ? "2xl:text-base xl:text-[.7rem]" : ""}`}
+          className={`2xl:text-base lg:text-[.7rem]`}
         >
           {body}
         </p>

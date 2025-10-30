@@ -18,6 +18,7 @@ export default function ClientEdit() {
     searchPlaceholder: "",
     onSearch: () => {},
     actions: [],
+    backButton: true,
   });
 
   const handleSubmit = async (payload) => {

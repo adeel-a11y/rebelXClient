@@ -24,7 +24,7 @@ body {
 
 /* -------- Variables -------- */
 :root {
-  --sb-open: 280px; /* expanded sidebar width */
+  --sb-open: 240px; /* expanded sidebar width */
   --sb-collapsed: 72px; /* icons-only width */
   --topbar-h: 56px;
   --footer-h: 48px;
@@ -39,6 +39,12 @@ body {
   --sb-muted: #a6b3c9;
   --sb-active: #0f2a7e;
   --sb-hover: rgba(255, 255, 255, 0.07);
+}
+
+@media (max-width:1280px) {
+  :root {
+    --sb-open: 210px; /* expanded sidebar width */
+  }
 }
 
 /* -------- App shell container (optional) -------- */

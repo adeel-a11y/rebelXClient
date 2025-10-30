@@ -203,7 +203,7 @@ export default function Activities() {
   );
 
   return (
-    <div className="relative users_table">
+    <div className="relative shadow-sm overflow-hidden">
       {/* floating filter card */}
       <div className="relative">
         <FilterDropdown
@@ -220,7 +220,7 @@ export default function Activities() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-[calc(100vh-90px)] pb-16">
+        <div className="h-[calc(100vh-90px)] relative">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}

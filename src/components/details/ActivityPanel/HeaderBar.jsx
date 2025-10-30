@@ -5,35 +5,15 @@ import { RiSearchLine } from "react-icons/ri";
 export default function HeaderBar({ counts, q, onChange, isFetching }) {
   return (
     <Stack spacing={1.5}>
-      {/* <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={1.5}
-        alignItems={{ md: "center" }}
-      >
-        <TextField
-          placeholder="Search Activity (name, type, tracking #, etc.)"
-          fullWidth
-          value={q}
-          onChange={(e) => onChange(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <RiSearchLine />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Stack> */}
-
-      <div className="grid lg:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid lg:grid-cols-2 xl:grid-cols-4">
         <div>
           <Card sx={{ p: 2, background: "#e5e5e5" }}>
             <Typography variant="h6" fontWeight={800}>
               {counts?.total || 0}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <h6 className="lg:text-xs 2xl:text-base" color="text.secondary">
               Total Activities {isFetching ? "…" : ""}
-            </Typography>
+            </h6>
           </Card>
         </div>
         <div>
@@ -41,9 +21,9 @@ export default function HeaderBar({ counts, q, onChange, isFetching }) {
             <Typography variant="h6" fontWeight={800} color="#2faa48">
               {counts?.calls || 0}
             </Typography>
-            <Typography variant="body2" color="#2faa48">
+            <h6 className="lg:text-xs 2xl:text-base text-[#2faa48]">
               Total Calls
-            </Typography>
+            </h6>
           </Card>
         </div>
         <div>
@@ -51,9 +31,9 @@ export default function HeaderBar({ counts, q, onChange, isFetching }) {
             <Typography variant="h6" fontWeight={800} color="#f43940">
               {counts?.emails || 0}
             </Typography>
-            <Typography variant="body2" color="#f43940">
+            <h6 className="lg:text-xs 2xl:text-base text-[#f43940]">
               Total Emails
-            </Typography>
+            </h6>
           </Card>
         </div>
         <div>
@@ -61,9 +41,9 @@ export default function HeaderBar({ counts, q, onChange, isFetching }) {
             <Typography variant="h6" fontWeight={800} color="#2563EB">
               {counts?.others || 0}
             </Typography>
-            <Typography variant="body2" color="#2563EB">
+            <h6 className="lg:text-xs 2xl:text-base text-[#2563EB]">
               Others
-            </Typography>
+            </h6>
           </Card>
         </div>
       </div>

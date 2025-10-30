@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { useUserNames } from "../../hooks/useUsers";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_OPTIONS = [
   "Sampling",
@@ -179,6 +180,8 @@ export default function ClientCreate({
     defaultShippingTerms: initial.defaultShippingTerms ?? "",
     defaultPaymentMethod: initial.defaultPaymentMethod ?? "",
   }));
+
+  const navigate = useNavigate();
 
   // Get User Names
   const { data: userNames } = useUserNames();
@@ -405,11 +408,17 @@ export default function ClientCreate({
 
         <div className="flex justify-end items-center gap-2">
           <button
+            type="button"
+            className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+            onClick={() => navigate("/clients")}
+          >
+            Cancel
+          </button>
+          <button
             type="submit"
             disabled={submitting}
-            className={`px-4 py-2 rounded-lg text-white ${
-              submitting ? "bg-slate-400" : "bg-slate-900 hover:bg-black"
-            }`}
+            className={`px-4 py-2 rounded-lg text-white ${submitting ? "bg-indigo-300 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
           >
             {submitting ? (
               <ClipLoader size={18} color="#fff" />

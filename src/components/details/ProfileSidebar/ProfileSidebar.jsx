@@ -240,7 +240,7 @@ export default function ProfileSidebar() {
             value={client?.description}
           />
 
-          <div className="grid lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid lg:grid-cols-2 2xl:grid-cols-3">
             <div className="w-full">
               <EnumRow
                 label="Contact Status"
@@ -279,7 +279,7 @@ export default function ProfileSidebar() {
           icon={<FiDollarSign />}
           iconBg="linear-gradient(135deg,#facc15,#f97316)"
         >
-          <div className="grid lg:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid lg:grid-cols-2 2xl:grid-cols-3 gap-2">
             <KV
               icon={<FiDollarSign />}
               iconColor="#10b981"

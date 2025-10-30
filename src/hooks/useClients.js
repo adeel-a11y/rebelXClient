@@ -24,7 +24,7 @@ export function useClients(page = 1, q = "", pageSize = 100, filters = { statuse
       };
     },
     keepPreviousData: true,
-    staleTime: 30_000,
+    staleTime: 600_000,
   });
 }
 

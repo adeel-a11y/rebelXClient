@@ -21,11 +21,11 @@ export default function ClientDetailsPage() {
           disableGutters
           sx={{ px: 0, py: 1, width: "100%" }}
         >
-          <div className="flex xl:flex-row flex-col w-full gap-4">
-            <div className="xl:w-[45%]">
+          <div className="flex lg:flex-row flex-col w-full gap-4">
+            <div className="lg:w-[50%]">
               <ProfileSidebar />
             </div>
-            <div className="xl:w-[55%]">
+            <div className="lg:w-[50%]">
               <ActivityPanel />
             </div>
           </div>

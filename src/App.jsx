@@ -17,6 +17,9 @@ import "./App.css";
 import ClientDetailsPage from "./pages/ClientDetailsPage";
 import ActivityUpsert from "./components/create/ActivityUpsert";
 import ClientActivitiesPage from "./pages/ClientActivitiesPage";
+import OrdersPage from "./pages/OrdersPage";
+import CreateOrder from "./pages/CreateOrder";
+import EditOrderPage from "./pages/EditOrderPage";
 
 export default function App() {
   return (
@@ -32,12 +35,15 @@ export default function App() {
               <Route path="/clients/new" element={<ClientCreatePage />} />
               <Route path="/clients/:id" element={<EditClient />} />
               <Route path="/users" element={<Users />} />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="activities" element={<Activities />} />
-              <Route path="client-activities/:id" element={<ClientActivitiesPage />} />
               <Route path="/users/new" element={<UserCreatePage />} />
               <Route path="/users/:id" element={<EditUserPage />} />
               <Route path="/user-details/:id" element={<UserDetails />} />
+              <Route path="activities" element={<Activities />} />
+              <Route path="client-activities/:id" element={<ClientActivitiesPage />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/orders/new" element={<CreateOrder />} />
+              <Route path="/orders/:id" element={<EditOrderPage />} />
               <Route
                 path="/client-details/:id"
                 element={<ClientDetailsPage />}
