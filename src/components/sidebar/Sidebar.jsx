@@ -42,7 +42,7 @@ const dashboardItems = [
     icon: <GiFactory />,
     disabled: true,
   },
-  { to: "/sales", label: "Sales", icon: <FaShoppingCart />, disabled: true },
+  { to: "/orders", label: "Sales Orders", icon: <FaShoppingCart /> },
   { to: "/time-clock", label: "Time Clock", icon: <FaClock />, disabled: true },
   { to: "/labs", label: "Labs", icon: <FaFlask />, disabled: true },
 ];

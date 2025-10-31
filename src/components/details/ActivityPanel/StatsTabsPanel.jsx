@@ -243,7 +243,7 @@ Small reusable row renderers
 // Renders the Activities table (looks like your screenshot)
 function ActivitiesTable({ rows, loading }) {
   return (
-    <CardLike title="Recent Activities" minWidth="1200px">
+    <CardLike title="Recent Activities" minWidth="min-w-[1150px]">
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[5%]">Type</div>
@@ -318,7 +318,7 @@ function ActivitiesTable({ rows, loading }) {
 // Orders table
 function OrdersTable({ rows }) {
   return (
-    <CardLike title="Recent Orders" minWidth="800px">
+    <CardLike title="Recent Orders" minWidth="min-w-[950px]">
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">Order #</div>
@@ -374,7 +374,7 @@ function OrdersTable({ rows }) {
 // Inventory table
 function InventoryTable({ rows }) {
   return (
-    <CardLike title="Latest Inventory" minWidth="1000px">
+    <CardLike title="Latest Inventory" minWidth="min-w-[800px]">
       {/* header */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">SKU</div>
@@ -412,7 +412,7 @@ function InventoryTable({ rows }) {
 // Sales table
 function SalesTable({ rows }) {
   return (
-    <CardLike title="Recent Sales" minWidth="800px">
+    <CardLike title="Recent Sales" minWidth="min-w-[800px]">
       {/* header */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[110px]">Invoice #</div>
@@ -479,7 +479,7 @@ function CardLike({ title, children, minWidth }) {
       {/* Scroll container: sirf yahan horizontal scroll aayega jab zarurat ho */}
       <div className="w-full overflow-x-auto">
         {/* Table content: minimum width 700px */}
-        <div className={`min-w-[${minWidth}]`}>
+        <div className={`${minWidth}`}>
           {children}
         </div>
       </div>
@@ -494,8 +494,8 @@ function CardLike({ title, children, minWidth }) {
 const TAB_ITEMS = [
   { value: "activities", label: "Activities" },
   { value: "orders", label: "Orders" },
-  { value: "inventory", label: "Inventory" },
-  { value: "sales", label: "Sales" },
+  // { value: "inventory", label: "Inventory" },
+  // { value: "sales", label: "Sales" },
 ];
 
 function SegmentTab({ item, active }) {
@@ -539,10 +539,10 @@ export default function StatsTabsPanel() {
       <TabContext value={value}>
         {/* pill tab bar */}
 
-        <div className="flex lg:flex-row xl:flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between">
+        <div className="flex lg:flex-row lg:items-center lg:justify-between">
           <div className="w-full">
             <Box
-              className="lg:w-auto xl:w-full 2xl:w-auto inline-flex bg-white my-4 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-200"
+              className="lg:w-auto lg:w-auto inline-flex bg-white my-4 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-200"
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -602,7 +602,7 @@ export default function StatsTabsPanel() {
             </Box>
           </div>
 
-          <div className="w-full text-end 2xl:pb-0 xl:pb-3 lg:pb-0">
+          <div className="w-full text-end lg:pb-0">
             <Link
               to={`/client-activities/${activities[0]?.clientId}`}
               className="text-indigo-600 hover:text-indigo-700 text-[13px] mt-2"

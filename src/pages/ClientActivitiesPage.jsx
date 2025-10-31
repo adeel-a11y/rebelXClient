@@ -159,7 +159,7 @@ export default function ClientActivitiesPage() {
         minWidth: 260,
         valueFormatter: (v) => dash(v),
       },
-      { field: "createdAt", headerName: "Date", width: 220, valueFormatter: (v) => fmtDate(v) },
+      { field: "createdAt", headerName: "Date", width: 220, renderCell: (p) => p.row.createdAt?.split(" ")[0] || p.row.createdAt?.split("T")[0] },
       {
         field: "actions",
         headerName: "Actions",
@@ -204,7 +204,7 @@ export default function ClientActivitiesPage() {
   );
 
   return (
-    <div className="relative users_table">
+    <div className="relative shadow-sm overflow-hidden">
       {/* floating filter card */}
       <div className="relative">
         <FilterDropdown
@@ -221,7 +221,7 @@ export default function ClientActivitiesPage() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-[calc(100vh-90px)] pb-16">
+        <div className="h-[calc(100vh-90px)] relative">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}
