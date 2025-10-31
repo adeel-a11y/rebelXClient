@@ -29,11 +29,7 @@ export function useOrderById(id) {
     queryKey: ["order", id],
     queryFn: () => getOrderById(id),
     enabled: !!id,
-<<<<<<< HEAD
     staleTime: 600_000,
-=======
-    staleTime: 30_000,
->>>>>>> origin/main
   });
 }
 
