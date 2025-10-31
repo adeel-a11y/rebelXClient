@@ -153,6 +153,8 @@ export default function OrdersPage() {
     datePreset: filters.datePreset,
   });
 
+  console.log(data);
+
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
 
   const openConfirm = (row) =>
@@ -190,12 +192,18 @@ export default function OrdersPage() {
   // columns
   const columns = useMemo(
     () => [
-      { field: "OrderID", headerName: "Order #", width: 120 },
+      { field: "Label", headerName: "Label", width: 120 },
       {
         field: "ClientID",
         headerName: "Client",
         width: 220,
         // valueFormatter: (v) => dash(v),
+      },
+      {
+        field: "TimeStamp",
+        headerName: "Date",
+        width: 200,
+        renderCell: (p) => p?.value?.split("T")[0]?.slice(0, 10),
       },
       {
         field: "SalesRep",
@@ -204,38 +212,54 @@ export default function OrdersPage() {
         valueFormatter: (v) => dash(v),
       },
       {
+        field: "Discount",
+        headerName: "Discount",
+        width: 160,
+      },
+      {
+        field: "Tax",
+        headerName: "Tax",
+        width: 160,
+      },
+      {
+        field: "Total",
+        headerName: "Total",
+        width: 160,
+      },
+      {
+        field: "GrandTotal",
+        headerName: "Grand Total",
+        width: 160,
+        
+      },
+      {
         field: "OrderStatus",
         headerName: "Status",
         width: 160,
         renderCell: (p) => <StatusCell value={p.value} />,
         valueGetter: (v) => v,
       },
-      { field: "City", headerName: "City", width: 160, valueFormatter: dash },
-      { field: "State", headerName: "State", width: 140, valueFormatter: dash },
-      {
-        field: "LockPrices",
-        headerName: "Lock Prices",
-        width: 140,
-        renderCell: (p) => (
-          <div>
-            {p.value === "FALSE" ? (
-              <span className="inline-flex items-center px-2 py-[2px] rounded-full text-xs border bg-rose-100 text-rose-800 border-rose-200">
-                {p.value}
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-2 py-[2px] rounded-full text-xs border bg-sky-100 text-sky-800 border-sky-200">
-                {p.value}
-              </span>
-            )}
-          </div>
-        ),
-      },
-      {
-        field: "TimeStamp",
-        headerName: "Date",
-        width: 200,
-        renderCell: (p) => p?.value?.split("T")[0],
-      },
+      // { field: "City", headerName: "City", width: 160, valueFormatter: dash },
+      // { field: "State", headerName: "State", width: 140, valueFormatter: dash },
+      // {
+      //   field: "LockPrices",
+      //   headerName: "Lock Prices",
+      //   width: 140,
+      //   renderCell: (p) => (
+      //     <div>
+      //       {p.value === "FALSE" ? (
+      //         <span className="inline-flex items-center px-2 py-[2px] rounded-full text-xs border bg-rose-100 text-rose-800 border-rose-200">
+      //           {p.value}
+      //         </span>
+      //       ) : (
+      //         <span className="inline-flex items-center px-2 py-[2px] rounded-full text-xs border bg-sky-100 text-sky-800 border-sky-200">
+      //           {p.value}
+      //         </span>
+      //       )}
+      //     </div>
+      //   ),
+      // },
+      
       {
         field: "actions",
         headerName: <span className="flex w-[215px] justify-end">Actions</span>,
