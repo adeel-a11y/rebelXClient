@@ -20,7 +20,10 @@ import ClientActivitiesPage from "./pages/ClientActivitiesPage";
 import OrdersPage from "./pages/OrdersPage";
 import CreateOrder from "./pages/CreateOrder";
 import EditOrderPage from "./pages/EditOrderPage";
+<<<<<<< HEAD
 import OrderDetailPage from "./pages/OrderDetailPage";
+=======
+>>>>>>> origin/main
 
 export default function App() {
   return (
@@ -45,7 +48,10 @@ export default function App() {
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/orders/new" element={<CreateOrder />} />
               <Route path="/orders/:id" element={<EditOrderPage />} />
+<<<<<<< HEAD
               <Route path="/order-details/:id" element={<OrderDetailPage />} />
+=======
+>>>>>>> origin/main
               <Route
                 path="/client-details/:id"
                 element={<ClientDetailsPage />}

@@ -172,11 +172,17 @@ export default function CreateOrEditOrder({
     // clean payload (empty strings -> undefined)
     const payload = { ...form };
     // Numeric-ish fields (if you want numeric in DB, otherwise keep text)
+<<<<<<< HEAD
     // payload.ShippingCost = toNum(payload.ShippingCost);
     // payload.Tax = toNum(payload.Tax);
     // payload.PaymentAmount = toNum(payload.PaymentAmount);
 
     console.log(payload);
+=======
+    payload.ShippingCost = toNum(payload.ShippingCost);
+    payload.Tax = toNum(payload.Tax);
+    payload.PaymentAmount = toNum(payload.PaymentAmount);
+>>>>>>> origin/main
 
     Object.keys(payload).forEach((k) => {
       if (payload[k] === "") payload[k] = undefined;
@@ -212,12 +218,21 @@ export default function CreateOrEditOrder({
 
       <div className="space-y-4">
         <Section title="Order Basics">
+<<<<<<< HEAD
           <Select label={`Client ID ${mode === "create" ? "(required)" : ""}`} value={form.ClientID} onChange={update("ClientID")} options={clients} required={mode === "create"} />
           <Select label={`Sales Rep ${mode === "create" ? "(required)" : ""}`} value={form.SalesRep} onChange={update("SalesRep")} options={users} required={mode === "create"} />
           <Select label={`Order Status ${mode === "create" ? "(required)" : ""}`} value={form.OrderStatus} onChange={update("OrderStatus")} options={ORDER_STATUSES} required={mode === "create"} />
           <Select label={`Lock Prices ${mode === "create" ? "(required)" : ""}`} value={form.LockPrices} onChange={update("LockPrices")} options={["TRUE", "FALSE"]} required={mode === "create"} />
           <Input label={`City ${mode === "create" ? "(required)" : ""}`} value={form.City} onChange={update("City")} required={mode === "create"} />
           <Input label={`State ${mode === "create" ? "(required)" : ""}`} value={form.State} onChange={update("State")} required={mode === "create"} />
+=======
+          <Select label="Client ID" value={form.ClientID} onChange={update("ClientID")} options={clients} />
+          <Select label="Sales Rep" value={form.SalesRep} onChange={update("SalesRep")} options={users} />
+          <Select label="Order Status" value={form.OrderStatus} onChange={update("OrderStatus")} options={ORDER_STATUSES} />
+          <Input label="Lock Prices" value={form.LockPrices} onChange={update("LockPrices")} />
+          <Input label="City" value={form.City} onChange={update("City")} />
+          <Input label="State" value={form.State} onChange={update("State")} />
+>>>>>>> origin/main
           <Input label="Ship To Address" value={form.ShiptoAddress} onChange={update("ShiptoAddress")} />
         </Section>
 
