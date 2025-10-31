@@ -20,6 +20,32 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUserNames } from "../hooks/useUsers";
+import {
+  FiPhone,
+  FiMail,
+} from "react-icons/fi";
+
+const sanitizePhone = (p = "") => String(p).replace(/[^\d+]/g, ""); // keep digits/+ only
+
+function openGoogleVoice(phone) {
+  const num = sanitizePhone(phone);
+  // Open Google Voice Calls page; number param is best-effort
+  const url = `https://voice.google.com/u/0/calls?pli=1&number=${encodeURIComponent(
+    num
+  )}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function openMailTo(email, subject = "", body = "") {
+  const s = encodeURIComponent(subject);
+  const b = encodeURIComponent(body);
+  const href = `mailto:${email}${
+    s || b
+      ? `?${[s && `subject=${s}`, b && `body=${b}`].filter(Boolean).join("&")}`
+      : ""
+  }`;
+  window.location.href = href;
+}
 
 /* ------------------------- constants ------------------------- */
 const STATUS_OPTIONS = [
@@ -789,6 +815,56 @@ export default function Clients() {
   }, []);
 
   const columns = [
+    {
+      field: "type",
+      headerName: "Type",
+      width: 120,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (p) => {
+        const row = p.row || {};
+        const phone = row.phone || ""; // e.g., "859-628-1940"
+        const email = row.email || ""; // e.g., "asadwholesale@usa.com"
+
+        const stop = (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // prevent row click navigation
+        };
+
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              title={phone ? `Call ${phone} (Google Voice)` : "No phone"}
+              className="p-1 rounded hover:bg-slate-100 disabled:opacity-40"
+              onClick={(e) => {
+                stop(e);
+                if (phone) openGoogleVoice(phone);
+              }}
+              disabled={!phone}
+            >
+              <FiPhone size={16} className="text-green-600" />
+            </button>
+
+            <button
+              type="button"
+              title={email ? `Email ${email} (Outlook/mailto)` : "No email"}
+              className="p-1 rounded hover:bg-slate-100 disabled:opacity-40"
+              onClick={(e) => {
+                stop(e);
+                if (email)
+                  openMailTo(email, `Regarding ${row.name || "your account"}`);
+              }}
+              disabled={!email}
+            >
+              <FiMail size={16} className="text-rose-700" />
+            </button>
+          </div>
+        );
+      },
+    },
+
     {
       field: "name",
       headerName: "Client Name",
