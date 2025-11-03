@@ -55,3 +55,12 @@ export const getContactTypeBreakdown = async () => {
         return error;
     }
 };
+
+export const getClientOrdersStats = async (externalId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/overview/client-orders-stats/${externalId}`);
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};

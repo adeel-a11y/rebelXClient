@@ -33,6 +33,38 @@ export async function getOrdersLists({
   return { data: data.data || [], pagination: data.pagination };
 }
 
+export async function getClientOrdersLists(externalId, {
+  page = 1,
+  limit = 10,
+  q = "",
+  statuses = [],     // array -> server expects comma-separated
+  datePreset = null, // 'today'|'this_month'|'this_year'|'prev_year'|null
+  from,              // ISO date (YYYY-MM-DD)
+  to,                // ISO date (YYYY-MM-DD)
+  signal,
+  headers = {},
+} = {}) {
+  console.log(q)
+  const res = await axios.get(`${BASE_URL}/sales/lists/client/${externalId}`, {
+    params: {
+      page,
+      limit,
+      q,
+      statuses: statuses.join(","), // e.g., "pending,shipped"
+      datePreset,
+      from,
+      to,
+    },
+    signal,
+    headers,
+  });
+  const { data } = res;
+  console.log("orders", data)
+  console.log("sale client orders inside api =>", data)
+  if (data?.success !== true) throw new Error(data?.message || "Fetch failed");
+  return { data: data.data || [], pagination: data.pagination };
+}
+
 export async function getOrderById(id) {
   const res = await axios.get(`${BASE_URL}/sales/lists/${id}`);
   if (res.data?.success !== true) throw new Error(res.data?.message || "Get Order By Id failed");

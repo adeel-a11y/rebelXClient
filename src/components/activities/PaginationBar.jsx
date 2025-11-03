@@ -41,7 +41,7 @@ function PaginationBar({
   const end = Math.min(currentPage * pageSize, total);
 
   return (
-    <div className="sticky bottom-12 left-0 right-0 z-10 w-[650px] mx-auto rounded-[25px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
+    <div className="fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10 w-[650px] mx-auto rounded-[25px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
       <div className="h-12 grid grid-cols-3 items-center gap-2 px-3">
         <div className="text-sm text-slate-600">
           <span className="font-semibold">{start}</span>–

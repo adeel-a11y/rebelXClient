@@ -21,6 +21,9 @@ import OrdersPage from "./pages/OrdersPage";
 import CreateOrder from "./pages/CreateOrder";
 import EditOrderPage from "./pages/EditOrderPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
+import ClientOrdersPage from "./pages/ClientOrderPage";
+import CreateOrderItem from "./pages/CreateOrderItem";
+import EditOrderItem from "./pages/EditOrderItem";
 
 export default function App() {
   return (
@@ -43,11 +46,14 @@ export default function App() {
               <Route path="client-activities/:id" element={<ClientActivitiesPage />} />
               <Route path="tasks" element={<Tasks />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/client-orders/:id" element={<ClientOrdersPage />} />
               <Route path="/orders/new" element={<CreateOrder />} />
               <Route path="/orders/:id" element={<EditOrderPage />} />
               <Route path="/order-details/:id" element={<OrderDetailPage />} />
+              <Route path="/create-order-item/:orderId" element={<CreateOrderItem />} />
+              <Route path="/edit-order-item/:orderId/:id" element={<EditOrderItem />} />
               <Route
-                path="/client-details/:id"
+                path="/client-details/:id/:externalId"
                 element={<ClientDetailsPage />}
               />
               <Route path="/activities/new" element={<ActivityUpsert />} />

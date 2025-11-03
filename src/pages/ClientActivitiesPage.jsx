@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { ClipLoader } from "react-spinners";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiMail, FiPhone, FiTrash2 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useToolbar } from "../store/toolbar";
@@ -23,6 +23,7 @@ import FilterDropdown from "../components/activities/FilterDropdown";
 import PaginationBar from "../components/activities/PaginationBar";
 import { useDebouncedCallback } from "../components/activities/useDebouncedCallback";
 import { dash, fmtDate } from "../components/activities/utils";
+import { MdOutlineTextSnippet } from "react-icons/md";
 
 export default function ClientActivitiesPage() {
   const navigate = useNavigate();
@@ -51,9 +52,21 @@ export default function ClientActivitiesPage() {
     setPaginationModel((m) => (m.page === 0 ? m : { ...m, page: 0 }));
   }, 250);
 
+  
+  const { id } = useParams();
+  
+  // data fetch
+  const { data, isLoading, isFetching } = useActivitiesByClientId(
+    id,
+    pageForServer,
+    query,
+    paginationModel.pageSize,
+    filters
+  );
+
   // toolbar config
   useToolbar({
-    title: "Client Activities",
+    title: `${`${data?.rows[0]?.clientId} Activities` || "Client Activities"}`,
     searchPlaceholder: "Search activities…",
     onSearch: debouncedSearch,
     actions: [
@@ -70,22 +83,6 @@ export default function ClientActivitiesPage() {
     ],
     backButton: true,
   });
-
-  const { id } = useParams();
-
-  console.log("id", id);
-  console.log("query", query);
-  console.log("filters", filters);
-  console.log("paginationModel", paginationModel);
-
-  // data fetch
-  const { data, isLoading, isFetching } = useActivitiesByClientId(
-    id,
-    pageForServer,
-    query,
-    paginationModel.pageSize,
-    filters
-  );
 
   // delete logic + confirm modal state
   const { mutateAsync: deleteMutate, isLoading: deleting } =
@@ -127,39 +124,52 @@ export default function ClientActivitiesPage() {
   // table columns
   const columns = useMemo(
     () => [
-      // {
-      //   field: "createdAt",
-      //   headerName: "Date/Time",
-      //   width: 190,
-      //   valueFormatter: (v) => fmtDate(v),
-      // },
       {
         field: "type",
         headerName: "Type",
-        width: 120,
-        renderCell: (p) => <TypeBadge value={p.value} />,
-        valueGetter: (v) => v,
+        width: 60,
+        sortable: false,
+        renderCell: ({ value }) => {
+          const t = String(value || "").toLowerCase();
+
+          const icon =
+            t === "call" || t === "call_made" ? <FiPhone className="text-green-600" size={16} /> :
+              t === "email" ? <FiMail className="text-rose-600" size={16} /> :
+                <MdOutlineTextSnippet className="text-sky-600" size={16} />;
+
+          return (
+            <div className="flex items-center gap-2 mt-4">
+              {icon}
+            </div>
+          );
+        },
+        // no need for valueGetter here
       },
-      {
-        field: "clientId",
-        headerName: "Client",
-        width: 160,
-        valueFormatter: (v) => dash(v),
-      },
-      {
-        field: "userId",
-        headerName: "User",
-        width: 220,
-        valueFormatter: (v) => dash(v),
-      },
+      { field: "createdAt", headerName: "Date", width: 120, renderCell: (p) => <div className="mt-4">{p.row.createdAt?.split(" ")[0]?.split("T")[0] || p.row.createdAt?.split("T")[0]}</div> },
       {
         field: "description",
         headerName: "Description",
         flex: 1,
         minWidth: 260,
-        valueFormatter: (v) => dash(v),
+        sortable: false,
+        renderCell: (p) => (
+          <div className="wrapText">
+            {p.value || "—"}
+          </div>
+        ),
       },
-      { field: "createdAt", headerName: "Date", width: 220, renderCell: (p) => p.row.createdAt?.split(" ")[0] || p.row.createdAt?.split("T")[0] },
+      // {
+      //   field: "clientId",
+      //   headerName: "Client",
+      //   width: 160,
+      //   renderCell: (p) => <span className="block">{p.value || "—"}</span>,
+      // },
+      {
+        field: "userId",
+        headerName: "User",
+        width: 220,
+        renderCell: (p) => <span className="block">{p.value || "—"}</span>,
+      },
       {
         field: "actions",
         headerName: "Actions",
@@ -204,7 +214,7 @@ export default function ClientActivitiesPage() {
   );
 
   return (
-    <div className="relative shadow-sm overflow-hidden">
+    <div className="relative users_table">
       {/* floating filter card */}
       <div className="relative">
         <FilterDropdown
@@ -221,7 +231,7 @@ export default function ClientActivitiesPage() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-[calc(100vh-90px)] relative">
+        <div className="h-auto relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}
@@ -234,11 +244,13 @@ export default function ClientActivitiesPage() {
                 prev.page === model.page && prev.pageSize === model.pageSize
                   ? prev
                   : {
-                      page: model.page,
-                      pageSize: 100,
-                    }
+                    page: model.page,
+                    pageSize: 100,
+                  }
               )
             }
+            getRowHeight={() => 'auto'}
+            getEstimatedRowHeight={() => 56}
             pageSizeOptions={[100]}
             paginationMode="server"
             rowCount={data?.meta?.total ?? 0}
@@ -251,8 +263,30 @@ export default function ClientActivitiesPage() {
             sx={{
               border: "none",
               "& .MuiDataGrid-row": { cursor: "pointer" },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "rgba(0,0,0,0.02)",
+              "& .MuiDataGrid-row:hover": { backgroundColor: "rgba(0,0,0,0.02)" },
+              "& .MuiDataGrid-cell": { alignItems: "flex-start" },
+              '& .MuiDataGrid-cell[data-field="clientId"], \
+                 .MuiDataGrid-cell[data-field="userId"]': {
+                paddingTop: "1rem",   // mt-4 equivalent
+              },
+
+              // MULTI-LINE support:
+              "& .wrapText": {
+                whiteSpace: "normal",
+                wordBreak: "break-word",
+                overflow: "visible",
+                textOverflow: "clip",
+                display: "block",
+                paddingTop: "18px",
+                paddingBottom: "18px",
+                lineHeight: 1.4,
+              },
+              // cells ko top-align karein taake multi-line acha lage
+              "& .MuiDataGrid-cell": { alignItems: "flex-start" },
+
+              // MUI ke internal max-heights ko relax
+              "& .MuiDataGrid-row, & .MuiDataGrid-cell": {
+                maxHeight: "none !important",
               },
             }}
           />
@@ -275,9 +309,8 @@ export default function ClientActivitiesPage() {
       <ConfirmDialog
         open={confirmOpen}
         title="Delete activity?"
-        desc={`Are you sure you want to delete activity "${
-          target?.description || target?._id || ""
-        }"? This action cannot be undone.`}
+        desc={`Are you sure you want to delete activity "${target?.description || target?._id || ""
+          }"? This action cannot be undone.`}
         confirmText="Delete"
         onCancel={closeConfirm}
         onConfirm={handleConfirmDelete}

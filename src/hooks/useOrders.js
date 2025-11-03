@@ -1,6 +1,7 @@
 // src/hooks/useOrders.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrdersLists, getOrderById, createOrder, updateOrder, deleteOrder } from "../api/orders";
+import { getOrdersLists, getOrderById, createOrder, updateOrder, deleteOrder, getClientOrdersLists } from "../api/orders";
+import { createOrderItem, getOrderItemById, updateOrderItem } from "../api/orderItem";
 
 /** (already provided earlier) */
 export function useOrdersLists({
@@ -24,10 +25,40 @@ export function useOrdersLists({
   });
 }
 
+export function useClientOrdersLists(externalId, {
+  page = 1,
+  limit = 10,
+  q = "",
+  statuses = [],
+  datePreset = null,
+  from,
+  to,
+  queryOptions = {},
+} = {}) {
+  return useQuery({
+    queryKey: ["orders", externalId, { page, limit, q, statuses, datePreset, from, to }],
+    queryFn: ({ signal }) =>
+      getClientOrdersLists(externalId, { page, limit, q, statuses, datePreset, from, to, signal }),
+    staleTime: 600_000,
+    gcTime: 600_000,
+    keepPreviousData: true,
+    ...queryOptions,
+  });
+}
+
 export function useOrderById(id) {
   return useQuery({
     queryKey: ["order", id],
     queryFn: () => getOrderById(id),
+    enabled: !!id,
+    staleTime: 600_000,
+  });
+}
+
+export function useOrderItemById(id) {
+  return useQuery({
+    queryKey: ["orderItem", id],
+    queryFn: () => getOrderItemById(id),
     enabled: !!id,
     staleTime: 600_000,
   });
@@ -47,6 +78,19 @@ export function useCreateOrder({ onSuccess, onError } = {}) {
   });
 }
 
+export function useCreateOrderItem({ onSuccess, onError } = {}) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => createOrderItem(payload),
+    onSuccess: (data, variables, ctx) => {
+      // invalidate listing and optionally first page
+      qc.invalidateQueries({ queryKey: ["orderItem"] });
+      onSuccess?.(data, variables, ctx);
+    },
+    onError,
+  });
+}
+
 /** UPDATE */
 export function useUpdateOrder({ onSuccess, onError } = {}) {
   const qc = useQueryClient();
@@ -54,6 +98,18 @@ export function useUpdateOrder({ onSuccess, onError } = {}) {
     mutationFn: ({ id, payload }) => updateOrder(id, payload),
     onSuccess: (data, variables, ctx) => {
       qc.invalidateQueries({ queryKey: ["orders"] });
+      onSuccess?.(data, variables, ctx);
+    },
+    onError,
+  });
+}
+
+export function useUpdateOrderItem({ onSuccess, onError } = {}) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }) => updateOrderItem(id, payload),
+    onSuccess: (data, variables, ctx) => {
+      qc.invalidateQueries({ queryKey: ["orderItem"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,

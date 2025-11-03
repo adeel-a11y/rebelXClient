@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { ClipLoader } from "react-spinners";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { FiPhone, FiMail } from "react-icons/fi";
 
 import { useToolbar } from "../store/toolbar";
 import {
@@ -23,6 +24,7 @@ import FilterDropdown from "../components/activities/FilterDropdown";
 import PaginationBar from "../components/activities/PaginationBar";
 import { useDebouncedCallback } from "../components/activities/useDebouncedCallback";
 import { dash, fmtDate } from "../components/activities/utils";
+import { MdOutlineTextSnippet } from "react-icons/md";
 
 export default function Activities() {
   const navigate = useNavigate();
@@ -123,45 +125,58 @@ export default function Activities() {
   // table columns
   const columns = useMemo(
     () => [
-      // {
-      //   field: "createdAt",
-      //   headerName: "Date/Time",
-      //   width: 190,
-      //   valueFormatter: (v) => fmtDate(v),
-      // },
       {
         field: "type",
         headerName: "Type",
-        width: 120,
-        renderCell: (p) => <TypeBadge value={p.value} />,
-        valueGetter: (v) => v,
+        width: 60,
+        sortable: false,
+        renderCell: ({ value }) => {
+          const t = String(value || "").toLowerCase();
+
+          const icon =
+            t === "call" || t === "call_made" ? <FiPhone className="text-green-600" size={16} /> :
+              t === "email" ? <FiMail className="text-rose-600" size={16} /> :
+                <MdOutlineTextSnippet className="text-sky-600" size={16} />;
+
+          return (
+            <div className="flex items-center gap-2 mt-4">
+              {icon}
+            </div>
+          );
+        },
+        // no need for valueGetter here
       },
-      {
-        field: "clientId",
-        headerName: "Client",
-        width: 160,
-        valueFormatter: (v) => dash(v),
-      },
-      {
-        field: "userId",
-        headerName: "User",
-        width: 220,
-        valueFormatter: (v) => dash(v),
-      },
+      { field: "createdAt", headerName: "Date", width: 120, renderCell: (p) => <div className="mt-4">{p.row.createdAt?.split(" ")[0]?.split("T")[0] || p.row.createdAt?.split("T")[0]}</div> },
       {
         field: "description",
         headerName: "Description",
         flex: 1,
         minWidth: 260,
-        valueFormatter: (v) => dash(v),
+        sortable: false,
+        renderCell: (p) => (
+          <div className="wrapText">
+            {p.value || "—"}
+          </div>
+        ),
       },
-      { field: "createdAt", headerName: "Date", width: 220, renderCell: (p) => p.row.createdAt?.split(" ")[0] || p.row.createdAt?.split("T")[0] },
+      {
+        field: "clientId",
+        headerName: "Client",
+        width: 160,
+        renderCell: (p) => <span className="block">{p.value || "—"}</span>,
+      },
+      {
+        field: "userId",
+        headerName: "User",
+        width: 220,
+        renderCell: (p) => <span className="block">{p.value || "—"}</span>,
+      },
       {
         field: "actions",
         headerName: "Actions",
         width: 120,
         sortable: false,
-        filterable: false, 
+        filterable: false,
         disableColumnMenu: true,
         renderCell: (params) => {
           const row = params.row;
@@ -170,7 +185,7 @@ export default function Activities() {
             e.preventDefault();
           };
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-4">
               <button
                 className="p-1 rounded hover:bg-slate-100"
                 title="Edit"
@@ -203,7 +218,7 @@ export default function Activities() {
   );
 
   return (
-    <div className="relative shadow-sm overflow-hidden">
+    <div className="relative users_table">
       {/* floating filter card */}
       <div className="relative">
         <FilterDropdown
@@ -220,7 +235,7 @@ export default function Activities() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-[calc(100vh-90px)] relative">
+        <div className="h-auto relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}
@@ -231,14 +246,16 @@ export default function Activities() {
             onPaginationModelChange={(model) =>
               setPaginationModel((prev) =>
                 prev.page === model.page &&
-                prev.pageSize === model.pageSize
+                  prev.pageSize === model.pageSize
                   ? prev
                   : {
-                      page: model.page,
-                      pageSize: 100,
-                    }
+                    page: model.page,
+                    pageSize: 100,
+                  }
               )
             }
+            getRowHeight={() => 'auto'}
+            getEstimatedRowHeight={() => 56}
             pageSizeOptions={[100]}
             paginationMode="server"
             rowCount={data?.meta?.total ?? 0}
@@ -251,8 +268,29 @@ export default function Activities() {
             sx={{
               border: "none",
               "& .MuiDataGrid-row": { cursor: "pointer" },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "rgba(0,0,0,0.02)",
+              "& .MuiDataGrid-row:hover": { backgroundColor: "rgba(0,0,0,0.02)" },
+
+              // MULTI-LINE support:
+              "& .wrapText": {
+                whiteSpace: "normal",
+                wordBreak: "break-word",
+                overflow: "visible",
+                textOverflow: "clip",
+                display: "block",
+                paddingTop: "18px",
+                paddingBottom: "18px",
+                lineHeight: 1.4,
+              },
+              // cells ko top-align karein taake multi-line acha lage
+              "& .MuiDataGrid-cell": { alignItems: "flex-start" },
+              '& .MuiDataGrid-cell[data-field="clientId"], \
+                 .MuiDataGrid-cell[data-field="userId"]': {
+                paddingTop: "1rem",   // mt-4 equivalent
+              },
+
+              // MUI ke internal max-heights ko relax
+              "& .MuiDataGrid-row, & .MuiDataGrid-cell": {
+                maxHeight: "none !important",
               },
             }}
           />
@@ -275,9 +313,8 @@ export default function Activities() {
       <ConfirmDialog
         open={confirmOpen}
         title="Delete activity?"
-        desc={`Are you sure you want to delete activity "${
-          target?.description || target?._id || ""
-        }"? This action cannot be undone.`}
+        desc={`Are you sure you want to delete activity "${target?.description || target?._id || ""
+          }"? This action cannot be undone.`}
         confirmText="Delete"
         onCancel={closeConfirm}
         onConfirm={handleConfirmDelete}

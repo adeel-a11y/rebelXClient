@@ -25,15 +25,42 @@ import {
   FiMail,
 } from "react-icons/fi";
 
-const sanitizePhone = (p = "") => String(p).replace(/[^\d+]/g, ""); // keep digits/+ only
+function sanitizePhone(raw = "") {
+  let s = String(raw).trim();
+  s = s.replace(/(?:ext\.?|x|;)\s*(\d+)/i, ",,$1"); // ",," = pause before extension
+  s = s.replace(/[^0-9+#*,]/g, "");
+  s = s.replace(/(?!^)\+/g, "");
 
-function openGoogleVoice(phone) {
-  const num = sanitizePhone(phone);
-  // Open Google Voice Calls page; number param is best-effort
-  const url = `https://voice.google.com/u/0/calls?pli=1&number=${encodeURIComponent(
-    num
-  )}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+  return s;
+}
+
+function openPhone(rawPhone, { extension } = {}) {
+  let phone = sanitizePhone(rawPhone);
+
+  // If extension passed separately, append with pause (,,)
+  if (extension) phone += `,,${String(extension).replace(/[^0-9#*]/g, "")}`;
+
+  const telHref = `tel:${phone}`;
+
+  // naive mobile check; on desktop we’ll fall back to Google Voice
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // Use location so iOS won't block it
+    window.location.href = telHref;
+    return;
+  }
+
+  // Desktop fallback: open Google Voice with number prefilled
+  const gv = `https://voice.google.com/u/0/calls?number=${encodeURIComponent(phone)}`;
+
+  // Try tel: first (some desktops have softphone handlers). If it doesn’t trigger,
+  // open GV after a small delay.
+  const w = window.open(telHref, "_self"); // _self avoids popup blockers
+  setTimeout(() => {
+    // If tel: did nothing, navigate to GV
+    try { window.open(gv, "_blank", "noopener,noreferrer"); } catch {}
+  }, 600);
 }
 
 function openMailTo(email, subject = "", body = "") {
@@ -676,7 +703,7 @@ function PaginationBar({
   const end = Math.min(currentPage * pageSize, total);
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-10 w-[650px] mx-auto rounded-[25px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
+    <div className="fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10 w-[650px] mx-auto rounded-[25px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
       <div className="h-12 grid grid-cols-3 items-center gap-2 px-3">
         <div className="text-sm text-slate-600">
           <span className="font-semibold">{start}</span>–
@@ -840,7 +867,7 @@ export default function Clients() {
               className="p-1 rounded hover:bg-slate-100 disabled:opacity-40"
               onClick={(e) => {
                 stop(e);
-                if (phone) openGoogleVoice(phone);
+                if (phone) openPhone(phone);
               }}
               disabled={!phone}
             >
@@ -902,11 +929,11 @@ export default function Clients() {
       ),
     },
     {
-      field: "soldBy", // unique
+      field: "salesRepName", // unique
       headerName: "Sold By",
       flex: 1,
       minWidth: 180,
-      renderCell: (p) => <div>{p?.row?.fullName || "—"}</div>,
+      renderCell: (p) => <div>{p?.row?.salesRepName || "—"}</div>,
     },
 
     {
@@ -986,15 +1013,16 @@ export default function Clients() {
 
   const handleRowClick = useCallback(
     (params) => {
+      console.log(params)
       const id = params?.id ?? params?.row?._id;
       if (!id) return;
-      navigate(`/client-details/${id}`);
+      navigate(`/client-details/${id}/${params?.row?.externalId}`);
     },
     [navigate]
   );
 
   return (
-    <div className="relative shadow-sm overflow-hidden">
+    <div className="relative users_table">
       <ConfirmDialog
         open={confirm.open}
         title="Delete client?"
@@ -1025,7 +1053,7 @@ export default function Clients() {
             <ClipLoader size={42} />
           </div>
         ) : (
-          <div className="h-[calc(100vh-90px)] overflow-auto relative pb-12">
+          <div className="relative pb-8">
             <ClientsGrid
               autoHeight
               columns={columns}

@@ -12,8 +12,12 @@ import {
   FiUser,
   FiDatabase,
   FiDollarSign,
+  FiPhone,
+  FiPlus,
+  FiEdit,
 } from "react-icons/fi";
-import trackImg from "/track.png"
+import trackImg from "/track.png";
+import { Link, useNavigate } from "react-router-dom";
 
 /* ---------------- helpers ---------------- */
 const toNumber = (v) => {
@@ -89,13 +93,23 @@ const K = ({
         {label}
       </p>
       <p
-        className={`${label === "Paid" || label === "Lock Prices" ? "text-[.7rem]"  : "text-sm"} font-semibold flex items-center justify-center ${
+        className={`${
           label === "Paid" || label === "Lock Prices"
-            ? value === "FALSE" ? "text-rose-600 bg-rose-50 px-2 py-1 rounded-full" : "text-green-600 bg-green-50 px-2 py-1 rounded-full"
+            ? "text-[.7rem]"
+            : "text-sm"
+        } font-semibold flex items-center justify-center ${
+          label === "Paid" || label === "Lock Prices"
+            ? value === "FALSE"
+              ? "text-rose-600 bg-rose-50 px-2 py-1 rounded-full"
+              : "text-green-600 bg-green-50 px-2 py-1 rounded-full"
             : "text-slate-800"
         } w-full`}
       >
-        {label === "Paid"  ? value === "FALSE" ? "Unpaid" : "Paid" : value || "—"}
+        {label === "Paid"
+          ? value === "FALSE"
+            ? "Unpaid"
+            : "Paid"
+          : value || "—"}
       </p>
     </div>
   </div>
@@ -201,9 +215,21 @@ export default function OrderDetail({ order, loading = false }) {
     );
   }
 
+  const navigate = useNavigate();
+
   return (
     <Page>
-      <h1 className="text-2xl font-semibold mb-6 mt-2">Order Details</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold mb-6 mt-2">Order Details</h1>
+        <button
+          type="button"
+          onClick={() => navigate(`/create-order-item/${order.OrderID}`)}
+          className="p-1 font-medium rounded-[5px] flex items-center gap-2 bg-[#f1f0ff] text-[#4F46E5] px-3 py-2 hover:bg-[#eeedff] disabled:opacity-40"
+        >
+          Add Item
+          <FiPlus size={16} className="text-[#4F46E5]" />
+        </button>
+      </div>
 
       <div className="flex justify-between gap-6">
         <Card className="w-[75%]">
@@ -327,37 +353,44 @@ export default function OrderDetail({ order, loading = false }) {
           <SectionHeader title="Order Items" />
           <div className="divide-y" style={{ borderColor: THEME.border }}>
             {items.map((it) => (
-              <div
-                key={it._id || it.RecordID}
-                className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-12 sm:gap-4"
-              >
-                <div className="sm:col-span-7">
-                  <p className="font-semibold text-slate-800">
-                    {it.Description}
-                  </p>
-                  <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-500">
-                    <span className="inline-flex items-center gap-1">
-                      <FiTag /> SKU: {it.SKU}
-                    </span>
-                    <span>UOM: {it.UOM}</span>
-                    <span>Warehouse: {it.Warehouse}</span>
-                    {it.LotNumber ? <span>Lot: {it.LotNumber}</span> : null}
+              <>
+                <div
+                  key={it._id || it.RecordID}
+                  className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-12 sm:gap-4"
+                >
+                  <div className="sm:col-span-1 mt-2">
+                    <Link to={`/edit-order-item/${it.OrderID}/${it._id}`}>
+                      <FiEdit2 className="text-[#4f46e5] hover:text-[#4f46e5]/80" size={16} />
+                    </Link>
+                  </div>
+                  <div className="sm:col-span-6">
+                    <p className="font-semibold text-slate-800">
+                      {it.Description}
+                    </p>
+                    <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-500">
+                      <span className="inline-flex items-center gap-1">
+                        <FiTag /> SKU: {it.SKU}
+                      </span>
+                      <span>UOM: {it.UOM}</span>
+                      <span>Warehouse: {it.Warehouse}</span>
+                      {it.LotNumber ? <span>Lot: {it.LotNumber}</span> : null}
+                    </div>
+                  </div>
+                  <div className="sm:col-span-3">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <FiPackage /> Qty: {it.QtyShipped}
+                    </div>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Price: {it.Price}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2 flex items-start justify-end">
+                    <p className="text-base font-semibold text-slate-900">
+                      {it.Total}
+                    </p>
                   </div>
                 </div>
-                <div className="sm:col-span-3">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <FiPackage /> Qty: {it.QtyShipped}
-                  </div>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Price: {it.Price}
-                  </p>
-                </div>
-                <div className="sm:col-span-2 flex items-start justify-end">
-                  <p className="text-base font-semibold text-slate-900">
-                    {it.Total}
-                  </p>
-                </div>
-              </div>
+              </>
             ))}
             {items.length === 0 && (
               <div className="py-6 text-center text-sm text-slate-500">

@@ -9,6 +9,7 @@ import { RiDeleteBinLine, RiEdit2Line } from "react-icons/ri";
 import { useActivitiesByClient } from "../../../hooks/useClients";
 import { Link, useParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
+import { useClientOrdersLists } from "../../../hooks/useOrders";
 
 /* ------------------------------------------------------------------
    Fake data for each tab (10 rows each)
@@ -243,16 +244,16 @@ Small reusable row renderers
 // Renders the Activities table (looks like your screenshot)
 function ActivitiesTable({ rows, loading }) {
   return (
-    <CardLike title="Recent Activities" minWidth="min-w-[1150px]">
+    <CardLike title="Recent Activities" minWidth={`${rows.length === 0 ? 'w-[650px]' : 'w-[950px]'}`}>
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
-        <div className="w-[5%]">Type</div>
-        <div className="w-[70%]">
+        <div className="w-[7%]">Type</div>
+        <div className="w-[53%]">
           Description
         </div>
-        <div className="w-[10%]">Date</div>
-        <div className="w-[10%]">User</div>
-        <div className="w-[5%] text-center">Manage</div>
+        <div className="w-[15%]">Date</div>
+        <div className="w-[15%]">User</div>
+        <div className="w-[10%] text-center">Manage</div>
       </div>
 
       {/* loading */}
@@ -261,7 +262,7 @@ function ActivitiesTable({ rows, loading }) {
           <ClipLoader size={24} color="#4f46e5" />
           <span>Loading activities…</span>
         </div>
-      ) : rows.length === 0 ? (
+      ) : rows.length !== 0 ? (
         // empty state
         <div className="flex items-center justify-center py-10 text-gray-500 text-sm">
           No activities found.
@@ -274,7 +275,7 @@ function ActivitiesTable({ rows, loading }) {
             className="flex items-start border-b last:border-b-0 border-gray-100 py-3 px-4 text-[13px] text-gray-800"
           >
             {/* type icon */}
-            <div className="w-[5%] flex items-start">
+            <div className="w-[7%] flex items-start">
               {r.type === "Call" ? (
                 <FiPhone className="text-green-600 text-[16px]" />
               ) : r.type === "Email" ? (
@@ -285,22 +286,22 @@ function ActivitiesTable({ rows, loading }) {
             </div>
 
             {/* desc */}
-            <div className="w-[70%] pr-4 text-[13px] leading-[1.4] text-gray-800">
+            <div className="w-[53%] pr-4 text-[13px] leading-[1.4] text-gray-800">
               {r?.description}
             </div>
 
             {/* date */}
-            <div className="w-[10%] text-[13px] text-gray-800">
+            <div className="w-[15%] text-[13px] text-gray-800">
               {r?.createdAt?.split(" ")[0]}
             </div>
 
             {/* user */}
-            <div className="w-[10%] text-[13px] text-gray-800 truncate">
+            <div className="w-[15%] text-[13px] text-gray-800 truncate">
               {r?.userId}
             </div>
 
             {/* manage */}
-            <div className="w-[5%] flex items-start justify-center gap-3 text-[15px]">
+            <div className="w-[10%] flex items-start justify-center gap-3 text-[15px]">
               <button className="text-pink-500 hover:text-pink-600">
                 <RiDeleteBinLine />
               </button>
@@ -318,15 +319,16 @@ function ActivitiesTable({ rows, loading }) {
 // Orders table
 function OrdersTable({ rows }) {
   return (
-    <CardLike title="Recent Orders" minWidth="min-w-[950px]">
+    <CardLike title="Recent Orders" minWidth={`${rows.length === 0 ? 'w-[650px]' : 'w-[950px]'}`}>
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">Order #</div>
-        <div className="w-[150px]">Status</div>
-        <div className="w-[100px]">Total</div>
         <div className="w-[120px]">Date</div>
-        <div className="w-[180px]">Rep</div>
-        <div className="flex-1 text-end">Manage</div>
+        <div className="w-[180px]">Sales Rep</div>
+        <div className="w-[100px]">Total</div>
+        <div className="w-[100px]">Grand Total</div>
+        <div className="w-[150px]">Status</div>
+        <div className="flex-1 flex items-start justify-end">Manage</div>
       </div>
 
       {/* rows */}
@@ -335,28 +337,31 @@ function OrdersTable({ rows }) {
           key={idx}
           className="flex items-start border-b last:border-b-0 border-gray-100 py-3 px-4 text-[13px] text-gray-800"
         >
-          <div className="w-[100px] font-medium">{r.orderNo}</div>
+          <div className="w-[100px] font-medium">{r?.Label}</div>
+          <div className="w-[120px]">{r?.TimeStamp?.split(" ")[0]}</div>
+          <div className="w-[180px] truncate">{r?.SalesRep}</div>
+          <div className="w-[100px]">{r?.Total}</div>
+          <div className="w-[100px]">{r?.GrandTotal}</div>
           <div className="w-[150px]">
             <span
               className={[
-                "inline-block rounded-md px-2 py-1 text-[12px] font-medium border",
-                r.status === "Delivered"
-                  ? "bg-green-50 text-green-600 border-green-200"
-                  : r.status === "Shipped"
-                  ? "bg-blue-50 text-blue-600 border-blue-200"
-                  : r.status === "Processing"
-                  ? "bg-amber-50 text-amber-600 border-amber-200"
-                  : r.status === "Cancelled"
-                  ? "bg-red-50 text-red-600 border-red-200"
-                  : "bg-gray-50 text-gray-600 border-gray-200",
+                "inline-block rounded-full px-2 py-1 text-[12px] font-medium border",
+                r.OrderStatus === "Completed" || r.OrderStatus === "Delivered" 
+                  ? "bg-green-50 text-green-600 border-green-200" :
+                r.OrderStatus === "Issued"
+                  ? "bg-purple-50 text-purple-600 border-purple-200"
+                  : r.OrderStatus === "Shipping"
+                    ? "bg-blue-50 text-blue-600 border-blue-200"
+                    : r.OrderStatus === "Processing"
+                      ? "bg-amber-50 text-amber-600 border-amber-200"
+                      : r.OrderStatus === "Cancelled"
+                        ? "bg-red-50 text-red-600 border-red-200"
+                        : "bg-gray-50 text-gray-600 border-gray-200",
               ].join(" ")}
             >
-              {r.status}
+              {r?.OrderStatus}
             </span>
           </div>
-          <div className="w-[100px]">{r.total}</div>
-          <div className="w-[120px]">{r.date}</div>
-          <div className="w-[180px] truncate">{r.rep}</div>
           <div className="flex-1 flex items-start justify-end gap-3 text-[15px]">
             <button className="text-pink-500 hover:text-pink-600">
               <RiDeleteBinLine />
@@ -438,10 +443,10 @@ function SalesTable({ rows }) {
                 r.paidStatus === "Paid"
                   ? "bg-green-50 text-green-600 border-green-200"
                   : r.paidStatus === "Unpaid"
-                  ? "bg-amber-50 text-amber-600 border-amber-200"
-                  : r.paidStatus === "Voided"
-                  ? "bg-gray-50 text-gray-600 border-gray-200"
-                  : "bg-gray-50 text-gray-600 border-gray-200",
+                    ? "bg-amber-50 text-amber-600 border-amber-200"
+                    : r.paidStatus === "Voided"
+                      ? "bg-gray-50 text-gray-600 border-gray-200"
+                      : "bg-gray-50 text-gray-600 border-gray-200",
               ].join(" ")}
             >
               {r.paidStatus}
@@ -513,26 +518,26 @@ function SegmentTab({ item, active }) {
   );
 }
 
-export default function StatsTabsPanel() {
-  const [value, setValue] = React.useState("activities");
+export default function StatsTabsPanel({ value, setValue }) {
 
   const handleChange = (_event, newValue) => {
     setValue(newValue);
   };
 
-  const { id } = useParams();
+  const { id, externalId } = useParams();
   const perPage = 50;
   const page = 1;
   const q = "";
 
-  const { data, isLoading, isFetching } = useActivitiesByClient(
+  const { data: clientActivities, isLoading, isFetching } = useActivitiesByClient(
     id,
-    page,
-    perPage,
-    q
   );
 
-  const activities = data?.data?.slice(0, 10) ?? [];
+  const { data: clientOrders, isLoading: clientOrdersLoading, isFetching: clientOrdersFetching } = useClientOrdersLists(
+    externalId,
+  )
+  const activities = clientActivities?.data?.slice(0, 10) ?? [];
+  const orders = clientOrders?.data?.slice(0, 10) ?? [];
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -542,7 +547,7 @@ export default function StatsTabsPanel() {
         <div className="flex lg:flex-row lg:items-center lg:justify-between">
           <div className="w-full">
             <Box
-              className="lg:w-auto lg:w-auto inline-flex bg-white my-4 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-200"
+              className="lg:w-auto inline-flex bg-white my-4 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-200"
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -592,9 +597,9 @@ export default function StatsTabsPanel() {
                       "px-4 py-2 rounded-full transition-all duration-200 ease-out text-sm",
                       value === item.value
                         ? // ACTIVE
-                          "bg-indigo-50 ring-1 ring-indigo-100"
+                        "bg-indigo-50 ring-1 ring-indigo-100"
                         : // INACTIVE
-                          "bg-transparent hover:bg-gray-50",
+                        "bg-transparent hover:bg-gray-50",
                     ].join(" ")}
                   />
                 ))}
@@ -604,7 +609,7 @@ export default function StatsTabsPanel() {
 
           <div className="w-full text-end lg:pb-0">
             <Link
-              to={`/client-activities/${activities[0]?.clientId}`}
+              to={`${value === 'activities' ? `/client-activities/${activities[0]?.clientId}` : `/client-orders/${activities[0]?.clientId}`}`}
               className="text-indigo-600 hover:text-indigo-700 text-[13px] mt-2"
             >
               View More
@@ -619,7 +624,7 @@ export default function StatsTabsPanel() {
           </TabPanel>
 
           <TabPanel value="orders" sx={{ p: 0 }}>
-            <OrdersTable rows={ORDERS_ROWS} />
+            <OrdersTable rows={orders} />
           </TabPanel>
 
           <TabPanel value="inventory" sx={{ p: 0 }}>

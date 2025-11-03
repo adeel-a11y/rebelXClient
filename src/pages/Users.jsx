@@ -368,8 +368,8 @@ function PaginationBar({
   return (
     <div
       className="
-        sticky bottom-2 left-0 right-0 z-10
-        w-[70vh] mx-auto
+        fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10
+        w-[650px] mx-auto
         bg-white/95 backdrop-blur-[1px]
         border-t border-slate-200
         rounded-[20px]
@@ -617,7 +617,7 @@ export default function Users() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="min-h-[calc(100vh-220px)] relative">
+        <div className="h-auto relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}
