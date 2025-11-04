@@ -111,7 +111,7 @@ export default function HeaderBar({
       </div>
 
       {/* search input (optional, kept as-is) */}
-      <TextField
+      {/* <TextField
         size="small"
         placeholder="Search…"
         value={q}
@@ -123,7 +123,7 @@ export default function HeaderBar({
             </InputAdornment>
           ),
         }}
-      />
+      /> */}
     </Stack>
   );
 }

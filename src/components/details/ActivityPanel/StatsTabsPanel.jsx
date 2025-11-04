@@ -262,14 +262,14 @@ function ActivitiesTable({ rows, loading }) {
           <ClipLoader size={24} color="#4f46e5" />
           <span>Loading activities…</span>
         </div>
-      ) : rows.length !== 0 ? (
+      ) : rows.length === 0 ? (
         // empty state
         <div className="flex items-center justify-center py-10 text-gray-500 text-sm">
           No activities found.
         </div>
       ) : (
         // data rows
-        rows.map((r, idx) => (
+        rows?.map((r, idx) => (
           <div
             key={idx}
             className="flex items-start border-b last:border-b-0 border-gray-100 py-3 px-4 text-[13px] text-gray-800"
@@ -532,6 +532,8 @@ export default function StatsTabsPanel({ value, setValue }) {
   const { data: clientActivities, isLoading, isFetching } = useActivitiesByClient(
     id,
   );
+
+  console.log(clientActivities?.data?.slice(0, 10) )
 
   const { data: clientOrders, isLoading: clientOrdersLoading, isFetching: clientOrdersFetching } = useClientOrdersLists(
     externalId,
