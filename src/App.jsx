@@ -24,6 +24,8 @@ import OrderDetailPage from "./pages/OrderDetailPage";
 import ClientOrdersPage from "./pages/ClientOrderPage";
 import CreateOrderItem from "./pages/CreateOrderItem";
 import EditOrderItem from "./pages/EditOrderItem";
+import LoginPage from "./pages/LoginPage";
+import Authenticated from "./components/Authenticated";
 
 export default function App() {
   return (
@@ -31,34 +33,52 @@ export default function App() {
       <UIProvider>
         <ToolbarProvider>
           <Routes>
-            <Route element={<Shell />}>
-              {" "}
-              {/* shell wraps all pages */}
-              <Route index element={<Dashboard />} />
-              <Route path="clients" element={<Clients />} />
-              <Route path="/clients/new" element={<ClientCreatePage />} />
-              <Route path="/clients/:id" element={<EditClient />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/users/new" element={<UserCreatePage />} />
-              <Route path="/users/:id" element={<EditUserPage />} />
-              <Route path="/user-details/:id" element={<UserDetails />} />
-              <Route path="activities" element={<Activities />} />
-              <Route path="client-activities/:id" element={<ClientActivitiesPage />} />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/client-orders/:id" element={<ClientOrdersPage />} />
-              <Route path="/orders/new" element={<CreateOrder />} />
-              <Route path="/orders/:id" element={<EditOrderPage />} />
-              <Route path="/order-details/:id" element={<OrderDetailPage />} />
-              <Route path="/create-order-item/:orderId" element={<CreateOrderItem />} />
-              <Route path="/edit-order-item/:orderId/:id" element={<EditOrderItem />} />
-              <Route
-                path="/client-details/:id/:externalId"
-                element={<ClientDetailsPage />}
-              />
-              <Route path="/activities/new" element={<ActivityUpsert />} />
-              <Route path="/activities/:id" element={<ActivityUpsert />} />
+            <Route element={<Authenticated />}>
+              <Route element={<Shell />}>
+                {" "}
+                {/* shell wraps all pages */}
+                <Route index element={<Dashboard />} />
+                <Route path="clients" element={<Clients />} />
+                <Route path="/clients/new" element={<ClientCreatePage />} />
+                <Route path="/clients/:id" element={<EditClient />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/new" element={<UserCreatePage />} />
+                <Route path="/users/:id" element={<EditUserPage />} />
+                <Route path="/user-details/:id" element={<UserDetails />} />
+                <Route path="activities" element={<Activities />} />
+                <Route
+                  path="client-activities/:id"
+                  element={<ClientActivitiesPage />}
+                />
+                <Route path="tasks" element={<Tasks />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route
+                  path="/client-orders/:id"
+                  element={<ClientOrdersPage />}
+                />
+                <Route path="/orders/new" element={<CreateOrder />} />
+                <Route path="/orders/:id" element={<EditOrderPage />} />
+                <Route
+                  path="/order-details/:id"
+                  element={<OrderDetailPage />}
+                />
+                <Route
+                  path="/create-order-item/:orderId"
+                  element={<CreateOrderItem />}
+                />
+                <Route
+                  path="/edit-order-item/:orderId/:id"
+                  element={<EditOrderItem />}
+                />
+                <Route
+                  path="/client-details/:id/:externalId"
+                  element={<ClientDetailsPage />}
+                />
+                <Route path="/activities/new" element={<ActivityUpsert />} />
+                <Route path="/activities/:id" element={<ActivityUpsert />} />
+              </Route>
             </Route>
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </ToolbarProvider>
       </UIProvider>

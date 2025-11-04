@@ -56,11 +56,13 @@ export async function createUser(payload) {
 }
 
 export async function updateUser(id, payload) {
+  console.log("payload", payload, id);
   const res = await fetch(`${BASE_URL}/users/update/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  console.log("res", res);
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(text || `PUT /api/users/lists/${id} failed`);

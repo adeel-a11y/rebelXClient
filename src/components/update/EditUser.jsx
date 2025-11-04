@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 
 const ROLES = [
-  "admin","manager","employee","sales","sales-agent","sales-executive","warehouse","shipping",
+  "admin","manager","employee","sales","sales-agent","sales-executive","warehouse","shipping", "qc", "executive-assistant",
 ];
 
 export default function EditUser({ mode="create", initial, submitting, onSubmit, onCancel }) {
@@ -34,7 +34,7 @@ export default function EditUser({ mode="create", initial, submitting, onSubmit,
 
   function handleSubmit(e){
     e.preventDefault();
-    if (!canSubmit) return;
+    // if (!canSubmit) return;
 
     const payload = {
       name: form.name.trim(),
@@ -44,8 +44,9 @@ export default function EditUser({ mode="create", initial, submitting, onSubmit,
       department: form.department?.trim() || undefined,
       phone: form.phone?.trim() || undefined,
       hourlyRate: form.hourlyRate?.trim() || undefined,
+      password: form.password?.trim() || undefined,
     };
-    if (mode === "create") payload.password = form.password;
+    // if (mode === "create") payload.password = form.password;
     onSubmit?.(payload);
   }
 
@@ -60,23 +61,23 @@ export default function EditUser({ mode="create", initial, submitting, onSubmit,
         <input className="w-full rounded-lg border px-3 py-2" value={form.email} onChange={set("email")} type="email" />
       </div>
 
-      {mode === "create" && (
+      {mode === "create" || mode === "edit" && (
         <>
           <div>
             <label className="block text-sm font-medium mb-1">Password *</label>
             <input className="w-full rounded-lg border px-3 py-2" value={form.password} onChange={set("password")} type="password" />
           </div>
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">Confirm Password *</label>
             <input className="w-full rounded-lg border px-3 py-2" value={form.confirm} onChange={set("confirm")} type="password" />
-          </div>
+          </div> */}
         </>
       )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Role *</label>
-        <select className="w-full rounded-lg border px-3 py-2" value={form.role} onChange={set("role")}>
-          {ROLES.map(r => <option key={r} value={r}>{r.replace(/-/g," ").replace(/\b\w/g, m=>m.toUpperCase())}</option>)}
+        <select className="w-full rounded-lg border px-3 py-2" defaultValue={form.role} onChange={set("role")}>
+          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
       </div>
 
@@ -111,8 +112,8 @@ export default function EditUser({ mode="create", initial, submitting, onSubmit,
         <button type="button" className="px-4 py-2 rounded-lg border" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" disabled={!canSubmit || submitting}
-          className={`px-4 py-2 rounded-lg text-white ${(!canSubmit||submitting) ? "bg-indigo-300" : "bg-indigo-600 hover:bg-indigo-700"}`}>
+        <button type="submit" disabled={submitting}
+          className={`px-4 py-2 rounded-lg text-white ${(submitting) ? "bg-indigo-300" : "bg-indigo-600 hover:bg-indigo-700"}`}>
           {submitting ? "Saving..." : "Save"}
         </button>
       </div>
