@@ -143,7 +143,7 @@ export default function OrdersPage({ externalId = "" }) {
     datePreset: filters.datePreset,
   });
 
-  console.log(data.data);
+  // console.log(data.data);
 
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
 
