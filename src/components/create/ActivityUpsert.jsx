@@ -10,6 +10,7 @@ import {
 } from "../../hooks/useActivities";
 import { useClientNames, useUserNames } from "../../hooks/useLookups";
 
+/* ------------------------------- constants ------------------------------- */
 const TYPES = [
   "created",
   "status_changed",
@@ -20,38 +21,64 @@ const TYPES = [
 ];
 
 const initial = {
-  clientId: "",     // here: client NAME (per your request)
-  userId: "",       // here: user NAME (per your request)
+  clientId: "",     // (per your requirement) store/display NAME
+  userId: "",       // (per your requirement) store/display NAME
   trackingId: "",
   type: "call_made",
   description: "",
-  createdAt: "",    // blank => backend default now()
+  createdAt: "",    // blank => backend now()
 };
 
-function Field({ label, required, children }) {
+/* --------------------------- UI primitive blocks -------------------------- */
+function Section({ title, children }) {
   return (
-    <div className="col-span-1">
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label} {required && <span className="text-rose-600">*</span>}
-      </label>
-      {children}
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
+      <div className="text-sm font-semibold text-slate-800 mb-3">{title}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">{children}</div>
     </div>
   );
 }
+function Field({ label, required, children, full = false }) {
+  return (
+    <label className={["flex flex-col gap-1", full ? "md:col-span-2" : ""].join(" ")}>
+      <span className="text-xs font-medium text-slate-600">
+        {label} {required && <span className="text-rose-600">*</span>}
+      </span>
+      {children}
+    </label>
+  );
+}
+function Select({ ...props }) {
+  return (
+    <select
+      className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
+      {...props}
+    />
+  );
+}
+function Input({ ...props }) {
+  return (
+    <input
+      className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+      {...props}
+    />
+  );
+}
+function Textarea({ rows = 3, ...props }) {
+  return (
+    <textarea
+      rows={rows}
+      className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+      {...props}
+    />
+  );
+}
 
+/* ---------------------------------- page ---------------------------------- */
 export default function ActivityUpsert() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
-
-
-  // load for edit
-  const { data: existing, isLoading: loadingExisting, error: loadErr } = useActivity(id, isEdit);
-  const { mutateAsync: createMutate, isPending: creating } = useCreateActivity();
-  const { mutateAsync: updateMutate, isPending: updating } = useUpdateActivity();
-
-  const [form, setForm] = useState(initial);
-  const [error, setError] = useState("");
 
   useToolbar({
     title: isEdit ? "Edit Activity" : "Add Activity",
@@ -60,11 +87,19 @@ export default function ActivityUpsert() {
     backButton: true,
   });
 
-  // Lookups (simple “load-all” mode; if list is huge, wire q to an input)
+  // load existing (edit)
+  const { data: existing, isLoading: loadingExisting } = useActivity(id, isEdit);
+  const { mutateAsync: createMutate, isPending: creating } = useCreateActivity();
+  const { mutateAsync: updateMutate, isPending: updating } = useUpdateActivity();
+
+  // lookups
   const { data: clientNames = [], isLoading: loadingClients } = useClientNames("", 1000, true);
   const { data: userNames = [], isLoading: loadingUsers } = useUserNames("", 1000, true);
 
-  // hydrate when editing
+  const [form, setForm] = useState(initial);
+  const [error, setError] = useState("");
+
+  // hydrate on edit
   useEffect(() => {
     if (isEdit && existing) {
       setForm({
@@ -96,21 +131,17 @@ export default function ActivityUpsert() {
       setError("Please fix the highlighted fields.");
       return;
     }
+    const payload = {
+      clientId: form.clientId.trim(),   // NAME strings as requested
+      userId: form.userId.trim(),
+      trackingId: form.trackingId.trim(),
+      type: form.type,
+      description: form.description.trim(),
+      ...(form.createdAt ? { createdAt: new Date(form.createdAt).toISOString() } : {}),
+    };
     try {
-      const payload = {
-        clientId: form.clientId.trim(),   // per your request: using NAME string
-        userId: form.userId.trim(),       // per your request: using NAME string
-        trackingId: form.trackingId.trim(),
-        type: form.type,
-        description: form.description.trim(),
-        ...(form.createdAt ? { createdAt: new Date(form.createdAt).toISOString() } : {}),
-      };
-
-      if (isEdit) {
-        await updateMutate({ id, payload });
-      } else {
-        await createMutate(payload);
-      }
+      if (isEdit) await updateMutate({ id, payload });
+      else await createMutate(payload);
       navigate("/activities");
     } catch (err) {
       setError(err?.message || "Failed to save activity.");
@@ -118,138 +149,112 @@ export default function ActivityUpsert() {
   }
 
   const busy = creating || updating || (isEdit && loadingExisting);
+  const disableForm = busy || loadingClients || loadingUsers;
 
   return (
-    <div className="mx-auto">
-      <div>
-        {error && (
-          <div className="mb-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">
-            {error}
-          </div>
-        )}
+    <form onSubmit={handleSubmit} className="w-full mx-auto p-3 md:p-4 space-y-4">
+      {/* header error */}
+      {error && (
+        <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">
+          {error}
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Client (names dropdown) */}
-          <Field label="Client" required>
-            <select
-              value={form.clientId}
-              onChange={set("clientId")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={loadingClients || busy}
-            >
-              <option value="">Select client…</option>
-              {clientNames.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </Field>
+      {/* Section: Links */}
+      <Section title="Links">
+        <Field label="Client" required>
+          <Select value={form?.clientId} onChange={set("clientId")} disabled={disableForm}>
+            <option value="">Select client…</option>
+            {clientNames.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </Select>
+        </Field>
 
-          {/* User (names dropdown) */}
-          <Field label="User" required>
-            <select
-              value={form.userId}
-              onChange={set("userId")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={loadingUsers || busy}
-            >
-              <option value="">Select user…</option>
-              {userNames.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </Field>
+        <Field label="User" required>
+          <Select value={form.userId} onChange={set("userId")} disabled={disableForm}>
+            <option value="">Select user…</option>
+            {userNames.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </Select>
+        </Field>
+      </Section>
 
-          {/* Tracking ID */}
-          <Field label="Tracking ID" required>
-            <input
-              type="text"
-              value={form.trackingId}
-              onChange={set("trackingId")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="TRK-0001"
-              disabled={busy}
-            />
-          </Field>
+      {/* Section: Details */}
+      <Section title="Details">
+        <Field label="Tracking ID" required>
+          <Input
+            value={form.trackingId}
+            onChange={set("trackingId")}
+            placeholder="TRK-0001"
+            disabled={disableForm}
+          />
+        </Field>
 
-          {/* Type */}
-          <Field label="Type" required>
-            <select
-              value={form.type}
-              onChange={set("type")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={busy}
-            >
-              {TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
-                </option>
-              ))}
-            </select>
-          </Field>
+        <Field label="Type" required>
+          <Select value={form.type} onChange={set("type")} disabled={disableForm}>
+            {TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
-          {/* Created At (optional) */}
-          <Field label="Created At">
-            <input
-              type="datetime-local"
-              value={form.createdAt}
-              onChange={set("createdAt")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={busy}
-            />
-          </Field>
+        <Field label="Created At">
+          <Input
+            type="datetime-local"
+            value={form.createdAt}
+            onChange={set("createdAt")}
+            disabled={disableForm}
+          />
+        </Field>
 
-          {/* Description */}
-          <div className="md:col-span-2">
-            <Field label="Description" required>
-              <textarea
-                value={form.description}
-                onChange={set("description")}
-                rows={3}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="A short note about this activity…"
-                disabled={busy}
-              />
-            </Field>
-          </div>
+        <Field label="Description" required full>
+          <Textarea
+            value={form.description}
+            onChange={set("description")}
+            rows={3}
+            placeholder="A short note about this activity…"
+            disabled={disableForm}
+          />
+        </Field>
+      </Section>
 
-          {/* Actions */}
-          <div className="col-span-1 md:col-span-2 flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
-              onClick={() => navigate("/activities")}
-              disabled={busy}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!canSubmit || busy}
-              className={`px-4 py-2 rounded-lg text-white ${
-                !canSubmit || busy ? "bg-indigo-300 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-              }`}
-            >
-              {busy ? <ClipLoader size={18} color="#fff" /> : (isEdit ? "Save Changes" : "Save Activity")}
-            </button>
-          </div>
-        </form>
+      {/* Actions */}
+      <div className="flex justify-end items-center gap-2">
+        <button
+          type="button"
+          className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+          onClick={() => navigate("/activities")}
+          disabled={busy}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={busy}
+          className={`px-4 py-2 rounded-lg text-white ${
+            busy
+              ? "bg-indigo-300 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          {busy ? <ClipLoader size={18} color="#fff" /> : (isEdit ? "Save Changes" : "Save Activity")}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }
 
-/** helpers */
+/* -------------------------------- helpers -------------------------------- */
 function toInputDateTime(dt) {
   try {
     const d = new Date(dt);
     if (isNaN(d.getTime())) return "";
     const pad = (n) => String(n).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    const mm = pad(d.getMonth() + 1);
-    const dd = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   } catch {
     return "";
   }

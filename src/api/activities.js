@@ -60,15 +60,24 @@ export async function getActivitiesLists({
           page: d.page ?? page,
           perPage: d.perPage ?? limit,
           total: d.total ?? 0,
-          totalPages: d.totalPages ?? Math.max(Math.ceil((d.total ?? 0) / (d.perPage ?? limit)), 1),
+          totalPages:
+            d.totalPages ??
+            Math.max(Math.ceil((d.total ?? 0) / (d.perPage ?? limit)), 1),
         },
       };
     }
 
     // Fallback safe shape
-    return { rows: [], meta: { page, perPage: limit, total: 0, totalPages: 1 } };
+    return {
+      rows: [],
+      meta: { page, perPage: limit, total: 0, totalPages: 1 },
+    };
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }
@@ -132,29 +141,27 @@ export async function getActivitiesListByClientId(
   }
 }
 
-export async function getActivitiesSummary({
-  q = "",
-  datePreset = null,
-  from,
-  to,
-} = {}) {
+export async function getActivitiesSummary(externalId = "") {
   try {
-    const params = {
-      ...(q ? { q } : {}),
-      ...(datePreset ? { dateRange: datePreset } : {}),
-      ...(from ? { from } : {}),
-      ...(to ? { to } : {}),
-    };
-    const res = await axios.get(`${BASE_URL}/activities/lists/summary`, { params });
+    console.log("call activities summary params", externalId);
+    const res = await axios.get(`${BASE_URL}/activities/lists/summary`, {
+      params: { externalId: externalId || "" },
+    });
     const d = res.data || {};
     // expect { totalCalls, totalEmails, total }
     return {
-      totalCalls: Number(d.totalCalls || 0),
-      totalEmails: Number(d.totalEmails || 0),
-      total: Number(d.total || (d.totalCalls || 0) + (d.totalEmails || 0)),
+      calls: Number(d.calls || 0),
+      emails: Number(d.emails || 0),
+      texts: Number(d.texts || 0),
+      others: Number(d.others || 0),
+      total: Number(d.total),
     };
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }
@@ -167,7 +174,11 @@ export async function getActivityById(id) {
     // old ctrl: { success, data, count }
     return res?.data?.data ?? res.data;
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }
@@ -177,7 +188,11 @@ export async function createActivity(payload) {
     const res = await axios.post(`${BASE_URL}/activities`, payload);
     return res?.data?.data ?? res.data; // support both shapes
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }
@@ -187,7 +202,11 @@ export async function updateActivity(id, payload) {
     const res = await axios.put(`${BASE_URL}/activities/update/${id}`, payload);
     return res?.data?.data ?? res.data;
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }
@@ -197,7 +216,11 @@ export async function deleteActivity(id) {
     const res = await axios.delete(`${BASE_URL}/activities/delete/${id}`);
     return res?.data?.data ?? res.data;
   } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Request failed";
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
     throw new Error(msg);
   }
 }

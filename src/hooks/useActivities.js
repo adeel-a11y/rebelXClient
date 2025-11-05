@@ -87,12 +87,13 @@ export function useActivity(id, enabled = true) {
   });
 }
 
-export function useActivitiesSummary({ q = "", datePreset = null, from, to } = {}) {
-  const params = { q, datePreset, from, to };
+export function useActivitiesSummary(externalId) {
+  console.log("inside hooks activitiies summary params", externalId);
+  const hasId = externalId;
   return useQuery({
-    queryKey: qk.summary(params),
-    queryFn: () => getActivitiesSummary(params),
-    staleTime: 30_000,
+    queryKey: qk.summary(hasId ? externalId : null),
+    queryFn: () => getActivitiesSummary(hasId ? externalId : undefined),
+    staleTime: 600_000,
   });
 }
 

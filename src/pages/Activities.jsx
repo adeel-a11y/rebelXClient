@@ -134,8 +134,8 @@ export default function Activities() {
           const t = String(value || "").toLowerCase();
 
           const icon =
-            t === "call" || t === "call_made" ? <FiPhone className="text-green-600" size={16} /> :
-              t === "email" ? <FiMail className="text-rose-600" size={16} /> :
+            t === "call" || t === "call_made" || t === "meeting_scheduled" ? <FiPhone className="text-green-600" size={16} /> :
+              t === "email" || t === "email_sent" ? <FiMail className="text-rose-600" size={16} /> :
                 <MdOutlineTextSnippet className="text-sky-600" size={16} />;
 
           return (

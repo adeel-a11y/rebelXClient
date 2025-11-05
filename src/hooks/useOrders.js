@@ -1,6 +1,6 @@
 // src/hooks/useOrders.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrdersLists, getOrderById, createOrder, updateOrder, deleteOrder, getClientOrdersLists } from "../api/orders";
+import { getOrdersLists, getOrderById, createOrder, updateOrder, deleteOrder, getClientOrdersLists, getOrdersSummary } from "../api/orders";
 import { createOrderItem, getOrderItemById, updateOrderItem } from "../api/orderItem";
 
 /** (already provided earlier) */
@@ -55,6 +55,15 @@ export function useOrderById(id) {
   });
 }
 
+export function useOrdersSummary(externalId = "") {
+  const hasId = externalId;
+  return useQuery({
+    queryKey: ["orders-summary", hasId ? externalId : null], // id change → refetch
+    queryFn: () => getOrdersSummary(hasId ? externalId : undefined),
+    staleTime: 600_000,
+  });
+}
+
 export function useOrderItemById(id) {
   return useQuery({
     queryKey: ["orderItem", id],
@@ -71,7 +80,7 @@ export function useCreateOrder({ onSuccess, onError } = {}) {
     mutationFn: (payload) => createOrder(payload),
     onSuccess: (data, variables, ctx) => {
       // invalidate listing and optionally first page
-      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["orders", "orders-summary"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,
@@ -97,7 +106,7 @@ export function useUpdateOrder({ onSuccess, onError } = {}) {
   return useMutation({
     mutationFn: ({ id, payload }) => updateOrder(id, payload),
     onSuccess: (data, variables, ctx) => {
-      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["orders", "orders-summary"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,
@@ -122,7 +131,7 @@ export function useDeleteOrder({ onSuccess, onError } = {}) {
   return useMutation({
     mutationFn: (id) => deleteOrder(id),
     onSuccess: (data, variables, ctx) => {
-      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["orders", "orders-summary"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,

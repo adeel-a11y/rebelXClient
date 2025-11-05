@@ -9,7 +9,8 @@ export default function UserEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: user, isLoading } = useUser(id);
-  const { mutateAsync, isLoading: saving } = useUpdateUser();
+  const { mutateAsync, isPending: saving } = useUpdateUser();
+  console.log("saving", saving)
 
   useToolbar({
     title: "Edit User",

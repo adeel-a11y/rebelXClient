@@ -1,6 +1,7 @@
 // src/components/ActivitiesSummaryBar.jsx
 import React from "react";
 import { useActivitiesSummary } from "../../hooks/useActivities";
+import { useLocation } from "react-router-dom";
 
 function Chip({ children, tone = "slate", subtle = false }) {
   const tones = {
@@ -10,15 +11,20 @@ function Chip({ children, tone = "slate", subtle = false }) {
       ring: "ring-emerald-200",
     },
     rose: { bg: "bg-rose-50", text: "text-rose-700", ring: "ring-rose-200" },
-    indigo: {
-      bg: "bg-indigo-50",
-      text: "text-indigo-700",
-      ring: "ring-indigo-200",
+    sky: {
+      bg: "bg-sky-50",
+      text: "text-sky-700",
+      ring: "ring-sky-200",
     },
     slate: {
       bg: "bg-slate-50",
       text: "text-slate-700",
       ring: "ring-slate-200",
+    },
+    yellow: {
+      bg: "bg-yellow-50",
+      text: "text-yellow-700",
+      ring: "ring-yellow-200",
     },
   };
   const c = tones[tone] ?? tones.slate;
@@ -40,17 +46,15 @@ function Chip({ children, tone = "slate", subtle = false }) {
 
 export default function ActivitiesSummaryBar({
   className = "",
-  q = "",
-  datePreset = null,
-  from,
-  to,
 }) {
-  const { data, isLoading, error } = useActivitiesSummary({
-    q,
-    datePreset,
-    from,
-    to,
-  });
+
+  const location = useLocation();
+
+  const externalId = location?.pathname?.slice(19);
+
+  const { data, isLoading, error } = useActivitiesSummary(externalId);
+
+  console.log(data);
 
   if (error) {
     return (
@@ -72,7 +76,9 @@ export default function ActivitiesSummaryBar({
     );
   }
 
-  const { totalCalls, totalEmails, total } = data;
+  const { calls, emails, texts, others, total } = data;
+
+  console.log(calls, emails, texts, others, total);
 
   return (
     <div className={["w-full", className].join(" ")}>
@@ -90,7 +96,7 @@ export default function ActivitiesSummaryBar({
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
               Calls
             </span>
-            <span className="ml-1 font-semibold">{totalCalls}</span>
+            <span className="ml-1 font-semibold">{calls}</span>
           </Chip>
 
           <Chip tone="rose">
@@ -98,7 +104,21 @@ export default function ActivitiesSummaryBar({
               <span className="inline-block h-2 w-2 rounded-full bg-rose-500" />
               Emails
             </span>
-            <span className="ml-1 font-semibold">{totalEmails}</span>
+            <span className="ml-1 font-semibold">{emails}</span>
+          </Chip>
+          <Chip tone="sky">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-sky-500" />
+              Texts
+            </span>
+            <span className="ml-1 font-semibold">{texts}</span>
+          </Chip>
+          <Chip tone="yellow">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-yellow-500" />
+              Others
+            </span>
+            <span className="ml-1 font-semibold">{others}</span>
           </Chip>
         </div>
       </div>

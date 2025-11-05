@@ -4,10 +4,12 @@ import { useClientsSummary } from "../../hooks/useClients";
 import { useLocation } from "react-router-dom";
 import UsersSummaryBar from "../summary/UsersSummaryBar";
 import ActivitiesSummaryBar from "../summary/ActivitySummaryBar"; // 👈 add
+import OrdersSummaryBar from "../summary/OrdersSummaryBar"; // 👈 add
 
 export default function AppFooter() {
   const location = useLocation();
-  const { data: sum, isLoading: sumLoading } = useClientsSummary();
+  const { data: clientSummary, isLoading: clientSummaryLoading } =
+    useClientsSummary();
 
   // optional: pick datePreset from URL (?datePreset=today|this_month|this_year|prev_year)
   const sp = new URLSearchParams(location.search);
@@ -20,7 +22,7 @@ export default function AppFooter() {
     location.pathname.includes("/client-details") ||
     location.pathname.includes("/activity-details") || // 👈 add
     location.pathname.includes("/clients/new") ||
-    location.pathname.includes("/activities/new");      // 👈 add
+    location.pathname.includes("/activities/new"); // 👈 add
 
   return (
     <footer className={`app-footer ${hideOnDetails ? "hidden" : ""}`}>
@@ -32,8 +34,8 @@ export default function AppFooter() {
         {location.pathname === "/clients" && (
           <ClientSummaryBar
             className="footer-row"
-            data={sum}
-            loading={sumLoading}
+            data={clientSummary}
+            loading={clientSummaryLoading}
           />
         )}
 
@@ -43,6 +45,30 @@ export default function AppFooter() {
             // props optional: if you’re not using URL params, you can omit these
             q={q}
             datePreset={datePreset}
+          />
+        )}
+
+        {location.pathname.includes("client-activities") && (
+          <ActivitiesSummaryBar
+            className="footer-row"
+          />
+        )}
+
+        {location.pathname.includes("orders") && (
+          <OrdersSummaryBar
+            className="footer-row"
+            // props optional: if you’re not using URL params, you can omit these
+            // q={q}
+            // datePreset={datePreset}
+          />
+        )}
+
+        {location.pathname.includes("client-orders") && (
+          <OrdersSummaryBar
+            className="footer-row"
+            // props optional: if you’re not using URL params, you can omit these
+            // q={q}
+            // datePreset={datePreset}
           />
         )}
       </div>
