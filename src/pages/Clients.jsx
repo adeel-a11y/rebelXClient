@@ -1054,10 +1054,7 @@ export default function Clients() {
               hideFooterPagination
               hideFooterSelectedRowCount
               /* 👇 navigate when a row is clicked */
-              onRowClick={(params) => {
-                // params.id === result of getRowId -> row._id
-                navigate(`/user-details/${params.id}`);
-              }}
+              onRowClick={handleRowClick}
               /* 👇 pointer cursor + subtle hover */
               sx={{
                 border: "none",
