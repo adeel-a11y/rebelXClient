@@ -22,18 +22,6 @@ import { useUser } from "../../hooks/useUsers";
 import { useParams } from "react-router-dom";
 import { FaCommentDollar } from "react-icons/fa";
 
-/*
-  Skynet Silicon — Dashboard Clone
-  - Single React component you can drop into a Vite/CRA project
-  - TailwindCSS for styling
-  - Recharts for bar & donut visuals
-  - Static data pulled from `dummyData` (pretend file import)
-
-  If you prefer a separate file:
-    // data.json (same shape as dummyData)
-    // import data from "./data.json" assert { type: "json" };
-*/
-
 const fmtMoney = (n) =>
   n.toLocaleString(undefined, {
     style: "currency",

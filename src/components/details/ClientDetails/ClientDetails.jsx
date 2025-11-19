@@ -22,10 +22,10 @@ export default function ClientDetailsPage() {
           sx={{ px: 0, py: 1, width: "100%" }}
         >
           <div className="flex lg:flex-row flex-col w-full gap-4">
-            <div className="lg:w-[50%]">
+            <div className="lg:w-[49%]">
               <ProfileSidebar />
             </div>
-            <div className="lg:w-[50%]">
+            <div className="lg:w-[49%]">
               <ActivityPanel />
             </div>
           </div>

@@ -220,7 +220,7 @@ export default function Activities() {
   return (
     <div className="relative users_table">
       {/* floating filter card */}
-      <div className="relative">
+      <div className="fixed right-3 z-[999]">
         <FilterDropdown
           open={filterOpen}
           onClose={() => setFilterOpen(false)}
@@ -235,7 +235,7 @@ export default function Activities() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-auto relative pb-8">
+        <div className="h-screen relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}
@@ -267,7 +267,6 @@ export default function Activities() {
             // }
             sx={{
               border: "none",
-              "& .MuiDataGrid-row": { cursor: "pointer" },
               "& .MuiDataGrid-row:hover": { backgroundColor: "rgba(0,0,0,0.02)" },
 
               // MULTI-LINE support:

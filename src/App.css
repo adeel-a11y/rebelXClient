@@ -41,10 +41,32 @@ body {
   --sb-hover: rgba(255, 255, 255, 0.07);
 }
 
-@media (max-width:1280px) {
+@media (max-width: 1280px) {
   :root {
     --sb-open: 200px; /* expanded sidebar width */
   }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #dbdada;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #959494;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7b7b7b;
+}
+
+.MuiTabPanel-root::-webkit-scrollbar {
+  width: 6px !important;
 }
 
 /* -------- App shell container (optional) -------- */
@@ -432,7 +454,7 @@ body {
 }
 
 /* optional thin scrollbar */
-.app-footer__scroll {
+.app-footer__scroll{
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
@@ -606,4 +628,11 @@ body {
 }
 .MuiTab-root:hover {
   background-color: #f2f2fe !important;
+}
+.MuiDataGrid-scrollbar {
+  height: 7px !important;
+}
+
+.MuiDataGrid-cell {
+  outline: none !important;
 }

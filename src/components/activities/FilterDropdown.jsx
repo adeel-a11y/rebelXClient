@@ -6,17 +6,17 @@ import NiceRadio from "./NiceRadio";
 /**
  * value: { types: string[] ('call','email'), datePreset: 'today'|'this_month'|'this_year'|'prev_year'|null }
  */
-export default function FilterDropdown({
-  open,
-  onClose,
-  value,
-  onChange,
-}) {
+export default function FilterDropdown({ open, onClose, value, onChange }) {
   if (!open) return null;
 
   // toggle call/email
   const toggleType = (key, ck) => {
-    const map = { call: "call", email: "email" };
+    const map = {
+      call: "call",
+      email: "email",
+      texts: "texts",
+      others: "others",
+    };
     const val = map[key];
     const next = ck
       ? [...value.types, val]
@@ -32,9 +32,7 @@ export default function FilterDropdown({
       onClick={(e) => e.stopPropagation()}
     >
       <div className="p-3 border-b border-slate-100">
-        <div className="text-sm font-medium text-slate-700">
-          Filters
-        </div>
+        <div className="text-sm font-medium text-slate-700">Filters</div>
       </div>
 
       <div className="p-3 space-y-4">
@@ -53,6 +51,16 @@ export default function FilterDropdown({
               label="Email"
               checked={value.types.includes("email")}
               onChange={(ck) => toggleType("email", ck)}
+            />
+            <NiceCheckbox
+              label="Texts"
+              checked={value.types.includes("texts")}
+              onChange={(ck) => toggleType("texts", ck)}
+            />
+            <NiceCheckbox
+              label="Others"
+              checked={value.types.includes("others")}
+              onChange={(ck) => toggleType("others", ck)}
             />
           </div>
         </div>
@@ -102,9 +110,7 @@ export default function FilterDropdown({
         <div className="pt-2 flex items-center justify-between">
           <button
             className="text-sm text-slate-500 hover:text-slate-700"
-            onClick={() =>
-              onChange({ types: [], datePreset: null })
-            }
+            onClick={() => onChange({ types: [], datePreset: null })}
           >
             Clear all
           </button>

@@ -79,7 +79,7 @@ export default function ProfileSidebar() {
       {/* Banner */}
       <Box sx={{ position: "relative", height: 120, background: "linear-gradient(135deg,#ff6060 0%,#6c7bff 50%,#5b7fff 100%)" }}>
         <Avatar
-          src={client?.profileImage || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
+          src={"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
           sx={{ width: 64, height: 64, border: "3px solid #fff", position: "absolute", left: 16, bottom: -24, boxShadow: "0 4px 10px rgba(0,0,0,.15)", backgroundColor: "#fff" }}
         />
       </Box>
@@ -269,7 +269,7 @@ export default function ProfileSidebar() {
         </GroupSection>
 
         {/* ===== Notes ===== */}
-        <GroupSection
+        {/* <GroupSection
           title="Notes" icon={<FiHash />}
           iconBg="linear-gradient(135deg,#6b7280,#111827)"
           groupKey="notes" isEditing={editingGroup === "notes"}
@@ -279,7 +279,7 @@ export default function ProfileSidebar() {
           <KV icon={<FiHash />} iconColor="#6b7280" label="Last Note"
               value={editingGroup === "notes" ? draft.lastNote : client?.lastNote}
               editMode={editingGroup === "notes"} onChange={(v) => setField("lastNote", v)} />
-        </GroupSection>
+        </GroupSection> */}
       </CardContent>
     </Card>
   );

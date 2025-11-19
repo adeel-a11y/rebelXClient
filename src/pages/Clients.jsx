@@ -20,10 +20,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUserNames } from "../hooks/useUsers";
-import {
-  FiPhone,
-  FiMail,
-} from "react-icons/fi";
+import { FiPhone, FiMail } from "react-icons/fi";
 
 function sanitizePhone(raw = "") {
   let s = String(raw).trim();
@@ -40,27 +37,12 @@ function openPhone(rawPhone, { extension } = {}) {
   // If extension passed separately, append with pause (,,)
   if (extension) phone += `,,${String(extension).replace(/[^0-9#*]/g, "")}`;
 
-  const telHref = `tel:${phone}`;
+  const gv = `https://voice.google.com/u/0/calls?number=${encodeURIComponent(
+    phone
+  )}`;
 
-  // naive mobile check; on desktop we’ll fall back to Google Voice
-  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    // Use location so iOS won't block it
-    window.location.href = telHref;
-    return;
-  }
-
-  // Desktop fallback: open Google Voice with number prefilled
-  const gv = `https://voice.google.com/u/0/calls?number=${encodeURIComponent(phone)}`;
-
-  // Try tel: first (some desktops have softphone handlers). If it doesn’t trigger,
-  // open GV after a small delay.
-  const w = window.open(telHref, "_self"); // _self avoids popup blockers
-  setTimeout(() => {
-    // If tel: did nothing, navigate to GV
-    try { window.open(gv, "_blank", "noopener,noreferrer"); } catch {}
-  }, 600);
+  // Open Google Voice in a new tab (works on desktop; on mobile it opens Voice web/app)
+  window.open(gv, "_blank", "noopener,noreferrer");
 }
 
 function openMailTo(email, subject = "", body = "") {
@@ -765,9 +747,6 @@ function PaginationBar({
 }
 
 /* ------------------------- perf: memoized grid ------------------------- */
-const ClientsGrid = React.memo(function ClientsGrid(props) {
-  return <DataGrid {...props} />;
-});
 
 export default function Clients() {
   const [query, setQuery] = useState("");
@@ -860,7 +839,7 @@ export default function Clients() {
         };
 
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-2">
             <button
               type="button"
               title={phone ? `Call ${phone} (Google Voice)` : "No phone"}
@@ -1013,7 +992,7 @@ export default function Clients() {
 
   const handleRowClick = useCallback(
     (params) => {
-      console.log(params)
+      console.log(params);
       const id = params?.id ?? params?.row?._id;
       if (!id) return;
       navigate(`/client-details/${id}/${params?.row?.externalId}`);
@@ -1053,41 +1032,39 @@ export default function Clients() {
             <ClipLoader size={42} />
           </div>
         ) : (
-          <div className="relative pb-8">
-            <ClientsGrid
-              autoHeight
+          <div className="relative pb-8 h-screen">
+            <DataGrid
               columns={columns}
               rows={data?.rows ?? []}
               getRowId={(row) => row._id}
               loading={isFetching}
               disableRowSelectionOnClick
               paginationModel={paginationModel}
-              onPaginationModelChange={handlePaginationChange}
-              pageSizeOptions={[100]}
+              onPaginationModelChange={(model) =>
+                setPaginationModel((prev) =>
+                  prev.page === model.page && prev.pageSize === model.pageSize
+                    ? prev
+                    : { page: model.page, pageSize: 20 }
+                )
+              }
+              pageSizeOptions={[20]}
               paginationMode="server"
-              rowCount={total}
+              rowCount={data?.meta?.total ?? 0}
               filterMode="server"
-              rowHeight={44}
-              rowBuffer={2}
-              columnBuffer={2}
-              disableColumnFilter
-              disableColumnSelector
               hideFooterPagination
               hideFooterSelectedRowCount
-              onRowClick={handleRowClick}
+              /* 👇 navigate when a row is clicked */
+              onRowClick={(params) => {
+                // params.id === result of getRowId -> row._id
+                navigate(`/user-details/${params.id}`);
+              }}
+              /* 👇 pointer cursor + subtle hover */
               sx={{
                 border: "none",
                 "& .MuiDataGrid-row": { cursor: "pointer" },
                 "& .MuiDataGrid-row:hover": {
                   backgroundColor: "rgba(0,0,0,0.02)",
                 },
-              }}
-              slots={{
-                noRowsOverlay: () => (
-                  <div style={{ padding: 24, opacity: 0.6 }}>
-                    No clients found
-                  </div>
-                ),
               }}
             />
 

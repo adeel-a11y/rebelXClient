@@ -388,7 +388,7 @@ export default function OrdersPage({ externalId = "" }) {
       />
 
       {/* filter popover */}
-      <div className="relative">
+      <div className="fixed right-3 z-[999]">
         <OrderFilterDropdown
           open={filterOpen}
           onClose={() => setFilterOpen(false)}
@@ -403,7 +403,7 @@ export default function OrdersPage({ externalId = "" }) {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-auto relative pb-8">
+        <div className="relative pb-8 h-screen">
           <DataGrid
             columns={columns}
             rows={data?.data ?? []}

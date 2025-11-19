@@ -16,7 +16,7 @@ export default function Shell() {
       <main className="main">
         <Outlet />
       </main>
-      {location.pathname.includes("/user-details") ? <></> : <AppFooter />}
+      {location.pathname.includes("user-details") ? null : <AppFooter />}
     </div>
   );
 }

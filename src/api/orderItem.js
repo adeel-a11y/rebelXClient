@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:3000/api";
+const BASE_URL = import.meta.env.VITE_API_BASE || "https://rebelxserver.onrender.com/api";
 
 export async function getOrderItemById(id, { headers = {}, signal } = {}) {
   const res = await axios.get(`${BASE_URL}/saleOrderDetails/lists/${id}`, { headers, signal });

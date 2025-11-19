@@ -189,69 +189,81 @@ function LegendPills({ items }) {
 /* Specific chart components */
 function TrendArea() {
   const [newClients, setNewClients] = useState([]);
-
-  // location
+  const [loaded, setLoaded] = useState(false);
   const location = useLocation();
 
-  const newClientsByMonth = async () => {
-    try {
-      const response = await monthlyNewClients();
-      setNewClients(response.data);
-    } catch (error) {
-      return error;
-    }
-  };
-
   useEffect(() => {
-    newClientsByMonth();
+    (async () => {
+      try {
+        const response = await monthlyNewClients();
+        setNewClients(response.data || []);
+      } finally {
+        setLoaded(true);
+      }
+    })();
   }, [location.pathname]);
 
   return (
     <ChartCard title="New Clients by Month">
       <div className="h-[240px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={newClients}
-            margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.38} />
-                <stop offset="100%" stopColor="#6366f1" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="month"
-              tick={{ fontSize: 12, fill: "#64748b" }}
-              tickMargin={8}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fontSize: 12, fill: "#64748b" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              content={
-                <NiceTooltip
-                  labelFmt={(v) => dayjs(v + "-01").format("MMM YYYY")}
-                />
-              }
-            />
-            <Area
-              type="monotone"
-              dataKey="newClients"
-              stroke="#8884d8"
-              fill="#8884d8"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        {!loaded ? (
+          // skeleton / loader
+          <div className="h-full flex items-center justify-center text-xs text-slate-400">
+            Loading trend…
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={newClients}
+              margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+              // key forces a fresh mount when data appears the first time
+              key={newClients.length}
+            >
+              <defs>
+                <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.38} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 12, fill: "#64748b" }}
+                tickMargin={8}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 12, fill: "#64748b" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                content={
+                  <NiceTooltip
+                    labelFmt={(v) => dayjs(v + "-01").format("MMM YYYY")}
+                  />
+                }
+              />
+              <Area
+                type="monotone"
+                dataKey="newClients"
+                stroke="#6366f1"
+                fill="url(#trendFill)"
+                isAnimationActive={true}
+                animationBegin={200}
+                animationDuration={1200}
+                animationEasing="ease-out"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </ChartCard>
   );
 }
+
 
 function TopUsersBar() {
 

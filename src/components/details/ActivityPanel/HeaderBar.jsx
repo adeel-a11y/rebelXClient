@@ -22,7 +22,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800}>
                   {orderStats?.totalOrders ?? 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base" color="text.secondary">
+                <h6 className="lg:text-[.7rem] 2xl:text-base" color="text.secondary">
                   Total Orders {isFetchingOrders ? "…" : ""}
                 </h6>
               </Card>
@@ -33,7 +33,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800} color="#2faa48">
                   {orderStats?.completed ?? 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base text-[#2faa48]">
+                <h6 className="lg:text-[.7rem] 2xl:text-base text-[#2faa48]">
                   Completed
                 </h6>
               </Card>
@@ -44,7 +44,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800} color="#f43940">
                   {orderStats?.issued ?? 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base text-[#f43940]">
+                <h6 className="lg:text-[.7rem] 2xl:text-base text-[#f43940]">
                   Issued
                 </h6>
               </Card>
@@ -68,7 +68,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800}>
                   {counts?.total || 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base" color="text.secondary">
+                <h6 className="lg:text-[.7rem] 2xl:text-base" color="text.secondary">
                   Total Activities {isFetchingActivities ? "…" : ""}
                 </h6>
               </Card>
@@ -79,7 +79,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800} color="#2faa48">
                   {counts?.calls || 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base text-[#2faa48]">
+                <h6 className="lg:text-[.7rem] 2xl:text-base text-[#2faa48]">
                   Total Calls
                 </h6>
               </Card>
@@ -90,7 +90,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800} color="#f43940">
                   {counts?.emails || 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base text-[#f43940]">
+                <h6 className="lg:text-[.7rem] 2xl:text-base text-[#f43940]">
                   Total Emails
                 </h6>
               </Card>
@@ -101,7 +101,7 @@ export default function HeaderBar({
                 <Typography variant="h6" fontWeight={800} color="#2563EB">
                   {counts?.others || 0}
                 </Typography>
-                <h6 className="lg:text-xs 2xl:text-base text-[#2563EB]">
+                <h6 className="lg:text-[.7rem] 2xl:text-base text-[#2563EB]">
                   Others
                 </h6>
               </Card>

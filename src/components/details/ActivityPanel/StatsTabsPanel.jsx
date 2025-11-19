@@ -15,80 +15,6 @@ import { useClientOrdersLists } from "../../../hooks/useOrders";
    Fake data for each tab (10 rows each)
 -------------------------------------------------------------------*/
 
-// Orders table data
-const ORDERS_ROWS = [
-  {
-    orderNo: "#10234",
-    status: "Shipped",
-    total: "$540.00",
-    date: "9/29/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10233",
-    status: "Processing",
-    total: "$210.00",
-    date: "9/28/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10232",
-    status: "Delivered",
-    total: "$1,120.00",
-    date: "9/27/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10231",
-    status: "Delivered",
-    total: "$880.00",
-    date: "9/25/2025",
-    rep: "Victor Junco",
-  },
-  {
-    orderNo: "#10230",
-    status: "Cancelled",
-    total: "$0.00",
-    date: "9/24/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10229",
-    status: "Shipped",
-    total: "$640.00",
-    date: "9/23/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10228",
-    status: "Processing",
-    total: "$330.00",
-    date: "9/22/2025",
-    rep: "Victor Junco",
-  },
-  {
-    orderNo: "#10227",
-    status: "Delivered",
-    total: "$150.00",
-    date: "9/21/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10226",
-    status: "Delivered",
-    total: "$960.00",
-    date: "9/21/2025",
-    rep: "Andy Richardson",
-  },
-  {
-    orderNo: "#10225",
-    status: "Processing",
-    total: "$420.00",
-    date: "9/20/2025",
-    rep: "Victor Junco",
-  },
-];
-
 // Inventory table data
 const INVENTORY_ROWS = [
   {
@@ -244,7 +170,7 @@ Small reusable row renderers
 // Renders the Activities table (looks like your screenshot)
 function ActivitiesTable({ rows, loading }) {
   return (
-    <CardLike title="Recent Activities" minWidth={`${rows.length === 0 ? 'w-[650px]' : 'w-[950px]'}`}>
+    <CardLike title="Recent Activities" minWidth={`${rows.length === 0 ? 'w-full' : 'w-[950px]'}`}>
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[7%]">Type</div>
@@ -319,7 +245,7 @@ function ActivitiesTable({ rows, loading }) {
 // Orders table
 function OrdersTable({ rows }) {
   return (
-    <CardLike title="Recent Orders" minWidth={`${rows.length === 0 ? 'w-[650px]' : 'w-[950px]'}`}>
+    <CardLike title="Recent Orders" minWidth={`${rows.length === 0 ? 'w-full' : 'w-[950px]'}`}>
       {/* header row */}
       <div className="flex text-[12px] text-gray-500 border-b border-gray-200 py-2 px-4">
         <div className="w-[100px]">Order #</div>
@@ -333,8 +259,9 @@ function OrdersTable({ rows }) {
 
       {/* rows */}
       {rows.map((r, idx) => (
-        <div
+        <Link
           key={idx}
+          to={`/order-details/${r._id}`}
           className="flex items-start border-b last:border-b-0 border-gray-100 py-3 px-4 text-[13px] text-gray-800"
         >
           <div className="w-[100px] font-medium">{r?.Label}</div>
@@ -370,7 +297,7 @@ function OrdersTable({ rows }) {
               <RiEdit2Line />
             </button>
           </div>
-        </div>
+        </Link>
       ))}
     </CardLike>
   );
@@ -482,7 +409,7 @@ function CardLike({ title, children, minWidth }) {
       </div>
 
       {/* Scroll container: sirf yahan horizontal scroll aayega jab zarurat ho */}
-      <div className="w-full overflow-x-auto">
+      <div className={`w-full overflow-x-auto ${title === "Recent Orders" ? "app-footer__scroll" : ""}`}>
         {/* Table content: minimum width 700px */}
         <div className={`${minWidth}`}>
           {children}
@@ -532,8 +459,6 @@ export default function StatsTabsPanel({ value, setValue }) {
   const { data: clientActivities, isLoading, isFetching } = useActivitiesByClient(
     id,
   );
-
-  console.log(clientActivities?.data?.slice(0, 10) )
 
   const { data: clientOrders, isLoading: clientOrdersLoading, isFetching: clientOrdersFetching } = useClientOrdersLists(
     externalId,

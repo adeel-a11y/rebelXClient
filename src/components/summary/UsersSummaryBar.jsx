@@ -19,7 +19,7 @@ function Chip({ children, tone = "slate", subtle = false }) {
     sky: { bg: "bg-sky-50", text: "text-sky-700", ring: "ring-sky-200" },
     amber: {
       bg: "bg-amber-50",
-      text: "text-amber-800",
+      text: "text-amber-600",
       ring: "ring-amber-200",
     },
     violet: {
@@ -27,10 +27,25 @@ function Chip({ children, tone = "slate", subtle = false }) {
       text: "text-violet-700",
       ring: "ring-violet-200",
     },
+    purple: {
+      bg: "bg-purple-50",
+      text: "text-purple-700",
+      ring: "ring-purple-200",
+    },
     slate: {
       bg: "bg-slate-50",
       text: "text-slate-700",
       ring: "ring-slate-200",
+    },
+    sky: {
+      bg: "bg-sky-50",
+      text: "text-sky-700",
+      ring: "ring-sky-200",
+    },
+    lime: {
+      bg: "bg-lime-50",
+      text: "text-lime-700",
+      ring: "ring-lime-200",
     },
   };
   const c = tones[tone] ?? tones.slate;
@@ -61,9 +76,9 @@ function roleTone(role) {
   if (r === "manager") return "indigo";
   if (r === "employee") return "sky";
   if (r.includes("sales")) return "amber";
-  if (r.includes("warehouse")) return "violet";
-  if (r.includes("shipping")) return "emerald";
-  if (r.includes("qc")) return "indigo";
+  if (r.includes("warehouse")) return "lime";
+  if (r.includes("shipping")) return "sky";
+  if (r.includes("qc")) return "purple";
   return "slate";
 }
 

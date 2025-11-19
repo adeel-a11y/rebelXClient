@@ -1,6 +1,7 @@
-// src/components/users/EditUser.jsx
-import React, { useMemo, useState } from "react";
+// src/components/update/EditUser.jsx
+import React, { useState, useMemo } from "react";
 import { ClipLoader } from "react-spinners";
+import SearchableSelect from "../SearchableSelect";
 
 /* --------------------------------- CONSTS --------------------------------- */
 const ROLES = [
@@ -16,11 +17,19 @@ const ROLES = [
   "executive-assistant",
 ];
 
+const STATUS_OPTIONS = ["active", "inactive"];
+
+const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
+const PHONE_REGEX =
+  /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+
 /* --------------------------- UI PRIMITIVE BLOCKS --------------------------- */
 function Section({ title, children }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
-      <div className="text-sm font-semibold text-slate-800 mb-3">{title}</div>
+      <div className="text-sm font-semibold text-slate-800 mb-3">
+        {title}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         {children}
       </div>
@@ -42,26 +51,6 @@ function Input({ label, required, ...props }) {
   );
 }
 
-function Select({ label, options = [], required, ...props }) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-slate-600">
-        {label} {required && <span className="text-rose-600">*</span>}
-      </span>
-      <select
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-        {...props}
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 /* --------------------------------- FORM ----------------------------------- */
 /**
  * Props:
@@ -70,6 +59,7 @@ function Select({ label, options = [], required, ...props }) {
  *  - submitting: boolean
  *  - onSubmit(payload)
  *  - onCancel()
+ *  - onValidationError?(message)
  */
 export default function EditUser({
   mode = "edit",
@@ -77,8 +67,8 @@ export default function EditUser({
   submitting = false,
   onSubmit,
   onCancel,
+  onValidationError,
 }) {
-  // normalize incoming values so validation is stable
   const initialRole = (initial.role ?? "employee").toString().toLowerCase();
   const initialStatus = (initial.status ?? "active").toString().toLowerCase();
 
@@ -86,23 +76,42 @@ export default function EditUser({
     name: initial.name ?? "",
     email: initial.email ?? "",
     role: ROLES.includes(initialRole) ? initialRole : "employee",
-    status: ["active", "inactive"].includes(initialStatus)
+    status: STATUS_OPTIONS.includes(initialStatus)
       ? initialStatus
       : "active",
     phone: initial.phone ?? "",
     hourlyRate: initial.hourlyRate ?? "",
-    // only visible/validated when mode === "create"
     password: "",
     confirm: "",
   });
 
-  const [clicked, setClicked] = useState(false); // NEW
+  console.log(initial);
 
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const [clicked, setClicked] = useState(false);
+
+  const set = (k) => (e) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const validationError = useMemo(() => {
+    if (!form.name?.trim()) return "Please enter the user's full name.";
+    if (!EMAIL_REGEX.test(form.email)) return "Please enter a valid email address.";
+    if (!ROLES.includes(form.role)) return "Please select a valid role.";
+    if (!STATUS_OPTIONS.includes(form.status))
+      return "Please select a valid status.";
+    if (form.phone?.trim() && !PHONE_REGEX.test(form.phone.trim()))
+      return "Please enter a valid phone number.";
+    if (!form.hourlyRate?.trim()) return "Hourly rate must be numeric.";
+    return "";
+  }, [form]); 
 
   function handleSubmit(e) {
     e.preventDefault();
-    setClicked(true); // NEW: show loader only after click
+    setClicked(true);
+
+    if (validationError) {
+      onValidationError?.(validationError);
+      return;
+    }
 
     const payload = {
       name: form.name.trim(),
@@ -112,10 +121,12 @@ export default function EditUser({
       phone: form.phone?.trim() || undefined,
       hourlyRate: form.hourlyRate?.trim() || undefined,
     };
+
     if (mode === "create") payload.password = form.password;
 
     onSubmit?.(payload);
   }
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -127,7 +138,7 @@ export default function EditUser({
           label="Full Name"
           value={form.name}
           onChange={set("name")}
-          placeholder="John Doe"
+          placeholder="Sara Gomez"
           required
         />
         <Input
@@ -135,61 +146,50 @@ export default function EditUser({
           type="email"
           value={form.email}
           onChange={set("email")}
-          placeholder="john@company.com"
+          placeholder="sarajeang.82@gmail.com"
           required
         />
       </Section>
 
       {/* Role & Status */}
       <Section title="Role & Status">
-        <Select
-          label="Role"
+        <SearchableSelect
+          label="Role *"
           value={form.role}
           onChange={set("role")}
           options={ROLES}
-          required
+          placeholder="Search role (e.g. warehouse)"
         />
-
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-slate-600">Status *</span>
-          <div className="flex items-center gap-4 rounded-lg border border-slate-300 px-3 py-2">
-            <label className="inline-flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="status"
-                value="active"
-                checked={form.status === "active"}
-                onChange={set("status")}
-              />
-              <span>Active</span>
-            </label>
-            <label className="inline-flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="status"
-                value="inactive"
-                checked={form.status === "inactive"}
-                onChange={set("status")}
-              />
-              <span>Inactive</span>
-            </label>
-          </div>
-        </label>
+        <SearchableSelect
+          label="Status *"
+          value={form.status}
+          onChange={set("status")}
+          options={STATUS_OPTIONS}
+          placeholder="Active / Inactive"
+        />
       </Section>
 
       {/* Contact & Payroll */}
       <Section title="Contact & Payroll">
         <Input
           label="Phone"
+          type="tel"
+          inputMode="tel"
           value={form.phone}
           onChange={set("phone")}
-          placeholder="123-456-7890"
+          placeholder="(561) 410-6868"
+          pattern={PHONE_REGEX.source}
+          title="Please enter a valid phone number like (561) 410-6868."
         />
         <Input
           label="Hourly Rate"
+          // type="text"
+          // inputMode="decimal"
+          // step="0.01"
+          // min="0"
           value={form.hourlyRate}
           onChange={set("hourlyRate")}
-          placeholder="e.g. 25"
+          placeholder="$19.00"
         />
         {/* grid evenness */}
         <div className="hidden md:block" />
@@ -208,7 +208,6 @@ export default function EditUser({
 
         <button
           type="submit"
-          // Hamesha enabled rahe (validation pe nahi), lekin request ke dauran disable:
           disabled={submitting}
           className={`px-4 py-2 rounded-lg text-white ${
             submitting

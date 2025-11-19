@@ -168,6 +168,18 @@ function RoleBadge({ value }) {
       ring: "ring-sky-200",
       label: "Employee",
     },
+    qc: {
+      bg: "bg-purple-50",
+      text: "text-purple-700",
+      ring: "ring-purple-200",
+      label: "QC",
+    },
+    "executive-assistant": {
+      bg: "bg-zinc-50",
+      text: "text-zinc-700",
+      ring: "ring-zinc-200",
+      label: "Executive Assistant",
+    },
   };
   const cfg = map[v] ?? {
     bg: "bg-slate-50",
@@ -237,9 +249,10 @@ function FilterDropdown({ open, onClose, value, onChange }) {
     "sales",
     "sales-agent",
     "sales-executive",
-    "sales-director",
     "warehouse",
     "shipping",
+    "qc",
+    "executive-assistant"
   ];
   if (!open) return null;
   return (
@@ -533,6 +546,18 @@ export default function Users() {
         valueFormatter: (v) => dash(v),
       },
       {
+        field: "phone",
+        headerName: "Phone",
+        width: 150,
+        valueFormatter: (v) => dash(v),
+      },
+      {
+        field: "hourlyRate",
+        headerName: "Hourly Rate",
+        width: 150,
+        valueFormatter: (v) => dash(v),
+      },
+      {
         field: "role",
         headerName: "Role",
         width: 160,
@@ -545,18 +570,6 @@ export default function Users() {
         width: 140,
         renderCell: (p) => <StatusBadge value={p.value} />,
         valueGetter: (v) => v,
-      },
-      {
-        field: "phone",
-        headerName: "Phone",
-        width: 150,
-        valueFormatter: (v) => dash(v),
-      },
-      {
-        field: "hourlyRate",
-        headerName: "Hourly Rate",
-        width: 150,
-        valueFormatter: (v) => dash(v),
       },
       {
         field: "actions",
@@ -603,7 +616,7 @@ export default function Users() {
 
   return (
     <div className="relative users_table">
-      <div className="relative">
+      <div className="fixed right-3 z-[999]">
         <FilterDropdown
           open={filterOpen}
           onClose={() => setFilterOpen(false)}
@@ -617,7 +630,7 @@ export default function Users() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-auto relative pb-8">
+        <div className="h-screen relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}

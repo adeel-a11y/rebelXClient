@@ -231,7 +231,7 @@ export default function ClientActivitiesPage() {
           <ClipLoader size={42} />
         </div>
       ) : (
-        <div className="h-auto relative pb-8">
+        <div className="h-screen relative pb-8">
           <DataGrid
             columns={columns}
             rows={data?.rows ?? []}

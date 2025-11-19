@@ -1,6 +1,6 @@
 // src/api/lookups.js
 import axios from "axios";
-const BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:3000/api";
+const BASE_URL = import.meta.env.VITE_API_BASE || "https://rebelxserver.onrender.com/api";
 
 function normalizeNamesResponse(res) {
   const d = res?.data ?? [];

@@ -128,7 +128,7 @@ const TimelineItem = ({ icon, title, subtitle, tone = "success" }) => {
     info: "text-sky-500 bg-sky-50",
   };
   return (
-    <div className="flex gap-3">
+    <div className="flex items-center gap-3">
       <IconDot className={`text-lg ${toneMap[tone]}`}>{icon}</IconDot>
       <div>
         <p className="text-sm font-semibold text-slate-800">{title}</p>
@@ -231,32 +231,18 @@ export default function OrderDetail({ order, loading = false }) {
         </button>
       </div>
 
-      <div className="flex justify-between gap-6">
-        <Card className="w-[75%]">
+      <div className="flex lg:flex-row flex-col justify-between gap-6">
+        <Card className="w-full lg:w-[75%]">
           <div className="rounded-2xl bg-gradient-to-r from-slate-50 via-white to-slate-50 p-5">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-4">
               <div className="space-y-4">
                 <K
-                  label="Order ID"
+                  label="Order #"
                   value={
-                    <span className="text-rose-600">
-                      {order?.OrderID || ""}
-                    </span>
+                    <span className="text-rose-600">{order?.Label || ""}</span>
                   }
                   icon={<FiHash />}
                   iconClass="bg-rose-50 text-rose-600"
-                />
-                <K
-                  label="Label"
-                  value={order?.Label || ""}
-                  icon={<FiDatabase />}
-                  iconClass="bg-indigo-50 text-indigo-600"
-                />
-                <K
-                  label="Created at"
-                  value={fmtDate(order?.TimeStamp)}
-                  icon={<FiClock />}
-                  iconClass="bg-amber-50 text-amber-600"
                 />
               </div>
               <div className="space-y-4">
@@ -266,13 +252,18 @@ export default function OrderDetail({ order, loading = false }) {
                   icon={<FiCheckCircle />}
                   iconClass="bg-emerald-50 text-emerald-600"
                 />
+              </div>
+              <div className="space-y-4">
                 <K
                   label="Client"
-                  value={order?.Client || ""}
+                  value={order?.ClientID || ""}
                   icon={<FiUser />}
                   iconClass="bg-sky-50 text-sky-600"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="space-y-4">
                 <K
                   label="Sales Rep"
@@ -280,20 +271,22 @@ export default function OrderDetail({ order, loading = false }) {
                   icon={<FiMail />}
                   iconClass="bg-fuchsia-50 text-fuchsia-600"
                 />
-                <div className="grid grid-cols-2 gap-4">
-                  <K
-                    label="Paid"
-                    value={order?.Paid || ""}
-                    icon={<FiDollarSign />}
-                    iconClass="bg-teal-50 text-teal-600"
-                  />
-                  <K
-                    label="Lock Prices"
-                    value={String(order?.LockPrices ?? "")}
-                    icon={<FiTag />}
-                    iconClass="bg-slate-100 text-slate-600"
-                  />
-                </div>
+              </div>
+              <div className="space-y-4">
+                <K
+                  label="Paid"
+                  value={order?.Paid || ""}
+                  icon={<FiDollarSign />}
+                  iconClass="bg-teal-50 text-teal-600"
+                />
+              </div>
+              <div className="space-y-4">
+                <K
+                  label="Lock Prices"
+                  value={String(order?.LockPrices ?? "")}
+                  icon={<FiTag />}
+                  iconClass="bg-slate-100 text-slate-600"
+                />
               </div>
             </div>
 
@@ -314,9 +307,9 @@ export default function OrderDetail({ order, loading = false }) {
                     <p className="mt-1 text-sm text-slate-500">
                       {order?.ShiptoAddress || "—"}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    {/* <p className="text-sm text-slate-500">
                       {[order?.City, order?.State].filter(Boolean).join(", ")}
-                    </p>
+                    </p> */}
                   </div>
                   {/* <button className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm text-rose-600 hover:bg-rose-50" style={{ borderColor: THEME.border }}>
                     <FiEdit2 /> Edit
@@ -328,14 +321,14 @@ export default function OrderDetail({ order, loading = false }) {
         </Card>
 
         {/* Status */}
-        <Card className="p-5 w-[25%]">
+        <Card className="p-5 w-full lg:w-[25%]">
           <SectionHeader title="Status History" />
           <div className="space-y-5">
             <TimelineItem
               icon={<FiCheckCircle />}
               tone="success"
               title={order?.OrderStatus || ""}
-              subtitle={`Order ID: ${order?.OrderID || ""}`}
+              // subtitle={`Order ID: ${order?.OrderID || ""}`}
             />
             <TimelineItem
               icon={<FiClock />}
@@ -348,7 +341,7 @@ export default function OrderDetail({ order, loading = false }) {
       </div>
 
       {/* Items + Payment */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Card className="p-5">
           <SectionHeader title="Order Items" />
           <div className="divide-y" style={{ borderColor: THEME.border }}>
@@ -360,7 +353,10 @@ export default function OrderDetail({ order, loading = false }) {
                 >
                   <div className="sm:col-span-1 mt-2">
                     <Link to={`/edit-order-item/${it.OrderID}/${it._id}`}>
-                      <FiEdit2 className="text-[#4f46e5] hover:text-[#4f46e5]/80" size={16} />
+                      <FiEdit2
+                        className="text-[#4f46e5] hover:text-[#4f46e5]/80"
+                        size={16}
+                      />
                     </Link>
                   </div>
                   <div className="sm:col-span-6">
