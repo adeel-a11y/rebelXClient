@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { ClipLoader } from "react-spinners";
-import { useCreateOrderItem, useUpdateOrderItem } from "../../../hooks/useOrders";
+import {
+  useCreateOrderItem,
+  useUpdateOrderItem,
+} from "../../../hooks/useOrders";
 import { useNavigate, useParams } from "react-router-dom";
+import SearchableSelect from "../../SearchableSelect";
+import ToastNotification from "../../ToastNotification";
 
 const UOM_OPTIONS = ["ea", "box", "pack", "kg", "lb", "g", "oz"];
 
@@ -28,35 +33,6 @@ function Input({ label, ...props }) {
   );
 }
 
-function Select({ label, options = [], value, ...props }) {
-  const hasValue = value != null && value !== "";
-  const inList = hasValue && options.includes(String(value));
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-slate-600">{label}</span>
-      <select
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-        value={value ?? ""}
-        {...props}
-      >
-        <option key="__placeholder" value="">
-          — Select —
-        </option>
-        {!inList && hasValue && (
-          <option key="__current" value={String(value)}>
-            (current) {String(value)}
-          </option>
-        )}
-        {options.map((o, i) => (
-          <option key={`${o}__${i}`} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 const CreateOrEditOrderDetail = ({ mode = "create", initial = {}, onDone }) => {
   const { orderId } = useParams();
   console.log("orderId", orderId);
@@ -72,6 +48,8 @@ const CreateOrEditOrderDetail = ({ mode = "create", initial = {}, onDone }) => {
     Price: initial?.Price ?? "",
     Total: initial?.Total ?? "",
   }));
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState({ open: false, type: "", message: "" });
 
   const navigate = useNavigate();
 
@@ -113,12 +91,29 @@ const CreateOrEditOrderDetail = ({ mode = "create", initial = {}, onDone }) => {
     try {
       if (mode === "create") {
         await createMutate(payload);
+        setToast({
+          open: true,
+          type: "success",
+          message: "Order item created successfully!",
+        });
       } else {
         await updateMutate({ id: initial._id, payload });
+        setToast({
+          open: true,
+          type: "success",
+          message: "Order item updated successfully!",
+        });
       }
-      navigate("/orders");
+      setTimeout(() => {
+        navigate("/orders");
+      }, 700);
     } catch (err) {
-      console.error(err?.message || err);
+      setError(err?.message || "Failed to save order item.");
+      setToast({
+        open: true,
+        type: "error",
+        message: "An error occurred. Please try again.",
+      });
     }
   };
 
@@ -140,56 +135,57 @@ const CreateOrEditOrderDetail = ({ mode = "create", initial = {}, onDone }) => {
         <div className="space-y-4">
           <Section title="Order Details">
             <Input
-              label={`Warehouse ${mode === "create" ? "(required)" : ""}`}
+              label={`Warehouse ${mode === "create" ? "*" : ""}`}
               value={form?.Warehouse}
               onChange={update("Warehouse")}
               placeholder="e.g., Toda San Francisco"
               required={mode === "create"}
             />
             <Input
-              label={`SKU ${mode === "create" ? "(required)" : ""}`}
+              label={`SKU ${mode === "create" ? "*" : ""}`}
               value={form.SKU}
               onChange={update("SKU")}
               placeholder="e.g., SKU9274"
               required={mode === "create"}
             />
             <Input
-              label={`Description ${mode === "create" ? "(required)" : ""}`}
+              label={`Description ${mode === "create" ? "*" : ""}`}
               value={form.Description}
               onChange={update("Description")}
               placeholder="e.g., Great product very good product."
               required={mode === "create"}
             />
             <Input
-              label={`Lot Number ${mode === "create" ? "(required)" : ""}`}
+              label={`Lot Number ${mode === "create" ? "*" : ""}`}
               value={form.LotNumber}
               onChange={update("LotNumber")}
               placeholder="e.g., 135153"
               required={mode === "create"}
             />
             <Input
-              label={`Qty Shipped ${mode === "create" ? "(required)" : ""}`}
+              label={`Qty Shipped ${mode === "create" ? "*" : ""}`}
               value={form.QtyShipped}
               onChange={update("QtyShipped")}
               placeholder="e.g., 2"
               required={mode === "create"}
             />
-            <Select
-              label={`UOM ${mode === "create" ? "(required)" : ""}`}
+            <SearchableSelect
+              label={`UOM ${mode === "create" ? "*" : ""}`}
               value={form.UOM}
               onChange={update("UOM")}
               options={UOM_OPTIONS}
               required={mode === "create"}
+              placeholder="Select UOM"
             />
             <Input
-              label={`Price ${mode === "create" ? "(required)" : ""}`}
+              label={`Price ${mode === "create" ? "*" : ""}`}
               value={form.Price}
               onChange={update("Price")}
               placeholder="e.g., $100"
               required={mode === "create"}
             />
             <Input
-              label={`Total ${mode === "create" ? "(required)" : ""}`}
+              label={`Total ${mode === "create" ? "*" : ""}`}
               value={form.Total}
               onChange={update("Total")}
               placeholder="e.g., $200"
@@ -225,6 +221,17 @@ const CreateOrEditOrderDetail = ({ mode = "create", initial = {}, onDone }) => {
             </button>
           </div>
         </div>
+
+        {/* Toast Notification */}
+        {toast.open && (
+          <ToastNotification
+            open={toast.open}
+            type={toast.type}
+            title={toast.type === "success" ? "Success" : "Error"}
+            message={toast.message}
+            onClose={() => setToast({ ...toast, open: false })}
+          />
+        )}
       </form>
     </>
   );

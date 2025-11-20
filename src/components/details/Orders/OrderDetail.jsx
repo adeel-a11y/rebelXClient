@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FiMail,
   FiEdit2,
@@ -15,9 +15,12 @@ import {
   FiPhone,
   FiPlus,
   FiEdit,
+  FiTrash2,
 } from "react-icons/fi";
 import trackImg from "/track.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useDeleteOrderItem } from "../../../hooks/useOrders";
+import ToastNotification from "../../ToastNotification";
 
 /* ---------------- helpers ---------------- */
 const toNumber = (v) => {
@@ -195,11 +198,19 @@ const TrackingPreview = ({ href, imageSrc, alt = "Tracking map" }) => {
 
 /* ---------------- component ---------------- */
 export default function OrderDetail({ order, loading = false }) {
-  const items = Array.isArray(order?.items)
-    ? order.items
-    : Array.isArray(order?.Items)
-    ? order.Items
-    : [];
+  const navigate = useNavigate();
+
+  const [items, setItems] = useState([]);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const items = Array.isArray(order?.items)
+      ? order.items
+      : Array.isArray(order?.Items)
+      ? order.Items
+      : [];
+    setItems(items);
+  }, [order, deleting]);
 
   const subtotal = items.reduce(
     (s, it) => s + toNumber(it?.Total ?? it?.total),
@@ -209,13 +220,73 @@ export default function OrderDetail({ order, loading = false }) {
   const tax = toNumber(order?.Tax);
   const grand = (subtotal + shipping + tax).toFixed(2);
 
+  // State for delete confirmation
+  const [isDeletePopupVisible, setDeletePopupVisible] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [toast, setToast] = useState({ open: false, type: "", message: "" });
+
+  const { mutateAsync: deleteOrderItem, isPending: deletingItem } =
+    useDeleteOrderItem();
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = async () => {
+    if (itemToDelete) {
+      try {
+        console.log(itemToDelete);
+        await deleteOrderItem(itemToDelete._id); // Delete the item
+        setDeletePopupVisible(false); // Close the popup
+        setDeleting(true);
+        setToast({
+          open: true,
+          type: "success",
+          message: "Order item deleted successfully!",
+        });
+      } catch (error) {
+        console.error("Delete failed:", error);
+        setToast({
+          open: true,
+          type: "error",
+          message: "An error occurred. Please try again.",
+        });
+      }
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletePopupVisible(false); // Close the popup without deleting
+  };
+
+  const DeleteConfirmationPopup = ({ onConfirm, onCancel }) => (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold">
+          Are you sure you want to delete this item?
+        </h3>
+        <div className="mt-4 flex justify-between">
+          <button
+            onClick={onConfirm}
+            className={`bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 ${
+              deletingItem ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {deletingItem ? "Deleting..." : "Confirm"}
+          </button>
+          <button
+            onClick={onCancel}
+            className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <Card className="p-8 text-center text-slate-500">Loading order…</Card>
     );
   }
-
-  const navigate = useNavigate();
 
   return (
     <Page>
@@ -351,13 +422,23 @@ export default function OrderDetail({ order, loading = false }) {
                   key={it._id || it.RecordID}
                   className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-12 sm:gap-4"
                 >
-                  <div className="sm:col-span-1 mt-2">
+                  <div className="flex items-center sm:col-span-1 ">
                     <Link to={`/edit-order-item/${it.OrderID}/${it._id}`}>
                       <FiEdit2
                         className="text-[#4f46e5] hover:text-[#4f46e5]/80"
                         size={16}
                       />
                     </Link>
+                    <button
+                      className="p-1 rounded hover:bg-red-50 ms-1"
+                      title="Delete"
+                      onClick={() => {
+                        setItemToDelete(it); // Store the item to delete
+                        setDeletePopupVisible(true); // Show the confirmation popup
+                      }}
+                    >
+                      <FiTrash2 size={16} className="text-red-600" />
+                    </button>
                   </div>
                   <div className="sm:col-span-6">
                     <p className="font-semibold text-slate-800">
@@ -448,7 +529,26 @@ export default function OrderDetail({ order, loading = false }) {
             </div>
           </div>
         </Card>
+
+        {/* Toast Notification */}
+        {toast.open && (
+          <ToastNotification
+            open={toast.open}
+            type={toast.type}
+            title={toast.type === "success" ? "Success" : "Error"}
+            message={toast.message}
+            onClose={() => setToast({ ...toast, open: false })}
+          />
+        )}
       </div>
+
+      {/* Confirmation Popup */}
+      {isDeletePopupVisible && (
+        <DeleteConfirmationPopup
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+        />
+      )}
     </Page>
   );
 }

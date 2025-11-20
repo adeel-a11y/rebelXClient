@@ -23,3 +23,9 @@ export async function updateOrderItem(id, payload, { headers = {}, signal } = {}
   if (res.data?.success !== true) throw new Error(res.data?.message || "Update failed");
   return res.data.data; // created sale order item doc
 }
+
+export async function deleteOrderItem(id, { headers = {}, signal } = {}) {
+  const res = await axios.delete(`${BASE_URL}/saleOrderDetails/delete/${id}`, { headers, signal });
+  if (res.data?.success !== true) throw new Error(res.data?.message || "Delete failed");
+  return res.data.data; // created sale order item doc
+}

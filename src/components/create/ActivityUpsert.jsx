@@ -9,24 +9,28 @@ import {
   useUpdateActivity,
 } from "../../hooks/useActivities";
 import { useClientNames, useUserNames } from "../../hooks/useLookups";
+import SearchableSelect from "../../components/SearchableSelect"; // Importing SearchableSelect component
+import ToastNotification from "../../components/ToastNotification"; // Importing ToastNotification component
 
 /* ------------------------------- constants ------------------------------- */
 const TYPES = [
-  "created",
+  "Call",
+  "Email",
+  "Text",
+  "call_made",
   "status_changed",
   "note_added",
   "email_sent",
-  "call_made",
   "meeting_scheduled",
+  "created",
 ];
 
 const initial = {
-  clientId: "",     // (per your requirement) store/display NAME
-  userId: "",       // (per your requirement) store/display NAME
-  trackingId: "",
-  type: "call_made",
+  clientId: "", // (per your requirement) store/display NAME
+  userId: "", // (per your requirement) store/display NAME
+  type: "",
   description: "",
-  createdAt: "",    // blank => backend now()
+  createdAt: "", // blank => backend now()
 };
 
 /* --------------------------- UI primitive blocks -------------------------- */
@@ -34,13 +38,18 @@ function Section({ title, children }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
       <div className="text-sm font-semibold text-slate-800 mb-3">{title}</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">{children}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        {children}
+      </div>
     </div>
   );
 }
+
 function Field({ label, required, children, full = false }) {
   return (
-    <label className={["flex flex-col gap-1", full ? "md:col-span-2" : ""].join(" ")}>
+    <label
+      className={["flex flex-col gap-1", full ? "md:col-span-2" : ""].join(" ")}
+    >
       <span className="text-xs font-medium text-slate-600">
         {label} {required && <span className="text-rose-600">*</span>}
       </span>
@@ -48,14 +57,7 @@ function Field({ label, required, children, full = false }) {
     </label>
   );
 }
-function Select({ ...props }) {
-  return (
-    <select
-      className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-      {...props}
-    />
-  );
-}
+
 function Input({ ...props }) {
   return (
     <input
@@ -64,6 +66,7 @@ function Input({ ...props }) {
     />
   );
 }
+
 function Textarea({ rows = 3, ...props }) {
   return (
     <textarea
@@ -83,21 +86,36 @@ export default function ActivityUpsert() {
   useToolbar({
     title: isEdit ? "Edit Activity" : "Add Activity",
     searchPlaceholder: "",
-    actions: [{ label: "Cancel", variant: "ghost", onClick: () => navigate("/activities") }],
     backButton: true,
   });
 
   // load existing (edit)
-  const { data: existing, isLoading: loadingExisting } = useActivity(id, isEdit);
-  const { mutateAsync: createMutate, isPending: creating } = useCreateActivity();
-  const { mutateAsync: updateMutate, isPending: updating } = useUpdateActivity();
+  const { data: existing, isLoading: loadingExisting } = useActivity(
+    id,
+    isEdit
+  );
+  const { mutateAsync: createMutate, isPending: creating } =
+    useCreateActivity();
+  const { mutateAsync: updateMutate, isPending: updating } =
+    useUpdateActivity();
 
   // lookups
-  const { data: clientNames = [], isLoading: loadingClients } = useClientNames("", 1000, true);
-  const { data: userNames = [], isLoading: loadingUsers } = useUserNames("", 1000, true);
+  const { data: clientNames = [], isLoading: loadingClients } = useClientNames(
+    "",
+    1000,
+    true
+  );
+  const { data: userNames = [], isLoading: loadingUsers } = useUserNames(
+    "",
+    1000,
+    true
+  );
 
   const [form, setForm] = useState(initial);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState({ open: false, type: "", message: "" });
+
+  console.log("form", existing, id, isEdit);
 
   // hydrate on edit
   useEffect(() => {
@@ -105,10 +123,11 @@ export default function ActivityUpsert() {
       setForm({
         clientId: existing.clientId ?? "",
         userId: existing.userId ?? "",
-        trackingId: existing.trackingId ?? "",
         type: existing.type ?? "call_made",
         description: existing.description ?? "",
-        createdAt: existing.createdAt ? toInputDateTime(existing.createdAt) : "",
+        createdAt: existing.createdAt
+          ? toInputDateTime(existing.createdAt)
+          : "",
       });
     }
   }, [isEdit, existing]);
@@ -118,7 +137,6 @@ export default function ActivityUpsert() {
   const canSubmit = useMemo(() => {
     if (!form.clientId?.trim()) return false;
     if (!form.userId?.trim()) return false;
-    if (!form.trackingId?.trim()) return false;
     if (!TYPES.includes(form.type)) return false;
     if (!form.description?.trim()) return false;
     return true;
@@ -132,19 +150,38 @@ export default function ActivityUpsert() {
       return;
     }
     const payload = {
-      clientId: form.clientId.trim(),   // NAME strings as requested
+      clientId: form.clientId.trim(), // NAME strings as requested
       userId: form.userId.trim(),
-      trackingId: form.trackingId.trim(),
       type: form.type,
       description: form.description.trim(),
-      ...(form.createdAt ? { createdAt: new Date(form.createdAt).toISOString() } : {}),
+      ...(form.createdAt
+        ? { createdAt: new Date(form.createdAt).toISOString() }
+        : {}),
     };
     try {
-      if (isEdit) await updateMutate({ id, payload });
-      else await createMutate(payload);
+      if (isEdit) {
+        await updateMutate({ id, payload });
+        setToast({
+          open: true,
+          type: "success",
+          message: "Activity updated successfully!",
+        });
+      } else {
+        await createMutate(payload);
+        setToast({
+          open: true,
+          type: "success",
+          message: "Activity created successfully!",
+        });
+      }
       navigate("/activities");
     } catch (err) {
       setError(err?.message || "Failed to save activity.");
+      setToast({
+        open: true,
+        type: "error",
+        message: "An error occurred. Please try again.",
+      });
     }
   }
 
@@ -152,7 +189,10 @@ export default function ActivityUpsert() {
   const disableForm = busy || loadingClients || loadingUsers;
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mx-auto p-3 md:p-4 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full mx-auto p-3 md:p-4 space-y-4"
+    >
       {/* header error */}
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">
@@ -163,43 +203,34 @@ export default function ActivityUpsert() {
       {/* Section: Links */}
       <Section title="Links">
         <Field label="Client" required>
-          <Select value={form?.clientId} onChange={set("clientId")} disabled={disableForm}>
-            <option value="">Select client…</option>
-            {clientNames.map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </Select>
+          <SearchableSelect
+            value={form.clientId}
+            onChange={(e) => setForm({ ...form, clientId: e.target.value })}
+            options={clientNames}
+            placeholder="Select client"
+          />
         </Field>
 
         <Field label="User" required>
-          <Select value={form.userId} onChange={set("userId")} disabled={disableForm}>
-            <option value="">Select user…</option>
-            {userNames.map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </Select>
+          <SearchableSelect
+            value={form.userId}
+            onChange={set("userId")}
+            disabled={disableForm}
+            options={userNames}
+            placeholder="Select user…"
+          />
         </Field>
       </Section>
 
       {/* Section: Details */}
       <Section title="Details">
-        <Field label="Tracking ID" required>
-          <Input
-            value={form.trackingId}
-            onChange={set("trackingId")}
-            placeholder="TRK-0001"
-            disabled={disableForm}
-          />
-        </Field>
-
         <Field label="Type" required>
-          <Select value={form.type} onChange={set("type")} disabled={disableForm}>
-            {TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
-              </option>
-            ))}
-          </Select>
+          <SearchableSelect
+            value={form.type}
+            onChange={set("type")}
+            options={TYPES}
+            placeholder="Select activity type"
+          />
         </Field>
 
         <Field label="Created At">
@@ -241,9 +272,26 @@ export default function ActivityUpsert() {
               : "bg-indigo-600 hover:bg-indigo-700"
           }`}
         >
-          {busy ? <ClipLoader size={18} color="#fff" /> : (isEdit ? "Save Changes" : "Save Activity")}
+          {busy ? (
+            <ClipLoader size={18} color="#fff" />
+          ) : isEdit ? (
+            "Save Changes"
+          ) : (
+            "Save Activity"
+          )}
         </button>
       </div>
+
+      {/* Toast Notification */}
+      {toast.open && (
+        <ToastNotification
+          open={toast.open}
+          type={toast.type}
+          title={toast.type === "success" ? "Success" : "Error"}
+          message={toast.message}
+          onClose={() => setToast({ ...toast, open: false })}
+        />
+      )}
     </form>
   );
 }
@@ -254,7 +302,9 @@ function toInputDateTime(dt) {
     const d = new Date(dt);
     if (isNaN(d.getTime())) return "";
     const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+      d.getDate()
+    )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   } catch {
     return "";
   }

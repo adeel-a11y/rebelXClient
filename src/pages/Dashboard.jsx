@@ -252,7 +252,7 @@ function TrendArea() {
                 stroke="#6366f1"
                 fill="url(#trendFill)"
                 isAnimationActive={true}
-                animationBegin={200}
+                animationBegin={300}
                 animationDuration={1200}
                 animationEasing="ease-out"
               />

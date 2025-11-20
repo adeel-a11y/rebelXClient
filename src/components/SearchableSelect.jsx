@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 
-/* ... your existing Section / Input / Textarea / Select / toNumberOrNull ... */
-
 function SearchableSelect({
   label,
   options = [],
@@ -13,43 +11,51 @@ function SearchableSelect({
   const [query, setQuery] = useState("");
   const wrapperRef = useRef(null);
 
-  // Close on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target)) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setOpen(false);
-        setQuery("");
+        setQuery(""); // Clear query when closing
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filtered =
-    query.trim() === ""
-      ? options
-      : options.filter((o) =>
-          o?.toLowerCase?.().includes(query.toLowerCase())
-        );
+  // Filter options based on the query input (case-insensitive)
+  const filtered = query.trim()
+    ? options.filter((o) =>
+        o.toLowerCase().includes(query.toLowerCase())
+      )
+    : options;
 
   const handleSelect = (option) => {
-    // Make it compatible with your `update("field")` handler
     onChange?.({ target: { value: option } });
-    setOpen(false);
-    setQuery("");
+    setOpen(false); // Close dropdown after selection
+    setQuery(""); // Clear query after selection
+  };
+
+  const handleSearchChange = (e) => {
+    setQuery(e.target.value);
+  };
+
+  const handleToggleDropdown = () => {
+    setOpen((prevState) => !prevState); // Toggle open state
   };
 
   return (
     <div className="flex flex-col gap-1 relative" ref={wrapperRef}>
       {label && (
-        <span className="text-xs font-medium text-slate-600">{label}</span>
+        <span className="text-xs font-medium text-slate-600">
+          {label}
+        </span>
       )}
 
-      {/* Trigger */}
+      {/* Trigger button */}
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={handleToggleDropdown}
         className="flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
       >
         <span className={value ? "text-slate-800" : "text-slate-400"}>
@@ -80,7 +86,7 @@ function SearchableSelect({
             <input
               autoFocus
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search…"
               className="w-full rounded-md border border-slate-200 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
             />
@@ -89,14 +95,12 @@ function SearchableSelect({
           {/* Options list */}
           <div className="max-h-52 overflow-y-auto py-1 text-sm">
             {filtered.length === 0 && (
-              <div className="px-3 py-2 text-xs text-slate-400">
-                No results
-              </div>
+              <div className="px-3 py-2 text-xs text-slate-400">No results</div>
             )}
 
-            {filtered.map((opt) => (
+            {filtered.map((opt, index) => (
               <button
-                key={opt}
+                key={index}
                 type="button"
                 onClick={() => handleSelect(opt)}
                 className={`w-full text-left px-3 py-2 hover:bg-indigo-50 ${

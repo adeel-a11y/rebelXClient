@@ -1,7 +1,7 @@
 // src/hooks/useOrders.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getOrdersLists, getOrderById, createOrder, updateOrder, deleteOrder, getClientOrdersLists, getOrdersSummary } from "../api/orders";
-import { createOrderItem, getOrderItemById, updateOrderItem } from "../api/orderItem";
+import { createOrderItem, deleteOrderItem, getOrderItemById, updateOrderItem } from "../api/orderItem";
 
 /** (already provided earlier) */
 export function useOrdersLists({
@@ -93,7 +93,7 @@ export function useCreateOrderItem({ onSuccess, onError } = {}) {
     mutationFn: (payload) => createOrderItem(payload),
     onSuccess: (data, variables, ctx) => {
       // invalidate listing and optionally first page
-      qc.invalidateQueries({ queryKey: ["orderItem"] });
+      qc.invalidateQueries({ queryKey: ["order"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,
@@ -118,7 +118,7 @@ export function useUpdateOrderItem({ onSuccess, onError } = {}) {
   return useMutation({
     mutationFn: ({ id, payload }) => updateOrderItem(id, payload),
     onSuccess: (data, variables, ctx) => {
-      qc.invalidateQueries({ queryKey: ["orderItem"] });
+      qc.invalidateQueries({ queryKey: ["order"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,
@@ -132,6 +132,18 @@ export function useDeleteOrder({ onSuccess, onError } = {}) {
     mutationFn: (id) => deleteOrder(id),
     onSuccess: (data, variables, ctx) => {
       qc.invalidateQueries({ queryKey: ["orders", "orders-summary"] });
+      onSuccess?.(data, variables, ctx);
+    },
+    onError,
+  });
+}
+
+export function useDeleteOrderItem({ onSuccess, onError } = {}) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteOrderItem(id),
+    onSuccess: (data, variables, ctx) => {
+      qc.invalidateQueries({ queryKey: ["order"] });
       onSuccess?.(data, variables, ctx);
     },
     onError,
