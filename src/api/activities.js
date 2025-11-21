@@ -183,6 +183,49 @@ export async function getActivityById(id) {
   }
 }
 
+export async function getUserActivitiesByMonth(id) {
+  try {
+    const res = await axios.get(`${BASE_URL}/activities/lists/user-activities-per-month/${id}`);
+    console.log(res);
+    return res?.data || {};
+  } catch (err) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
+    throw new Error(msg);
+  }
+}
+export async function getUserActivitiesSummary(id) {
+  try {
+    const res = await axios.get(`${BASE_URL}/activities/lists/user-activity-summary/${id}`);
+    console.log(res);
+    return res?.data || {};
+  } catch (err) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
+    throw new Error(msg);
+  }
+}
+export async function getUserActivitiesRecent(id) {
+  try {
+    const res = await axios.get(`${BASE_URL}/activities/lists/user-recent-activities/${id}`);
+    console.log(res);
+    return res?.data || {};
+  } catch (err) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
+    throw new Error(msg);
+  }
+}
+
 export async function createActivity(payload) {
   try {
     const res = await axios.post(`${BASE_URL}/activities`, payload);

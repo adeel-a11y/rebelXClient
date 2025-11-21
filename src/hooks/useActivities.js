@@ -8,6 +8,9 @@ import {
   createActivity,
   updateActivity,
   deleteActivity,
+  getUserActivitiesByMonth,
+  getUserActivitiesSummary,
+  getUserActivitiesRecent,
 } from "../api/activities";
 
 /** QueryKey factory (stable & easy to invalidate) */
@@ -56,8 +59,6 @@ export function useActivitiesByClientId(
     ...options, // { from, to, sortBy, sort }
   };
 
-  console.log("useActivitiesByClientId params", clientId, queryOptions);
-
   return useQuery({
     queryKey: [
       "activitiesByClient",
@@ -93,6 +94,28 @@ export function useActivitiesSummary(externalId) {
   return useQuery({
     queryKey: qk.summary(hasId ? externalId : null),
     queryFn: () => getActivitiesSummary(hasId ? externalId : undefined),
+    staleTime: 600_000,
+  });
+}
+
+export function useUserActivitiesByMonth(id) {
+  return useQuery({
+    queryKey: ["user-activities-per-month", id],
+    queryFn: () => getUserActivitiesByMonth(id),
+    staleTime: 600_000,
+  });
+}
+export function useUserActivitiesSummary(id) {
+  return useQuery({
+    queryKey: ["user-activities-summary", id],
+    queryFn: () => getUserActivitiesSummary(id),
+    staleTime: 600_000,
+  });
+}
+export function useUserActivitiesRecent(id) {
+  return useQuery({
+    queryKey: ["user-activities-recent", id],
+    queryFn: () => getUserActivitiesRecent(id),
     staleTime: 600_000,
   });
 }

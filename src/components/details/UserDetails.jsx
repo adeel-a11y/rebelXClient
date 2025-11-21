@@ -10,73 +10,40 @@ import {
   Pie,
   Cell,
 } from "recharts";
-// Importing all necessary icons from React Icons
+
+// Icons
 import {
   MdCalendarMonth,
-  MdCheckCircle,
   MdCall,
   MdEmail,
-  MdForum,
   MdMoreHoriz,
-  MdTrendingUp,
   MdOutlineRefresh,
-  MdTrackChanges,
-  MdTextFields,
+  MdTextsms,
 } from "react-icons/md";
-import { FaCommentDollar, FaTasks, FaDollarSign } from "react-icons/fa";
+import { FaCommentDollar, FaDollarSign } from "react-icons/fa";
 import { TiDocumentText } from "react-icons/ti";
 
-import { useParams } from "react-router-dom"; // Assuming useUser is commented out/removed for static data
+import { useParams } from "react-router-dom";
 import moment from "moment";
 import { useToolbar } from "../../store/toolbar";
+import { useUserActivitiesByMonth, useUserActivitiesRecent, useUserActivitiesSummary } from "../../hooks/useActivities";
 
-// --- USER AND ACTIVITIES DATA (Integrated from your input) ---
-const userData = {
-  _id: "691d96e776f978a44c11a9c8",
-  name: "Ahsan",
-  email: "ahsan666@gmail.com",
-  role: "qc",
-  department: "qc",
-  phone: "03162196345",
-  hourlyRate: 19.0, // Converted to number for calculation
-  status: "inactive",
-  createdAt: "2025-11-19T10:07:35.758Z",
-  updatedAt: "2025-11-19T10:43:46.557Z",
-};
-
-const monthlyActivitiesData = [
-  { monthYear: "October 2024", activities: 1159 },
-  { monthYear: "November 2024", activities: 1421 },
-  { monthYear: "December 2024", activities: 1510 },
-  { monthYear: "January 2025", activities: 1819 },
-  { monthYear: "February 2025", activities: 1527 },
-  { monthYear: "March 2025", activities: 1537 },
-  { monthYear: "April 2025", activities: 1587 },
-  { monthYear: "May 2025", activities: 1360 },
-  { monthYear: "June 2025", activities: 853 },
-  { monthYear: "July 2025", activities: 1233 },
-  { monthYear: "August 2025", activities: 765 },
-];
-
-// Helper functions for formatting money
+// Money formatter
 const fmtMoney = (n) =>
-  n.toLocaleString(undefined, {
+  n?.toLocaleString(undefined, {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 2,
   });
-const fmtShortMoney = (n) => `$${n.toLocaleString()}`;
 
-// Reusable Card component - Increased shadow for better look
 const Card = ({ children, className = "" }) => (
   <div
-    className={`rounded-2xl bg-white shadow-2xl border border-slate-100 ${className}`} // shadow-2xl for premium look
+    className={`rounded-2xl bg-white shadow-2xl border border-slate-100 ${className}`}
   >
     {children}
   </div>
 );
 
-// Reusable Chip component
 const Chip = ({
   children,
   className = "",
@@ -89,16 +56,15 @@ const Chip = ({
   </span>
 );
 
-// Custom BarChart Tooltip
-const CustomBarTooltip = ({ active, payload, label }) => {
+// Bar tooltip
+const CustomBarTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
-  // Format monthYear from "January 2025"
-  const [month, year] = data.monthYear.split(" ");
+
   return (
     <div className="rounded-md bg-white p-3 text-sm shadow-xl border border-gray-200">
       <div className="font-semibold text-gray-800">
-        {month} {year}
+        {data.month} {data.year}
       </div>
       <div className="text-gray-600 mt-1">
         Activities:{" "}
@@ -110,8 +76,7 @@ const CustomBarTooltip = ({ active, payload, label }) => {
   );
 };
 
-// ... (Other helper components like CustomPieTooltip, PieLabel remain the same) ...
-
+// Pie tooltip
 const CustomPieTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -127,17 +92,7 @@ const CustomPieTooltip = ({ active, payload }) => {
   return null;
 };
 
-const PieLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  value,
-  percent,
-  index,
-  name,
-}) => {
+const PieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.2;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -164,23 +119,39 @@ const PieLabel = ({
 };
 
 export default function UserDetails() {
-  // Use static data instead of hook
-  const user = userData;
-  const isLoading = false; // Set to false since data is local
-  // const { id } = useParams(); // Not needed for static user
+  const { id } = useParams();
 
-  // State for selected date in calendar
+  const [user, setUser] = useState(null);
+
+  // *** REAL HOOK: data + loading
+  const { data: userActivitiesByMonth, isLoading: activitiesLoading } =
+    useUserActivitiesByMonth(id);
+  const { data: userActivitiesSmmary, isLoading: activitiesSummaryLoading } =
+    useUserActivitiesSummary(id);
+  const { data: userRecentActivities, isLoading: recentActivitiesLoading } =
+    useUserActivitiesRecent(id);
+
+  useEffect(() => {
+    if (userActivitiesByMonth) {
+      setUser(userActivitiesByMonth?.user);
+    }
+  }, [id, userActivitiesByMonth]);
+
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
 
-  // Define badge colors for roles and statuses
   const roleBadgeColors = useMemo(
     () => ({
-      admin: "bg-purple-100 text-purple-800",
-      qc: "bg-emerald-100 text-emerald-800", // Highlighted for Ahsan's role
-      sales: "bg-blue-100 text-blue-800",
-      manager: "bg-red-100 text-red-800",
+      admin: "bg-rose-100 text-rose-600",
+      qc: "bg-purple-100 text-purple-800",
+      Sales: "bg-amber-100 text-amber-600",
+      sales: "bg-amber-100 text-amber-600",
+      "sales-executive": "bg-amber-100 text-amber-600",
+      "Sales Director": "bg-amber-100 text-amber-600",
+      manager: "bg-indigo-100 text-indigo-600",
+      Warehouse: "bg-lime-100 text-lime-600",
+      shipping: "bg-blue-100 text-blue-600",
     }),
     []
   );
@@ -188,73 +159,76 @@ export default function UserDetails() {
   const statusBadgeColors = useMemo(
     () => ({
       active: "bg-green-100 text-green-800",
-      inactive: "bg-red-100 text-red-800", // Highlighted for Ahsan's status
-      pending: "bg-yellow-100 text-yellow-800",
+      Inactive: "bg-red-100 text-red-800",
+      Pending: "bg-yellow-100 text-yellow-800",
     }),
     []
   );
 
-  // --- DUMMY DATA (Updated with Ahsan's actual info and activity data) ---
+  // *** DUMMY DATA BUT DEPENDS ON API RESULT AS WELL
   const dummyData = useMemo(() => {
-    // Process the monthly data for the chart
-    const processedMonths = monthlyActivitiesData.map((d) => ({
-      monthYear: d.monthYear,
+    const backendMonths = userActivitiesByMonth?.monthlyActivites ?? [];
+
+    // ---------- PROCESS BACKEND MONTHS ----------
+    let processedMonths = backendMonths.map((d) => ({
+      year: d.year,
       activities: d.activities,
-      // For Recharts XAxis, we need a simple key (like month)
-      month: d.monthYear.substring(0, 3),
+      month: d.month, // e.g. "Jan", "Feb" etc. from backend
     }));
 
+    // ---------- FALLBACK: NO DATA = EMPTY GRAPH WITH 0s ----------
+    if (!processedMonths.length) {
+      const now = moment();
+
+      // last 12 months generate karo, sab activities = 0
+      processedMonths = Array.from({ length: 12 }).map((_, index) => {
+        const m = now.clone().subtract(11 - index, "months");
+        return {
+          year: m.year(),
+          month: m.format("MMM"), // "Jan", "Feb", ...
+          activities: 0,
+        };
+      });
+    }
+
     const totalActivities = processedMonths.reduce(
-      (sum, d) => sum + d.activities,
+      (sum, d) => sum + (d.activities || 0),
       0
     );
-    const avgMonthlyActivities = totalActivities / processedMonths.length;
+    const avgMonthlyActivities =
+      processedMonths.length > 0 ? totalActivities / processedMonths.length : 0;
 
-    // Placeholder calculation for Income based on hourly rate (40h/week * 4 weeks/month * hourlyRate)
-    const avgMonthlyIncomePlaceholder = 40 * 4 * user.hourlyRate;
+    const avgMonthlyIncomePlaceholder = 40 * 4 * (user?.hourlyRate ?? 0);
     const totalIncomePlaceholder =
       avgMonthlyIncomePlaceholder * processedMonths.length;
-    const totalExpensesPlaceholder = totalIncomePlaceholder * 0.18; // 18% as dummy expense
+    const totalExpensesPlaceholder = totalIncomePlaceholder * 0.18;
 
     return {
-      user: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        avatar: `https://api.dicebear.com/8.x/initials/svg?seed=${user.name}`,
-        role: user.role,
-        department: user.department,
-        status: user.status,
-      },
-      range: { from: "Oct 1, 2024", to: "Aug 31, 2025" }, // Based on new data
+      range: { from: "Oct 1, 2024", to: "Aug 31, 2025" },
       accounting: {
-        avgMonthlyIncome: avgMonthlyActivities, // Use activities as the main metric here
-        deltaPct: 3.89, // Placeholder
-        deltaRef: "vs previous 11 months", // Placeholder
-        months: processedMonths,
+        avgMonthlyIncome: avgMonthlyActivities,
+        deltaPct: 3.89,
+        deltaRef: "vs previous 11 months",
+        months: processedMonths, // 👈 yahi chart ka data hai
         totals: {
           income: totalIncomePlaceholder,
           expenses: totalExpensesPlaceholder,
         },
       },
-      // Keep activity summary data as placeholder but update total
       activitySummary: {
-        totalActivities: 289, // New total for the Activities/Emails block
-        calls: 89,
-        emails: 200,
-        texts: 100,
-        others: 50,
+        totalActivities: userActivitiesSmmary?.summary?.totalActivities || 0,
+        calls: userActivitiesSmmary?.summary?.calls || 0,
+        emails: userActivitiesSmmary?.summary?.emails || 0,
+        texts: userActivitiesSmmary?.summary?.texts || 0,
+        others: userActivitiesSmmary?.summary?.others || 0,
       },
       tasks: {
-        // Placeholder for on-time completion
         onTimeRate: 98,
         onTimeDelta: 2.73,
       },
       calendar: {
-        // Use current data structure for calendar
         tasksByDate: {
           [moment().format("YYYY-MM-DD")]: [
-            // Today's tasks
             {
               time: "9:30 am",
               title: "QC Review: Project Alpha",
@@ -275,7 +249,6 @@ export default function UserDetails() {
             },
           ],
           [moment().add(1, "day").format("YYYY-MM-DD")]: [
-            // Tomorrow's tasks
             {
               time: "9:00 am",
               title: "Client Feedback Call",
@@ -285,78 +258,43 @@ export default function UserDetails() {
           ],
         },
       },
-      recentActivities: [
-        {
-          type: "email",
-          who: "QC Team Lead",
-          what: "sent an email regarding new audit checklist",
-          when: "Today, 9:48 AM",
-          icon: <MdEmail className="h-4 w-4 text-red-600" />,
-          iconBg: "bg-red-100",
-          iconText: "text-red-600",
-        },
-        {
-          type: "done",
-          who: "Ahsan",
-          what: "completed task",
-          id: 452,
-          when: "2 days ago, 3:58 PM",
-          icon: <TiDocumentText className="h-4 w-4 text-sky-600" />,
-          iconBg: "bg-sky-100",
-          iconText: "text-sky-600",
-        },
-        {
-          type: "call",
-          who: "Ahsan",
-          what: "made a QC follow-up call to",
-          target: "Client Beta",
-          when: "3 days ago, 1:00 PM",
-          icon: <MdCall className="h-4 w-4 text-green-600" />,
-          iconBg: "bg-green-100",
-          iconText: "text-green-600",
-        },
-      ],
+      recentActivities: userRecentActivities?.recentActivities,
     };
-  }, [user]);
+  }, [user, userActivitiesByMonth, userRecentActivities]); // ✅ dependencies same rahen
 
   const d = dummyData;
 
-  // Pie chart data for activity types
   const activityPieData = useMemo(() => {
-    const total =
-      d.activitySummary.calls +
-      d.activitySummary.emails +
-      d.activitySummary.texts +
-      d.activitySummary.others;
+    const total = userActivitiesSmmary?.summary?.totalActivities || 0;
+
     return [
       {
         name: "Calls",
-        value: d.activitySummary.calls,
+        value: userActivitiesSmmary?.summary?.calls || 0,
         color: "#6366F1",
-        percentage: ((d.activitySummary.calls / total) * 100).toFixed(1),
+        percentage: ((userActivitiesSmmary?.summary?.calls / total) * 100).toFixed(1) || 0,
       },
       {
         name: "Emails",
-        value: d.activitySummary.emails,
+        value: userActivitiesSmmary?.summary?.emails || 0,
         color: "#3B82F6",
-        percentage: ((d.activitySummary.emails / total) * 100).toFixed(1),
+        percentage: ((userActivitiesSmmary?.summary?.emails / total) * 100).toFixed(1) || 0,
       },
       {
         name: "Texts",
-        value: d.activitySummary.texts,
+        value: userActivitiesSmmary?.summary?.texts || 0,
         color: "#EF4444",
-        percentage: ((d.activitySummary.texts / total) * 100).toFixed(1),
+        percentage: ((userActivitiesSmmary?.summary?.texts / total) * 100).toFixed(1) || 0,
       },
       {
         name: "Others",
-        value: d.activitySummary.others,
+        value: userActivitiesSmmary?.summary?.others || 0,
         color: "#F97316",
-        percentage: ((d.activitySummary.others / total) * 100).toFixed(1),
+        percentage: ((userActivitiesSmmary?.summary?.others / total) * 100).toFixed(1) || 0,
       },
     ];
-  }, [d.activitySummary]);
+  }, [userActivitiesSmmary]);
 
-  // Calendar helpers remain the same
   const weekDates = useMemo(() => {
     const today = moment();
     const startOfWeek = today.clone().startOf("week");
@@ -369,6 +307,14 @@ export default function UserDetails() {
 
   const tasksForSelectedDate = d.calendar.tasksByDate[selectedDate] || [];
 
+  const isLoading = activitiesLoading; // *** ab real loading
+
+  useToolbar({
+    title: "User Details",
+    searchPlaceholder: "",
+    backButton: true,
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-xl text-slate-600">
@@ -378,55 +324,45 @@ export default function UserDetails() {
     );
   }
 
-  useToolbar({
-    title: "User Details",
-    searchPlaceholder: "",
-    backButton: true,
-  });
-
-  // --- UI RENDERING ---
   return (
     <div className="min-h-screen w-full bg-slate-50 font-sans antialiased pb-10">
-      {/* HEADER SECTION - Dark Blue Gradient, aligned with image_2d7b58.png */}
+      {/* HEADER */}
       <div className="py-8 px-6 text-black">
         <div className="mx-auto flex items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="text-white font-bold text-3xl flex justify-center items-center w-16 h-16 bg-[#4f46e5] rounded-full ring-2 ring-white ring-opacity-80 shadow-lg">
-              AH
+            <div className="text-white uppercase font-bold text-3xl flex justify-center items-center w-16 h-16 bg-[#4f46e5] rounded-full ring-2 ring-white ring-opacity-80 shadow-lg">
+              {user?.name?.slice(0, 2).toUpperCase()}
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
-                Hi, {d.user.name}!
+                Hi, {user?.name}!
               </h1>
-              <p className="text-sm opacity-90 mt-1">
-                Your personalized quality control overview.
-              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Chip
               color={
-                roleBadgeColors[d.user.role] || "bg-gray-200 text-gray-800"
+                roleBadgeColors[user?.role] || "bg-gray-200 text-gray-800"
               }
             >
               <span className="capitalize font-semibold">
-                {d.user.role || "N/A"}
+                {user?.role || "N/A"}
               </span>
             </Chip>
             <Chip
               color={
-                statusBadgeColors[d.user.status] || "bg-gray-200 text-gray-800"
+                statusBadgeColors[user?.status] || "bg-gray-200 text-gray-800"
               }
             >
               <span className="uppercase font-semibold">
-                {d.user.status || "N/A"}
+                {user?.status || "N/A"}
               </span>
             </Chip>
           </div>
         </div>
       </div>
 
-      {/* CONTACT INFO CARD - New card for Ahsan's contact/rate details */}
+      {/* CONTACT CARD */}
       <div className="mx-auto px-6 z-10 relative">
         <Card className="p-4 flex flex-wrap gap-6 text-center lg:text-left justify-around shadow-xl">
           <div className="flex items-center gap-3">
@@ -434,7 +370,7 @@ export default function UserDetails() {
             <div>
               <div className="text-xs text-slate-500 font-medium">Email</div>
               <div className="text-sm font-semibold text-slate-800">
-                {d.user.email}
+                {user?.email}
               </div>
             </div>
           </div>
@@ -443,7 +379,7 @@ export default function UserDetails() {
             <div>
               <div className="text-xs text-slate-500 font-medium">Phone</div>
               <div className="text-sm font-semibold text-slate-800">
-                {d.user.phone}
+                {user?.phone}
               </div>
             </div>
           </div>
@@ -454,7 +390,7 @@ export default function UserDetails() {
                 Hourly Rate
               </div>
               <div className="text-sm font-semibold text-slate-800">
-                {fmtMoney(user.hourlyRate)}
+                {fmtMoney(user?.hourlyRate)}
               </div>
             </div>
           </div>
@@ -465,7 +401,7 @@ export default function UserDetails() {
                 Member Since
               </div>
               <div className="text-sm font-semibold text-slate-800">
-                {moment(user.createdAt).format("MMM D, YYYY")}
+                {moment(user?.createdAt).format("MMM D, YYYY")}
               </div>
             </div>
           </div>
@@ -476,7 +412,7 @@ export default function UserDetails() {
         <div className="mt-6 grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8">
           {/* LEFT COLUMN */}
           <div className="space-y-8">
-            {/* ACTIVITY BAR CHART CARD */}
+            {/* BAR CHART CARD */}
             <Card className="p-8">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">
@@ -484,12 +420,12 @@ export default function UserDetails() {
                 </h2>
                 <Chip
                   color={
-                    roleBadgeColors[user.department] ||
+                    roleBadgeColors[user?.department] ||
                     "bg-indigo-100 text-indigo-800"
                   }
                 >
                   <span className="capitalize">
-                    {user.department} Department
+                    {user?.department} Department
                   </span>
                 </Chip>
               </div>
@@ -502,16 +438,7 @@ export default function UserDetails() {
                         AVG. Monthly Activities
                       </div>
                       <div className="text-4xl font-bold tracking-tight text-indigo-700">
-                        {d.accounting.avgMonthlyIncome
-                          .toFixed(0)
-                          .toLocaleString()}
-                      </div>
-                      <div className="mt-2 text-sm text-emerald-600 flex items-center gap-1 font-medium">
-                        <MdTrendingUp className="h-4 w-4" />
-                        <span>{d.accounting.deltaPct}%</span>
-                        <span className="text-slate-400 ml-1">
-                          {d.accounting.deltaRef}
-                        </span>
+                        {userActivitiesByMonth?.average?.toFixed(2) ?? 0}
                       </div>
                     </div>
                   </div>
@@ -519,12 +446,12 @@ export default function UserDetails() {
                   <div className="mt-4 h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={d.accounting.months}
+                        data={d.accounting.months ?? []} // *** safe
                         barCategoryGap={16}
                         margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
                       >
                         <XAxis
-                          dataKey="month" // Using the short month name
+                          dataKey="month"
                           axisLine={false}
                           tickLine={false}
                           tick={{
@@ -562,7 +489,7 @@ export default function UserDetails() {
                 </div>
               </div>
 
-              {/* DUMMY INCOME/EXPENSES BASED ON HOURLY RATE */}
+              {/* Income / Expenses */}
               <div className="grid gap-6 mt-8 sm:grid-cols-2">
                 <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-blue-50/60 p-6 shadow-md transition-shadow hover:shadow-lg">
                   <div className="flex items-center justify-center h-14 w-14 rounded-full bg-blue-100 text-blue-700 shadow-lg">
@@ -570,10 +497,10 @@ export default function UserDetails() {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-blue-800">
-                      {fmtMoney(d.accounting.totals.income)}
+                      $0
                     </div>
                     <div className="text-sm text-slate-600 font-medium mt-0.5">
-                      Placeholder Total Income
+                      Total Income
                     </div>
                   </div>
                 </div>
@@ -584,63 +511,58 @@ export default function UserDetails() {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-red-800">
-                      {fmtMoney(d.accounting.totals.expenses)}
+                      $0
                     </div>
                     <div className="text-sm text-slate-600 font-medium mt-0.5">
-                      Placeholder Total Expenses
+                      Total Expenses
                     </div>
                   </div>
                 </div>
               </div>
             </Card>
 
-            {/* ACTIVITY SUMMARY & PIE CHART GRID */}
+            {/* ACTIVITY SUMMARY + PIE CHART */}
             <div className="grid gap-8 grid-cols-1 lg:grid-cols-2">
               <Card className="p-8">
                 <h3 className="text-xl font-bold text-slate-800 mb-6">
                   Activities Indicator
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Total Activities */}
-                  <div className="rounded-xl bg-purple-50 p-5 shadow-inner border border-purple-200">
-                    <div className="text-3xl font-semibold text-purple-700">
+                  <div className="rounded-xl bg-yellow-50 p-5 shadow-inner border border-yellow-200">
+                    <div className="text-3xl font-semibold text-yellow-700">
                       {d.activitySummary.totalActivities}
                     </div>
-                    <div className="text-sm font-medium text-slate-600 mt-2">
+                    <div className="text-sm font-medium text-yellow-700 mt-2">
                       Total Activities
                     </div>
                   </div>
-                  {/* Calls */}
-                  <div className="rounded-xl bg-indigo-50 p-5 shadow-inner border border-indigo-200">
-                    <div className="text-3xl font-semibold text-indigo-700">
+                  <div className="rounded-xl bg-emerald-50 p-5 shadow-inner border border-emerald-200">
+                    <div className="text-3xl font-semibold text-emerald-700">
                       {d.activitySummary.calls}
                     </div>
-                    <div className="text-sm font-medium text-slate-600 mt-2">
+                    <div className="text-sm font-medium text-emerald-700 mt-2">
                       Calls
                     </div>
                   </div>
-                  {/* Emails */}
-                  <div className="rounded-xl bg-blue-50 p-5 shadow-inner border border-blue-200">
-                    <div className="text-3xl font-semibold text-blue-700">
+                  <div className="rounded-xl bg-red-50 p-5 shadow-inner border border-red-200">
+                    <div className="text-3xl font-semibold text-red-700">
                       {d.activitySummary.emails}
                     </div>
-                    <div className="text-sm font-medium text-slate-600 mt-2">
+                    <div className="text-sm font-medium text-red-700 mt-2">
                       Emails
                     </div>
                   </div>
-                  {/* Texts */}
-                  <div className="rounded-xl bg-green-50 p-5 shadow-inner border border-green-200">
-                    <div className="text-3xl font-semibold text-green-700">
+                  <div className="rounded-xl bg-sky-50 p-5 shadow-inner border border-sky-200">
+                    <div className="text-3xl font-semibold text-sky-700">
                       {d.activitySummary.texts}
                     </div>
-                    <div className="text-sm font-medium text-slate-600 mt-2">
+                    <div className="text-sm font-medium text-sky-700 mt-2">
                       Texts
                     </div>
                   </div>
                 </div>
               </Card>
 
-              {/* ACTIVITY DISTRIBUTION PIE CHART */}
               <Card className="p-8">
                 <h3 className="text-xl font-bold text-slate-800 mb-6">
                   Activity Distribution
@@ -653,7 +575,7 @@ export default function UserDetails() {
                           data={activityPieData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={70}
+                          innerRadius={75}
                           outerRadius={100}
                           fill="#8884d8"
                           paddingAngle={3}
@@ -669,10 +591,9 @@ export default function UserDetails() {
                         <Tooltip content={<CustomPieTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
-                    {/* Center label for total */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="text-center">
-                        <div className="text-4xl font-extrabold text-slate-800">
+                        <div className="text-2xl font-extrabold text-slate-800">
                           {d.activitySummary.totalActivities}
                         </div>
                         <div className="text-sm text-slate-500 font-medium mt-1">
@@ -681,7 +602,6 @@ export default function UserDetails() {
                       </div>
                     </div>
                   </div>
-                  {/* Legend */}
                   <div className="mt-8 grid grid-cols-2 gap-4 w-full px-4">
                     {activityPieData.map((entry) => (
                       <div
@@ -708,7 +628,7 @@ export default function UserDetails() {
 
           {/* RIGHT SIDEBAR */}
           <div className="space-y-8">
-            {/* CALENDAR & TASKS CARD */}
+            {/* SCHEDULE CARD */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -722,7 +642,6 @@ export default function UserDetails() {
                 <MdCalendarMonth className="h-7 w-7 text-[#4f46e5]" />
               </div>
 
-              {/* Week Pills - Interactive for task selection */}
               <div className="mt-5 grid grid-cols-7 gap-2 pb-1">
                 {weekDates.map((dateObj) => {
                   const dateString = dateObj.format("YYYY-MM-DD");
@@ -754,7 +673,6 @@ export default function UserDetails() {
                 })}
               </div>
 
-              {/* Schedule / Tasks for selected date */}
               <div className="mt-6 space-y-4">
                 {tasksForSelectedDate.length > 0 ? (
                   <ol className="list-none space-y-4">
@@ -762,7 +680,7 @@ export default function UserDetails() {
                       <li
                         key={i}
                         className="relative border-[1px] rounded-xl p-4 text-[#4f46e5] group transform transition-transform hover:scale-[1.02]"
-                        style={{ backgroundColor: "#fff" }} // Use main color
+                        style={{ backgroundColor: "#fff" }}
                       >
                         <div className="text-sm font-bold">{e.title}</div>
                         <div className="text-xs opacity-90">{e.sub}</div>
@@ -783,7 +701,7 @@ export default function UserDetails() {
               </div>
             </Card>
 
-            {/* RECENT ACTIVITIES CARD */}
+            {/* RECENT ACTIVITIES */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-slate-800">
@@ -795,47 +713,31 @@ export default function UserDetails() {
               </div>
 
               <div className="mt-5 space-y-6">
-                {d.recentActivities.map((activity, i) => (
+                {d?.recentActivities?.map((activity, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div
-                      className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center shadow-md ${activity.iconBg}`}
+                      className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center shadow-md ${activity.type === "Call" ? "bg-emerald-50" : activity.type === "Email" ? "bg-rose-50" : "bg-blue-50"}`}
                     >
-                      {activity.icon ? (
-                        activity.icon
-                      ) : (
-                        <span
-                          className={`text-sm font-semibold ${activity.iconText}`}
-                        >
-                          {activity.initials}
-                        </span>
-                      )}
+                      {
+                        activity.type === "Call" ? (
+                          <MdCall className="text-emerald-500" />
+                        ) : activity.type === "Email" ? (
+                          <MdEmail className="text-rose-500" />
+                        ) : (
+                          <MdTextsms className="text-blue-500" />
+                        )
+                      }
                     </div>
                     <div className="text-sm flex-1">
                       <div className="text-slate-800 font-medium leading-tight">
-                        {activity.who && (
-                          <span className="font-bold text-indigo-600">
-                            {activity.who}
-                          </span>
-                        )}{" "}
-                        {activity.what}{" "}
-                        {activity.target && (
-                          <span className="font-bold text-blue-600">
-                            {activity.target}
-                          </span>
-                        )}
-                        {activity.title && (
-                          <span className="font-bold text-indigo-600">
-                            {activity.title}
-                          </span>
-                        )}
-                        {activity.id && (
-                          <span className="ml-2 text-xs text-slate-400 font-semibold">
-                            #{activity.id}
+                        {activity.description && (
+                          <span className="font-normal text-black">
+                            {activity.description}
                           </span>
                         )}
                       </div>
                       <div className="text-xs text-slate-500 mt-1">
-                        {activity.when}
+                        {activity.createdAt}
                       </div>
                     </div>
                   </div>
