@@ -369,7 +369,7 @@ function makePageList(current, total) {
 
 function PaginationBar({
   total = 0,
-  pageSize = 20,
+  pageSize = 100,
   currentPage = 1,
   onChangePage,
 }) {
@@ -378,31 +378,39 @@ function PaginationBar({
   const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, total);
 
+  const [pageInput, setPageInput] = useState(currentPage);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const handlePageInput = (event) => {
+    const inputPage = Number(event.target.value);
+    if (inputPage >= 1 && inputPage <= totalPages) {
+      setPageInput(inputPage);
+    }
+    if (inputPage >= 1 && inputPage <= totalPages) {
+      // Clear previous debounce timer
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      // Set a new timer for 1 second
+      const newTimer = setTimeout(() => {
+        onChangePage(inputPage);
+      }, 1000);
+      setDebounceTimer(newTimer);
+    }
+  };
+
   return (
-    <div
-      className="
-        fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10
-        w-[650px] mx-auto
-        bg-white/95 backdrop-blur-[1px]
-        border-t border-slate-200
-        rounded-[20px]
-        shadow-[0_-4px_12px_rgba(2,6,23,0.04)]
-      "
-    >
-      <div className="h-12 grid grid-cols-3 items-center gap-2 px-3">
-        {/* LEFT: range */}
-        <div className="text-sm text-slate-600">
+    <div className="fixed bottom-20 left-1/2 transform -translate-x-[40%] z-10 w-[800px] mx-auto rounded-lg bg-white/95 backdrop-blur-lg px-4 py-2 border-t border-slate-200 shadow-lg">
+      <div className="flex items-center justify-between gap-4 px-3">
+        {/* Pagination Info */}
+        <div className="w-full justify-start text-sm text-slate-600 flex items-center">
           <span className="font-semibold">{start}</span>–<span className="font-semibold">{end}</span>
-          <span className="mx-1">of</span>
-          <span className="font-semibold">{total}</span>
+          <span className="mx-1">of</span><span className="font-semibold">{total}</span>
         </div>
 
-        {/* CENTER: buttons */}
-        <div className="flex items-center justify-center gap-2">
-          <PgBtn
-            disabled={currentPage <= 1}
-            onClick={() => onChangePage(currentPage - 1)}
-          >
+        {/* Pagination Buttons */}
+        <div className="w-full justify-center flex items-center gap-2">
+          <PgBtn disabled={currentPage <= 1} onClick={() => onChangePage(currentPage - 1)}>
             <FaArrowLeft />
           </PgBtn>
 
@@ -414,37 +422,34 @@ function PaginationBar({
           )}
 
           {pages.map((p) => (
-            <PgBtn
-              key={p}
-              active={p === currentPage}
-              onClick={() => onChangePage(p)}
-            >
+            <PgBtn key={p} active={p === currentPage} onClick={() => onChangePage(p)}>
               {p}
             </PgBtn>
           ))}
 
           {pages[pages.length - 1] < totalPages && (
             <>
-              {pages[pages.length - 1] < totalPages - 1 && (
-                <span className="px-1 text-slate-400">…</span>
-              )}
-              <PgBtn onClick={() => onChangePage(totalPages)}>
-                {totalPages}
-              </PgBtn>
+              {pages[pages.length - 1] < totalPages - 1 && <span className="px-1 text-slate-400">…</span>}
+              <PgBtn onClick={() => onChangePage(totalPages)}>{totalPages}</PgBtn>
             </>
           )}
 
-          <PgBtn
-            disabled={currentPage >= totalPages}
-            onClick={() => onChangePage(currentPage + 1)}
-          >
+          <PgBtn disabled={currentPage >= totalPages} onClick={() => onChangePage(currentPage + 1)}>
             <FaArrowRight />
           </PgBtn>
         </div>
 
-        {/* RIGHT: current page */}
-        <div className="text-right text-sm text-slate-700">
-          Page: <span className="font-semibold">{currentPage}</span>
+        {/* Page Input */}
+        <div className="w-full justify-end flex items-center gap-3 ml-auto">
+          <span className="text-sm text-slate-600">Go to page:</span>
+          <input
+            type="number"
+            min="1"
+            max={totalPages}
+            value={pageInput}
+            onChange={handlePageInput}
+            className="w-16 p-2 text-sm text-slate-800 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
         </div>
       </div>
     </div>

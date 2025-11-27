@@ -1,5 +1,5 @@
 // src/components/activities/PaginationBar.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 function PgBtn({ active, disabled, children, onClick }) {
@@ -40,16 +40,36 @@ function PaginationBar({
   const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, total);
 
+  const [pageInput, setPageInput] = useState(currentPage);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const handlePageInput = (event) => {
+    const inputPage = Number(event.target.value);
+    if (inputPage >= 1 && inputPage <= totalPages) {
+      setPageInput(inputPage);
+      // Clear previous debounce timer
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      // Set a new timer for 1 second
+      const newTimer = setTimeout(() => {
+        onChangePage(inputPage);
+      }, 1000);
+      setDebounceTimer(newTimer);
+    }
+  };
+
   return (
-    <div className="fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10 w-[650px] mx-auto rounded-[25px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
-      <div className="h-12 grid grid-cols-3 items-center gap-2 px-3">
+    <div className="fixed bottom-20 lg:left-[60%] xl:left-[56%] -translate-x-1/2 z-10 w-[800px] mx-auto rounded-[5px] bg-white/95 backdrop-blur-[1px] px-2 border-t border-slate-200 shadow-[0_-4px_12px_rgba(2,6,23,0.04)]">
+      <div className="h-14 grid grid-cols-3 items-center gap-2 px-3">
+        {/* Pagination Info */}
         <div className="text-sm text-slate-600">
-          <span className="font-semibold">{start}</span>–
-          <span className="font-semibold">{end}</span>
+          <span className="font-semibold">{start}</span>–<span className="font-semibold">{end}</span>
           <span className="mx-1">of</span>
           <span className="font-semibold">{total}</span>
         </div>
 
+        {/* Pagination Buttons */}
         <div className="flex items-center justify-center gap-2">
           <PgBtn
             disabled={currentPage <= 1}
@@ -94,8 +114,17 @@ function PaginationBar({
           </PgBtn>
         </div>
 
-        <div className="text-right text-sm text-slate-700">
-          Page: <span className="font-semibold">{currentPage}</span>
+        {/* Page Input */}
+        <div className="flex items-center gap-3 ml-auto">
+          <span className="text-sm text-slate-600">Go to page:</span>
+          <input
+            type="number"
+            min="1"
+            max={totalPages}
+            value={pageInput}
+            onChange={handlePageInput}
+            className="w-16 p-2 text-sm text-slate-800 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
         </div>
       </div>
     </div>
