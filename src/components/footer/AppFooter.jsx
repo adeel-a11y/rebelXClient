@@ -54,6 +54,12 @@ export default function AppFooter() {
           />
         )}
 
+        {location.pathname.includes("user-activities") && (
+          <ActivitiesSummaryBar
+            className="footer-row"
+          />
+        )}
+
         {location.pathname.includes("orders") && (
           <OrdersSummaryBar
             className="footer-row"

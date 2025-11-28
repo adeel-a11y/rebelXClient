@@ -50,6 +50,10 @@ export default function App() {
                   path="client-activities/:id"
                   element={<ClientActivitiesPage />}
                 />
+                <Route
+                  path="user-activities/:id"
+                  element={<ClientActivitiesPage isUserId={true} />}
+                />
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route

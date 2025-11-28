@@ -11,6 +11,7 @@ import {
   getUserActivitiesByMonth,
   getUserActivitiesSummary,
   getUserActivitiesRecent,
+  getActivitiesListByUserId,
 } from "../api/activities";
 
 /** QueryKey factory (stable & easy to invalidate) */
@@ -79,6 +80,42 @@ export function useActivitiesByClientId(
   });
 }
 
+export function useActivitiesByUserId(
+  userId,
+  page = 1,
+  q = "",
+  limit = 100,
+  filters = {},
+  options = {}
+) {
+  const queryOptions = {
+    page,
+    limit,
+    q,
+    filters,
+    ...options, // { from, to, sortBy, sort }
+  };
+
+  return useQuery({
+    queryKey: [
+      "activitiesByUser",
+      userId,
+      queryOptions.page,
+      queryOptions.limit,
+      queryOptions.q,
+      queryOptions.filters?.types ?? [],
+      queryOptions.filters?.datePreset ?? null,
+      queryOptions.from ?? null,
+      queryOptions.to ?? null,
+      queryOptions.sortBy ?? "createdAt",
+      queryOptions.sort ?? "desc",
+    ],
+    queryFn: () => getActivitiesListByUserId(userId, queryOptions),
+    keepPreviousData: true,
+    enabled: Boolean(userId),
+  });
+}
+
 /** Single activity (detail) */
 export function useActivity(id, enabled = true) {
   return useQuery({
@@ -88,12 +125,16 @@ export function useActivity(id, enabled = true) {
   });
 }
 
-export function useActivitiesSummary(externalId) {
-  console.log("inside hooks activitiies summary params", externalId);
-  const hasId = externalId;
+export function useActivitiesSummary({ externalId = "", userId = "" } = {}) {
+  console.log("inside hooks activities summary params", { externalId, userId });
+
+  const hasId = Boolean(externalId || userId);
+  const keyId = externalId || userId || null; // ek hi cheez queryKey me
+
   return useQuery({
-    queryKey: qk.summary(hasId ? externalId : null),
-    queryFn: () => getActivitiesSummary(hasId ? externalId : undefined),
+    queryKey: qk.summary(keyId),
+    queryFn: () => getActivitiesSummary(externalId, userId),
+    enabled: hasId, // sirf tab fetch karo jab koi id ho
     staleTime: 600_000,
   });
 }

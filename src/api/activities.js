@@ -141,20 +141,90 @@ export async function getActivitiesListByClientId(
   }
 }
 
-export async function getActivitiesSummary(externalId = "") {
+export async function getActivitiesListByUserId(
+  userId,
+  {
+    page = 1,
+    limit = 100,
+    q = "",
+    filters = {},
+    from,
+    to,
+    sortBy = "createdAt",
+    sort = "desc",
+  } = {}
+) {
+  // 🛡 safety: if no clientId, do not hit server at all
+  if (!userId) {
+    return {
+      rows: [],
+      meta: {
+        page,
+        perPage: limit,
+        total: 0,
+        totalPages: 1,
+        hasPrev: false,
+        hasNext: false,
+      },
+    };
+  }
+
   try {
-    console.log("call activities summary params", externalId);
+    const params = {
+      page,
+      limit,
+      sortBy,
+      sort,
+      ...(q ? { q } : {}),
+      ...mapFiltersToParams(filters),
+      ...(from ? { from } : {}),
+      ...(to ? { to } : {}),
+    };
+
+    console.log("getActivitiesListByUserId params", params);
+
+    const res = await axios.get(
+      `${BASE_URL}/activities/lists/user/${userId}`,
+      { params }
+    );
+
+    // backend returns { rows, meta }
+    return res.data || {};
+  } catch (err) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err.message ||
+      "Request failed";
+    throw new Error(msg);
+  }
+}
+
+export async function getActivitiesSummary(externalId = "", userId = "") {
+  try {
+    console.log("call activities summary params", { externalId, userId });
+
+    // ✅ sirf ek param bhejna: pehle externalId, warna userId
+    const params = {};
+    if (externalId) {
+      params.externalId = externalId;
+    } else if (userId) {
+      params.userId = userId;
+    }
+
     const res = await axios.get(`${BASE_URL}/activities/lists/summary`, {
-      params: { externalId: externalId || "" },
+      params,
     });
+
+    console.log("call activities summary response", res);
     const d = res.data || {};
-    // expect { totalCalls, totalEmails, total }
+
     return {
       calls: Number(d.calls || 0),
       emails: Number(d.emails || 0),
       texts: Number(d.texts || 0),
       others: Number(d.others || 0),
-      total: Number(d.total),
+      total: Number(d.total || 0),
     };
   } catch (err) {
     const msg =

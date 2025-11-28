@@ -23,10 +23,14 @@ import {
 import { FaCommentDollar, FaDollarSign } from "react-icons/fa";
 import { TiDocumentText } from "react-icons/ti";
 
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import { useToolbar } from "../../store/toolbar";
-import { useUserActivitiesByMonth, useUserActivitiesRecent, useUserActivitiesSummary } from "../../hooks/useActivities";
+import {
+  useUserActivitiesByMonth,
+  useUserActivitiesRecent,
+  useUserActivitiesSummary,
+} from "../../hooks/useActivities";
 
 // Money formatter
 const fmtMoney = (n) =>
@@ -272,25 +276,33 @@ export default function UserDetails() {
         name: "Calls",
         value: userActivitiesSmmary?.summary?.calls || 0,
         color: "#6366F1",
-        percentage: ((userActivitiesSmmary?.summary?.calls / total) * 100).toFixed(1) || 0,
+        percentage:
+          ((userActivitiesSmmary?.summary?.calls / total) * 100).toFixed(1) ||
+          0,
       },
       {
         name: "Emails",
         value: userActivitiesSmmary?.summary?.emails || 0,
         color: "#3B82F6",
-        percentage: ((userActivitiesSmmary?.summary?.emails / total) * 100).toFixed(1) || 0,
+        percentage:
+          ((userActivitiesSmmary?.summary?.emails / total) * 100).toFixed(1) ||
+          0,
       },
       {
         name: "Texts",
         value: userActivitiesSmmary?.summary?.texts || 0,
         color: "#EF4444",
-        percentage: ((userActivitiesSmmary?.summary?.texts / total) * 100).toFixed(1) || 0,
+        percentage:
+          ((userActivitiesSmmary?.summary?.texts / total) * 100).toFixed(1) ||
+          0,
       },
       {
         name: "Others",
         value: userActivitiesSmmary?.summary?.others || 0,
         color: "#F97316",
-        percentage: ((userActivitiesSmmary?.summary?.others / total) * 100).toFixed(1) || 0,
+        percentage:
+          ((userActivitiesSmmary?.summary?.others / total) * 100).toFixed(1) ||
+          0,
       },
     ];
   }, [userActivitiesSmmary]);
@@ -341,9 +353,7 @@ export default function UserDetails() {
           </div>
           <div className="flex items-center gap-3">
             <Chip
-              color={
-                roleBadgeColors[user?.role] || "bg-gray-200 text-gray-800"
-              }
+              color={roleBadgeColors[user?.role] || "bg-gray-200 text-gray-800"}
             >
               <span className="capitalize font-semibold">
                 {user?.role || "N/A"}
@@ -359,6 +369,14 @@ export default function UserDetails() {
               </span>
             </Chip>
           </div>
+        </div>
+        <div className="flex justify-end">
+          <Link
+            className="p-1 rounded text-sm underline text-[#4f46e5] hover:text-[#4f46e5]/80"
+            to={`/user-activities/${user?.email}`}
+          >
+            View Activities
+          </Link>
         </div>
       </div>
 
@@ -496,9 +514,7 @@ export default function UserDetails() {
                     <FaDollarSign className="h-8 w-8" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-blue-800">
-                      $0
-                    </div>
+                    <div className="text-2xl font-bold text-blue-800">$0</div>
                     <div className="text-sm text-slate-600 font-medium mt-0.5">
                       Total Income
                     </div>
@@ -510,9 +526,7 @@ export default function UserDetails() {
                     <FaCommentDollar className="h-7 w-7" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-red-800">
-                      $0
-                    </div>
+                    <div className="text-2xl font-bold text-red-800">$0</div>
                     <div className="text-sm text-slate-600 font-medium mt-0.5">
                       Total Expenses
                     </div>
@@ -716,17 +730,21 @@ export default function UserDetails() {
                 {d?.recentActivities?.map((activity, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div
-                      className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center shadow-md ${activity.type === "Call" ? "bg-emerald-50" : activity.type === "Email" ? "bg-rose-50" : "bg-blue-50"}`}
+                      className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center shadow-md ${
+                        activity.type === "Call"
+                          ? "bg-emerald-50"
+                          : activity.type === "Email"
+                          ? "bg-rose-50"
+                          : "bg-blue-50"
+                      }`}
                     >
-                      {
-                        activity.type === "Call" ? (
-                          <MdCall className="text-emerald-500" />
-                        ) : activity.type === "Email" ? (
-                          <MdEmail className="text-rose-500" />
-                        ) : (
-                          <MdTextsms className="text-blue-500" />
-                        )
-                      }
+                      {activity.type === "Call" ? (
+                        <MdCall className="text-emerald-500" />
+                      ) : activity.type === "Email" ? (
+                        <MdEmail className="text-rose-500" />
+                      ) : (
+                        <MdTextsms className="text-blue-500" />
+                      )}
                     </div>
                     <div className="text-sm flex-1">
                       <div className="text-slate-800 font-medium leading-tight">

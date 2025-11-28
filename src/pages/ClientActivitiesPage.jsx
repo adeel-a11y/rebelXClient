@@ -13,7 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useToolbar } from "../store/toolbar";
 import {
-  useActivitiesByClientId, // GET (server-side pagination + filters)
+  useActivitiesByClientId, useActivitiesByUserId, // GET (server-side pagination + filters)
   useDeleteActivity, // DELETE
 } from "../hooks/useActivities";
 
@@ -25,7 +25,7 @@ import { useDebouncedCallback } from "../components/activities/useDebouncedCallb
 import { dash, fmtDate } from "../components/activities/utils";
 import { MdOutlineTextSnippet } from "react-icons/md";
 
-export default function ClientActivitiesPage() {
+export default function ClientActivitiesPage({ isUserId = false }) {
   const navigate = useNavigate();
 
   // pagination state
@@ -56,7 +56,13 @@ export default function ClientActivitiesPage() {
   const { id } = useParams();
   
   // data fetch
-  const { data, isLoading, isFetching } = useActivitiesByClientId(
+  const { data, isLoading, isFetching } = isUserId ? useActivitiesByUserId(
+    id,
+    pageForServer,
+    query,
+    paginationModel.pageSize,
+    filters
+  ) : useActivitiesByClientId(
     id,
     pageForServer,
     query,
@@ -66,7 +72,7 @@ export default function ClientActivitiesPage() {
 
   // toolbar config
   useToolbar({
-    title: `${`${data?.rows[0]?.clientId} Activities` || "Client Activities"}`,
+    title: `${`${isUserId ? data?.rows[0].userId : data?.rows[0]?.clientId} Activities` || "Client Activities"}`,
     searchPlaceholder: "Search activities…",
     onSearch: debouncedSearch,
     actions: [

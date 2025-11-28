@@ -44,17 +44,25 @@ function Chip({ children, tone = "slate", subtle = false }) {
   );
 }
 
-export default function ActivitiesSummaryBar({
-  className = "",
-}) {
-
+export default function ActivitiesSummaryBar({ className = "" }) {
   const location = useLocation();
+  const path = location?.pathname || "";
+  const segments = path.split("/").filter(Boolean); // e.g. ["app","client-activities","CLI-123"]
+  const lastSegment = segments[segments.length - 1];
 
-  const externalId = location?.pathname?.slice(19);
+  let externalId = "";
+  let userId = "";
 
-  const { data, isLoading, error } = useActivitiesSummary(externalId);
+  if (path.includes("client-activities")) {
+    externalId = lastSegment; // /client-activities/:externalId
+  } else if (path.includes("user-activities")) {
+    userId = lastSegment; // /user-activities/:userId
+  }
 
-  console.log(data);
+  const { data, isLoading, error } = useActivitiesSummary({
+    externalId,
+    userId,
+  });
 
   if (error) {
     return (
@@ -77,8 +85,6 @@ export default function ActivitiesSummaryBar({
   }
 
   const { calls, emails, texts, others, total } = data;
-
-  console.log(calls, emails, texts, others, total);
 
   return (
     <div className={["w-full", className].join(" ")}>
